@@ -6,13 +6,13 @@ import subprocess
 from TomoNet.util.utils import mkfolder
 import mrcfile
 import numpy as np
-from TomoNet.preprocessing.img_processing import normalize
+from TomoNet.preprocessing.cubes import normalize
 from TomoNet.util.io import log
 
 import scipy.cluster.hierarchy as hcluster
 
 import time
-
+import glob
 
 def natural_keys(text, delimiter='_', index=-2):
         return int(text.split(delimiter)[index])
@@ -121,7 +121,7 @@ if __name__ == "__main__":
 
     all_mrc_list = []
     
-    import glob
+
     for it in glob.glob("{}/*".format(data_dir)):
         #if "rlnImageName" in md.getLabels():
         all_mrc_list.append(it)

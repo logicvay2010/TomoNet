@@ -7,7 +7,7 @@ from TomoNet.util.io import log
 import os
 from .data_sequence import get_datasets, Predict_sets
 import mrcfile
-from TomoNet.preprocessing.img_processing import normalize
+from TomoNet.preprocessing.cubes import normalize
 import numpy as np
 import logging
 from TomoNet.util.toTile import reform3D

@@ -3,7 +3,7 @@ import numpy as np
 import torch
 from torch.utils.data.dataset import Dataset
 import mrcfile
-from TomoNet.preprocessing.img_processing import normalize
+from TomoNet.preprocessing.cubes import normalize
 
 class Train_sets(Dataset):
     def __init__(self, data_dir, prefix = "train"):

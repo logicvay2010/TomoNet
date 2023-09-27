@@ -14,11 +14,11 @@ from TomoNet.gui.others import OtherTools
 import os
 import socket
 
-class Ui_Tomostudio(object):
-    def setupUi(self, Tomostudio):
-        Tomostudio.setObjectName("Tomostudio")
-        Tomostudio.resize(1120, 800)
-        self.centralwidget = QtWidgets.QWidget(Tomostudio)
+class Ui_TomoNet(object):
+    def setupUi(self, TomoNet):
+        TomoNet.setObjectName("TomoNet")
+        TomoNet.resize(1120, 800)
+        self.centralwidget = QtWidgets.QWidget(TomoNet)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -46,21 +46,21 @@ class Ui_Tomostudio(object):
         custom_font.setPointSize(11)
         self.log_window.setCurrentFont(custom_font)
         
-        Tomostudio.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(Tomostudio)
+        TomoNet.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(TomoNet)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 822, 21))
         self.menubar.setObjectName("menubar")
-        Tomostudio.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(Tomostudio)
+        TomoNet.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(TomoNet)
         self.statusbar.setObjectName("statusbar")
-        Tomostudio.setStatusBar(self.statusbar)
+        TomoNet.setStatusBar(self.statusbar)
 
         
-        self.retranslateUi(Tomostudio)
+        self.retranslateUi(TomoNet)
         
         self.initUi()
 
-        QtCore.QMetaObject.connectSlotsByName(Tomostudio)
+        QtCore.QMetaObject.connectSlotsByName(TomoNet)
 
     def initUi(self):
         self.listWidget.currentRowChanged.connect(self.stackedWidget.setCurrentIndex)
@@ -108,16 +108,16 @@ class Ui_Tomostudio(object):
         self.log_window.setText(self.getLogContent(self.log_file[0]))
         self.log_window.moveCursor(QtGui.QTextCursor.End)
 
-    def retranslateUi(self, Tomostudio):
+    def retranslateUi(self, TomoNet):
         _translate = QtCore.QCoreApplication.translate
         try:
-            Tomostudio.setWindowTitle(_translate("Tomostudio", "Tomostudio ({})".format(socket.gethostname())))
+            TomoNet.setWindowTitle(_translate("TomoNet", "TomoNet ({})".format(socket.gethostname())))
             scriptDir = os.path.dirname(os.path.realpath(__file__))
             icon =  QtGui.QIcon()
             icon.addPixmap(QtGui.QPixmap("{}/../gui/icons/spider.svg".format(scriptDir)), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-            Tomostudio.setWindowIcon(icon)
+            TomoNet.setWindowIcon(icon)
         except:
-            Tomostudio.setWindowTitle(_translate("Tomostudio", "Tomostudio"))
+            TomoNet.setWindowTitle(_translate("TomoNet", "TomoNet"))
         #self.log_window.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
         #    "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
         #    "p, li { white-space: pre-wrap; }\n"
@@ -243,13 +243,13 @@ if __name__ == '__main__':
     
     MainWindow = MyWindow()
     if not check_root():
-        ret = QMessageBox.question(None, 'Notice!', "Are you sure to lunch tomoStudio in the current folder?\n", QMessageBox.Yes | QMessageBox.No, \
+        ret = QMessageBox.question(None, 'Notice!', "Are you sure to lunch tomoNet in the current folder?\n", QMessageBox.Yes | QMessageBox.No, \
                         QMessageBox.No)        
     else:
         ret = QMessageBox.Yes
     
     if ret == QMessageBox.Yes:
-        ui = Ui_Tomostudio()
+        ui = Ui_TomoNet()
         ui.setupUi(MainWindow)
         #MainWindow.setFixedWidth(1120)
         #MainWindow.setFixedHeight(800)
