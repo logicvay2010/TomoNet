@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
 import os, sys
-#from IsoNet.util.image import *
-from IsoNet.util.metadata import MetaData,Label,Item
-from IsoNet.util.dict2attr import idx2list
 import logging
 import shutil
 import subprocess
-from IsoNet.util.utils import mkfolder
+from TomoNet.util.utils import mkfolder
 import mrcfile
 import numpy as np
-from IsoNet.preprocessing.img_processing import normalize
-from IsoNet.util.io import log
+from TomoNet.preprocessing.img_processing import normalize
+from TomoNet.util.io import log
 
 import scipy.cluster.hierarchy as hcluster
 
@@ -24,7 +21,7 @@ if __name__ == "__main__":
 
     start_time = time.time()
 
-    from IsoNet.models.network_picking import Net
+    from TomoNet.models.network_picking import Net
     #iter_count = 2
     params = sys.argv
     
@@ -50,18 +47,10 @@ if __name__ == "__main__":
         logger.setLevel(logging.INFO)
     else:
         logger = None
-    
-    #Prepare subtomograms
-    #old_result_dir = result_dir+"~"
+
     if not os.path.exists(result_dir):
         os.mkdir(result_dir)
-    #elif not os.path.exists(old_result_dir):
-    #    os.rename(result_dir, old_result_dir)
-    #    os.mkdir(result_dir)
-    #else:
-    #    shutil.rmtree(old_result_dir)
-    #    os.rename(result_dir, old_result_dir)
-    #    os.mkdir(result_dir)
+
     
     data_dir = "{}/data".format(result_dir)
     mkfolder(data_dir)
@@ -89,23 +78,12 @@ if __name__ == "__main__":
     sp = np.array(orig_data.shape)
     if mask_data:
          mask_data = np.pad(mask_data, ((pad_width[0], pad_width[0]),(pad_width[1], pad_width[1]),(pad_width[2], pad_width[2])), 'constant')
-    #print(sp)
-    #########
     
     
     sidelen = (sp-2*margin_1)//cube_size
-    #margin_2 = (sp-2*margin_1)%cube_size//2
-    #margin_2 = sp%crop_size//2
 
-    #crop_start = margin_1 + margin_2
     crop_start = margin_1
-    #crop_end = sp - crop_start
 
-    #padi = int((cropsize - cubesize)/2)
-    #padsize = (self._sidelen*cubesize + padi - sp).astype(int)
-    #data = np.pad(self._orig_data,((padi,padsize[0]),(padi,padsize[1]),(padi,padsize[2]),(0,0)),'symmetric')
-    
-    #outdata=[]
 
     count = 0
     location_origins = "{}/location_origins.txt".format(result_dir)
@@ -115,11 +93,7 @@ if __name__ == "__main__":
     for i in range(sidelen[0]):
         for j in range(sidelen[1]):
             for k in range(sidelen[2]):
-                '''
-                z1,z2 = [i*cube_size+crop_start[0]-margin_1, i*cube_size+crop_start[0]+crop_size-margin_1]
-                y1,y2 = [j*cube_size+crop_start[1]-margin_1, j*cube_size+crop_start[1]+crop_size-margin_1]
-                x1,x2 = [k*cube_size+crop_start[2]-margin_1, k*cube_size+crop_start[2]+crop_size-margin_1]
-                '''
+
                 z1,z2 = [i*cube_size, i*cube_size+crop_size]
                 y1,y2 = [j*cube_size, j*cube_size+crop_size]
                 x1,x2 = [k*cube_size, k*cube_size+crop_size]
@@ -181,8 +155,7 @@ if __name__ == "__main__":
     global_map = np.ones(sp, dtype=np.float32)
 
     thresh = 1.5
-    #with open('coords'+'_'+tomoName.split('/')[-1].split('.')[0]+'.pts','w') as w:
-    #with open("{}/{}_full.pts".format(result_dir, baseName),'w') as w:
+
     particle_list = []
     mini_cube_size = (y_label_size_predict*2)+1
     cube_activate_num = mini_cube_size**3*3

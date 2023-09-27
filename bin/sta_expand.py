@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 
-from IsoNet.bin.sta_peet import sta_peet_one
-from IsoNet.objects.expand import Expand
+from TomoNet.bin.sta_peet import sta_peet_one
+from TomoNet.objects.expand import Expand
 import sys,os
 import subprocess
 import imodmodel
 import logging
 import numpy as np
-from IsoNet.util.star_metadata import MetaData
-from IsoNet.objects.tomogram import Tomogram
-from IsoNet.util.utils import mkfolder
-from IsoNet.util.searchParam import SearchParam
+from TomoNet.util.star_metadata import MetaData
+from TomoNet.objects.tomogram import Tomogram
+from TomoNet.util.utils import mkfolder
+from TomoNet.util.searchParam import SearchParam
 
 star_file = sys.argv[1]
 param_file = sys.argv[2]
@@ -122,11 +122,7 @@ for i in range(max_exp_num):
 
 #prepare for the final result
 final_result_folder = "{}_final".format(tomo.staPath)
-#if os.path.exists(final_result_folder):
-#    cmd = "mv {} {}~".format(final_result_folder, final_result_folder)
-#    subprocess.run(cmd,shell=True)
-#cmd = "mkdir -p {}".format(final_result_folder)
-#subprocess.run(cmd,shell=True)
+
 mkfolder(final_result_folder)
 
 cache_folder_path = "{}_cache".format(tomo.staPath)
@@ -184,9 +180,6 @@ for i in range(len(set(clusters))):
         #logger.info(temp_motl)
         temp_motl = np.array([[float(it) for it in item] for item in temp_motl])
         
-        #logger.info(temp_motl[:,0])
-        #logger.info(temp_motl.max(axis=0)[0])
-        #logger.info(np.argwhere(temp_motl[:,0]==temp_motl.max(axis=0)[0]))
         ind = np.argwhere(temp_motl[:,0]==temp_motl.max(axis=0)[0])[0,0]
         #logger.info(ind)
         
@@ -230,8 +223,7 @@ for i in range(len(set(clusters_2))):
         else:
             motls_patch = np.vstack((motls_patch, motls_rmdup[np.argwhere(clusters_2 == i+1)]))
             rots_patch = np.vstack((rots_patch, rots_rmdup[np.argwhere(clusters_2 == i+1)]))
-            #logger.info(motls_patch.shape)
-            #logger.info(rots_patch.shape)
+
         
 clean_pts_file = "{}/{}.pts".format(final_result_folder, tomo.tomoName)
 clean_mod_file = "{}/{}.mod".format(final_result_folder, tomo.tomoName)
@@ -255,11 +247,6 @@ with open(clean_pts_file,"w") as clean_pts_file_w:
 cmd = "cd {}; point2model {} {} -scat -sphere 5 ".format(final_result_folder, clean_pts_file, clean_mod_file)
 subprocess.run(cmd,shell=True, stdout=subprocess.PIPE)
 
-#print(motls)
-#print(motls.shape)
-#print(rots.shape)
-#print(points.shape)
-#print(points.shape)
 if len(motls) > 0:
     coordfile = "{}/{}_raw.pts".format(final_result_folder,tomo.tomoName)
     modfile = "{}/{}_raw.mod".format(final_result_folder,tomo.tomoName)
@@ -290,5 +277,4 @@ if len(motls) > 0:
     subprocess.run(cmd,shell=True, stdout=subprocess.PIPE)
 logger.info("Particle numbers {}. After clean {}! with {} patches".format(len(points), len(points_patch), patch_count))
 logger.info("The final coords and rotation are saved in the final folder!")
-#print("The final coords and rotation are saved in the final folder!")
 

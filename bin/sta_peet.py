@@ -4,12 +4,12 @@
 import sys,os
 import numpy as np
 import math
-from IsoNet.objects.tomogram import Tomogram
-from IsoNet.objects.prmFile import PRMFile
-from IsoNet.util.star_metadata import MetaData
+from TomoNet.objects.tomogram import Tomogram
+from TomoNet.objects.prmFile import PRMFile
+from TomoNet.util.star_metadata import MetaData
 import subprocess
 from multiprocessing import Pool
-from IsoNet.objects.expand import Expand
+from TomoNet.objects.expand import Expand
 import glob
 
 
@@ -130,7 +130,7 @@ def sta_peet_one(star_file, param_file, tomoName, cpus, first_round):
 
     ###################### define the search parameters ##################################################
 
-    from IsoNet.util.searchParam import SearchParam
+    from TomoNet.util.searchParam import SearchParam
     search_param = SearchParam(param_file)
       
     ########################  detect which round is going on ########################################
@@ -348,10 +348,4 @@ def sta_peet_one(star_file, param_file, tomoName, cpus, first_round):
   else:
     print("{} does not exist".format(tomoName))
 
-if __name__ == '__main__':
-  pass
-  #a = read_mpram(".mparm")
-  #print(a)
-  #run_parallel(a, "all_1.com", 22)
-  #print("success?!")
 

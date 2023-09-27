@@ -3,16 +3,14 @@ import os
 import sys
 import sys
 import mrcfile
-from IsoNet.preprocessing.cubes import create_cube_seeds_new, crop_cubes
-from IsoNet.preprocessing.img_processing import normalize
-#from IsoNet.preprocessing.simulate import apply_wedge1 as apply_wedge, mw2d
-#from IsoNet.preprocessing.simulate import apply_wedge_dcube
+from TomoNet.preprocessing.cubes import create_cube_seeds_new, crop_cubes
+from TomoNet.preprocessing.img_processing import normalize
 from multiprocessing import Pool
 import numpy as np
-from IsoNet.util.utils import mkfolder
+from TomoNet.util.utils import mkfolder
 import imodmodel
 import logging
-from IsoNet.util.io import log
+from TomoNet.util.io import log
 import subprocess
 
 def inZone(c, d, crop_size):
@@ -104,18 +102,7 @@ def extract_subtomos_one(tomoName, maskName, coordsFile, data_dir, label_size, n
     
     
     if check_folder:
-        '''
-        old_subtomo_dir = "{}~".format(subtomo_dir)
-        if not os.path.exists(subtomo_dir):
-            os.mkdir(subtomo_dir)
-        elif not os.path.exists(old_subtomo_dir):
-            os.rename(subtomo_dir, old_subtomo_dir)
-            os.mkdir(subtomo_dir)
-        else:
-            shutil.rmtree(old_subtomo_dir)
-            os.rename(subtomo_dir, old_subtomo_dir)
-            os.mkdir(subtomo_dir)
-        '''
+        
         #data_dir = "data"
         mkfolder(data_dir)
         #get_cubes_list(args)
@@ -128,13 +115,7 @@ def extract_subtomos_one(tomoName, maskName, coordsFile, data_dir, label_size, n
                 os.makedirs(folder)
     #print(label_coords[:100])
 
-    '''
-    coords_dir = "coords"
-    with open("{}/{}_train_locations.pts".format(coords_dir, tomoName.split('.')[0]), 'w') as w:
-        seeds_matrix = np.transpose(np.array(seeds)).reshape(-1,3)
-        for par in seeds_matrix:
-            w.write("{} {} {}\n".format(par[2],par[1],par[0]))
-    '''
+
     shape = subtomos[0].shape
     for j, s in enumerate(subtomos):
         #im_name = '{}/{}_{:0>6d}.mrc'.format(subtomo_dir, base_name, j)
@@ -142,15 +123,7 @@ def extract_subtomos_one(tomoName, maskName, coordsFile, data_dir, label_size, n
         label_name = '{}/{}_{:0>6d}.txt'.format("coords", base_name, j)
         y_name = '{}/{}/{}_y_{}.mrc'.format( data_dir, dirs_tomake[1], baseName, j)
         #print(j)
-        '''
-        if len(label_coords[j]) > 0:
-            with open(label_name, "w") as outfile:
-                for coords in label_coords[j]:
-                    outfile.write(" ".join([str(x) for x in coords])+"\n")
-            #print(label_coords[j])
-            with mrcfile.new(im_name, overwrite=True) as output_mrc:
-                output_mrc.set_data(s.astype(np.float32))
-        '''
+
         #label_size = int(label_size)
         if len(label_coords[j]) > 0:
             #print(shape)
@@ -187,55 +160,7 @@ def extract_subtomos_one(tomoName, maskName, coordsFile, data_dir, label_size, n
                 #cube labeling
                 y_temp[zmin:zmax,ymin:ymax,xmin:xmax] = 1
                 #sphere labeling
-                
-                #outfile.write(" ".join([str(x) for x in coords])+"\n")
 
-            #for k in range(2):
-            #axes = [(0,1),(1,2),(0,2)]
-            '''
-            for l in range(2):
-                x_name = '{}/{}/{}_x_{}_{}.mrc'.format(data_dir, dirs_tomake[0], baseName, j, l*2)
-                y_name = '{}/{}/{}_y_{}_{}.mrc'.format( data_dir, dirs_tomake[1], baseName, j, l*2)
-
-                if l == 0:
-                    rotated_x = s
-                    rotated_y = y_temp
-                elif l ==1:
-                    rotated_x = np.rot90(s, k=2, axes=(0,1))
-                    rotated_y = np.rot90(y_temp, k=2, axes=(0,1))
-                    #rotated_x = np.rot90(s, k=1, axes=(1,2))
-                    #rotated_y = np.rot90(y_temp, k=1, axes=(1,2))
-                
-                #elif l ==2:
-                #    rotated_x = np.rot90(s, k=2, axes=(1,2))
-                #    rotated_y = np.rot90(y_temp, k=2, axes=(1,2))
-                #elif l ==3:
-                #    rotated_x = np.rot90(s, k=3, axes=(1,2))
-                #    rotated_y = np.rot90(y_temp, k=3, axes=(1,2))
-                #elif l ==4:
-                #    rotated_x = np.rot90(s, k=1, axes=(0,2))
-                #    rotated_y = np.rot90(y_temp, k=1, axes=(0,2))
-                #elif l ==5:
-                #    rotated_x = np.rot90(s, k=3, axes=(0,2))
-                #    rotated_y = np.rot90(y_temp, k=3, axes=(0,2))
-                
-                with mrcfile.new(x_name, overwrite=True) as output_mrc:
-                    output_mrc.set_data(normalize(rotated_x))
-                with mrcfile.new(y_name, overwrite=True) as output_mrc:
-                    output_mrc.set_data(rotated_y)
-
-                rotated_x_reverse = np.rot90(rotated_x, k=1, axes=(1,2))
-                rotated_y_reverse = np.rot90(rotated_y, k=1, axes=(1,2))
-
-                x_name = '{}/{}/{}_x_{}_{}.mrc'.format(data_dir, dirs_tomake[0], baseName, j, l*2+1)
-                y_name = '{}/{}/{}_y_{}_{}.mrc'.format( data_dir, dirs_tomake[1], baseName, j, l*2+1)
-
-                with mrcfile.new(x_name, overwrite=True) as output_mrc:
-                    output_mrc.set_data(normalize(rotated_x_reverse))
-                with mrcfile.new(y_name, overwrite=True) as output_mrc:
-                    output_mrc.set_data(rotated_y_reverse)
-
-            '''
             for l in range(4):
                 x_name = '{}/{}/{}_x_{}_{}.mrc'.format(data_dir, dirs_tomake[0], baseName, j, l)
                 y_name = '{}/{}/{}_y_{}_{}.mrc'.format( data_dir, dirs_tomake[1], baseName, j, l)
@@ -281,26 +206,6 @@ def split_data(data_dir):
     for i in ind:
         os.rename('{}/train_x/{}'.format(data_dir, all_path_x[i]), '{}/test_x/{}'.format(data_dir, all_path_x[i]) )
         os.rename('{}/train_y/{}'.format(data_dir, all_path_y[i]), '{}/test_y/{}'.format(data_dir, all_path_y[i]) )
-    
-    '''
-    for mrc in all_mrc_list:
-        root_name = mrc.split('/')[-1].split('.')[0]
-        extension = mrc.split('/')[-1].split('.')[1]
-        with mrcfile.open(mrc) as mrcData:
-            orig_data = normalize(mrcData.data.astype(np.float32)*-1)
-
-        #orig_data = apply_wedge(orig_data, ld1=1, ld2=0)
-        
-        #prefill = True
-        #if prefill==True:
-        #    rot_data = np.rot90(orig_data, axes=(0,2))
-        #    rot_data = apply_wedge(rot_data, ld1=0, ld2=1)
-        #    orig_data = rot_data + orig_data
-
-        #orig_data = normalize(orig_data)
-        with mrcfile.new('{}/{}_iter00.{}'.format(result_dir, root_name, extension), overwrite=True) as output_mrc:
-            output_mrc.set_data(orig_data)
-    '''
             
 if __name__ == "__main__":
 
@@ -360,24 +265,6 @@ if __name__ == "__main__":
         
         sys.exit()
 
-
-    #maskList = params[2].split(",")
-    #maskList = ["None" for _ in range(num_tomo)]
-    '''
-    mask_list = []
-    for tomo in tomoNameList:
-        if tomo.endswith(".mrc"):
-            prefix = tomo.split(".mrc")
-            suffix = ".mrc"
-        else:
-            prefix = tomo.split(".rec")
-            suffix = ".rec"
-        mask_file = "{}_mask{}".format(prefix, suffix)
-        if os.path.exists(mask_file):
-            mask_list.append(mask_file)
-        else:
-            mask_list.append(None)
-    '''
     mkfolder(data_dir)
     tomoList = []
     coordsList = []
