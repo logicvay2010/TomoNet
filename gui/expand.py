@@ -8,8 +8,7 @@ from TomoNet.util import metadata
 from TomoNet.util.metadata import MetaData, Item, Label
 from TomoNet.util import browse
 import os, glob, subprocess
-from TomoNet.util.utils import natural_keys, check_log_file, getLogContent, string2float, string2int
-from TomoNet.util.dict2attr import idx2list
+from TomoNet.util.utils import natural_keys, check_log_file, getLogContent, string2float, string2int, idx2list
 from TomoNet.process.bash_expand import Expand_CMDS
 from TomoNet.util.utils import mkfolder
 
