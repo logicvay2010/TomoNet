@@ -5,7 +5,6 @@ import sys
 import mrcfile
 from TomoNet.preprocessing.cubes import create_cube_seeds_new, crop_cubes
 from TomoNet.preprocessing.img_processing import normalize
-from multiprocessing import Pool
 import numpy as np
 from TomoNet.util.utils import mkfolder
 import imodmodel
