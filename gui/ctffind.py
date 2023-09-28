@@ -478,17 +478,30 @@ class Ctffind(QTabWidget):
 
         self.pushButton_reload.setText(_translate("Form", "Reload"))
 
-    
     @QtCore.pyqtSlot(str)
     def update_log_window(self, txt):
-        self.log_window = self.parentWidget().parentWidget().children()[3] 
-        self.log_window.setText(self.getLogContent(txt))
-        self.log_window.moveCursor(QtGui.QTextCursor.End)
-        
-        custom_font = QtGui.QFont()
-        custom_font.setPointSize(11)
-        self.log_window.setCurrentFont(custom_font)
+        in_current_page = True
+        for x in self.parentWidget().parentWidget().children():
+            if x.objectName() == "listWidget":
+                if not x.currentRow() == 2:
+                    in_current_page = False
+            elif x.objectName() == "log_window":
+                if in_current_page:
+                    self.log_window = x
+                    self.log_window.setText(self.getLogContent(txt))
+                    self.log_window.moveCursor(QtGui.QTextCursor.End)
 
+                    custom_font = QtGui.QFont()
+                    custom_font.setPointSize(11)
+                    self.log_window.setCurrentFont(custom_font)
+        
+        # self.log_window = self.parentWidget().parentWidget().children()[3] 
+        # self.log_window.setText(self.getLogContent(txt))
+        # self.log_window.moveCursor(QtGui.QTextCursor.End)
+        
+        # custom_font = QtGui.QFont()
+        # custom_font.setPointSize(11)
+        # self.log_window.setCurrentFont(custom_font)
 
     def read_settting(self):
         if not os.path.exists(self.setting_file):

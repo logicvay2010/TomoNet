@@ -293,7 +293,6 @@ class MotionCor(QTabWidget):
 
         self.setTabText(self.indexOf(self.tab), _translate("Form", "MotionCor2"))
 
-
     def get_params(self):
         if len(self.lineEdit_raw_image_folder.text()) > 0:
             raw_image_folder = self.lineEdit_raw_image_folder.text()
@@ -396,7 +395,6 @@ class MotionCor(QTabWidget):
         self.pushButton_run_motioncor.setText("RUN")
         self.pushButton_run_motioncor.setStyleSheet("QPushButton {color: black;}")
 
-
     def read_setting(self):
         if os.path.exists(self.setting_file):
             data = {}
@@ -447,13 +445,20 @@ class MotionCor(QTabWidget):
 
     @QtCore.pyqtSlot(str)
     def update_log_window(self, txt):
-        self.log_window = self.parentWidget().parentWidget().children()[3] 
-        self.log_window.setText(self.getLogContent(txt))
-        self.log_window.moveCursor(QtGui.QTextCursor.End)
+        in_current_page = True
+        for x in self.parentWidget().parentWidget().children():
+            if x.objectName() == "listWidget":
+                if not x.currentRow() == 0:
+                    in_current_page = False
+            elif x.objectName() == "log_window":
+                if in_current_page:
+                    self.log_window = x
+                    self.log_window.setText(self.getLogContent(txt))
+                    self.log_window.moveCursor(QtGui.QTextCursor.End)
 
-        custom_font = QtGui.QFont()
-        custom_font.setPointSize(11)
-        self.log_window.setCurrentFont(custom_font)
+                    custom_font = QtGui.QFont()
+                    custom_font.setPointSize(11)
+                    self.log_window.setCurrentFont(custom_font)
 
     def isValid(self, fileName):
         '''

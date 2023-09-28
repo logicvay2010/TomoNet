@@ -372,7 +372,7 @@ class Recon(QTabWidget):
             </span></p></body></html>"))
 
         self.label_base_name_index.setText(_translate("Form", "Base Name index:"))
-        self.lineEdit_base_name_index.setPlaceholderText(_translate("Form", "4-6"))
+        self.lineEdit_base_name_index.setPlaceholderText(_translate("Form", "1-4"))
         self.lineEdit_base_name_index.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
             This is different from the above Base Name. \
@@ -383,7 +383,7 @@ class Recon(QTabWidget):
             </span></p></body></html>"))
 
         self.label_target_base_name.setText(_translate("Form", "Target Base Name:"))
-        self.lineEdit_target_base_name.setPlaceholderText(_translate("Form", " TS "))
+        self.lineEdit_target_base_name.setPlaceholderText(_translate("Form", "TS "))
         self.lineEdit_target_base_name.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
             This program will rename all tomograms in the format \
@@ -618,7 +618,6 @@ class Recon(QTabWidget):
                 except:
                     pass
       
-
     def cmd_finished(self):
         self.pushButton_run_ts_generation.setText("RUN")
         self.pushButton_run_ts_generation.setStyleSheet("QPushButton {color: black;}")
@@ -687,7 +686,6 @@ class Recon(QTabWidget):
 
     def natural_keys(self, text):
         return int(text.split("_")[-1]) 
-
 
     def read_tomo(self):
         tomoNames1 = [os.path.basename(x).split(".")[0] for x in sorted(glob.glob("{}/*.st".format(self.ts_folder)))]
@@ -965,13 +963,27 @@ class Recon(QTabWidget):
 
     @QtCore.pyqtSlot(str)
     def update_log_window(self, txt):
-        self.log_window = self.parentWidget().parentWidget().children()[3] 
-        self.log_window.setText(self.getLogContent(self.log_file))
-        self.log_window.moveCursor(QtGui.QTextCursor.End)
+        in_current_page = True
+        for x in self.parentWidget().parentWidget().children():
+            if x.objectName() == "listWidget":
+                if not x.currentRow() == 1:
+                    in_current_page = False
+            elif x.objectName() == "log_window":
+                if in_current_page:
+                    self.log_window = x
+                    self.log_window.setText(self.getLogContent(txt))
+                    self.log_window.moveCursor(QtGui.QTextCursor.End)
+
+                    custom_font = QtGui.QFont()
+                    custom_font.setPointSize(11)
+                    self.log_window.setCurrentFont(custom_font)
+        # self.log_window = self.parentWidget().parentWidget().children()[3] 
+        # self.log_window.setText(self.getLogContent(self.log_file))
+        # self.log_window.moveCursor(QtGui.QTextCursor.End)
         
-        custom_font = QtGui.QFont()
-        custom_font.setPointSize(11)
-        self.log_window.setCurrentFont(custom_font)
+        # custom_font = QtGui.QFont()
+        # custom_font.setPointSize(11)
+        # self.log_window.setCurrentFont(custom_font)
 
     def isValid(self, fileName):
         '''

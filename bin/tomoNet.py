@@ -9,7 +9,7 @@ from TomoNet.gui.manual import Manual
 from TomoNet.gui.recon import Recon
 from TomoNet.gui.expand import Expand
 from TomoNet.gui.autopick import Autopick
-from TomoNet.gui.others import OtherTools
+from TomoNet.gui.others import OtherUtils
 
 import os
 import socket
@@ -40,6 +40,7 @@ class Ui_TomoNet(object):
         self.gridLayout.addLayout(self.horizontalLayout, 0, 0, 1, 1)
 
         self.log_window = QtWidgets.QTextBrowser(self.centralwidget)
+        self.log_window.setObjectName("log_window")
         self.log_window.setMaximumSize(QtCore.QSize(16777215, 720))
         self.gridLayout.addWidget(self.log_window, 1, 0)
         custom_font = QtGui.QFont()
@@ -99,12 +100,12 @@ class Ui_TomoNet(object):
         autopick = Autopick()
         self.stackedWidget.addWidget(autopick)
 
-        othertools = OtherTools()
-        self.stackedWidget.addWidget(othertools)
+        otherUtils = OtherUtils()
+        self.stackedWidget.addWidget(otherUtils)
 
         
         self.log_file = ["MotionCorrection/motion.log", "Recon/recon.log", "Ctffind/ctffind.log",\
-            "ManualPick/manual.log", "Expand/expand.log", "Autopick/autopick.log", "OtherTools/othertools.log"]
+            "ManualPick/manual.log", "Expand/expand.log", "Autopick/autopick.log", "OtherUtils/otherUtils.log"]
         self.log_window.setText(self.getLogContent(self.log_file[0]))
         self.log_window.moveCursor(QtGui.QTextCursor.End)
 
@@ -114,7 +115,7 @@ class Ui_TomoNet(object):
             TomoNet.setWindowTitle(_translate("TomoNet", "TomoNet ({})".format(socket.gethostname())))
             scriptDir = os.path.dirname(os.path.realpath(__file__))
             icon =  QtGui.QIcon()
-            icon.addPixmap(QtGui.QPixmap("{}/../gui/icons/spider.svg".format(scriptDir)), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            icon.addPixmap(QtGui.QPixmap("{}/../gui/icons/web.svg".format(scriptDir)), QtGui.QIcon.Normal, QtGui.QIcon.Off)
             TomoNet.setWindowIcon(icon)
         except:
             TomoNet.setWindowTitle(_translate("TomoNet", "TomoNet"))
@@ -226,7 +227,7 @@ def check_root():
 
     directory = os.getcwd()
     folders = os.listdir(directory)
-    return "MotionCorrection" in folders and "Recon" in folders and "Ctffind" in folders and "Expand" in folders and "Autopick" in folders and "OtherTools" in folders
+    return "MotionCorrection" in folders and "Recon" in folders and "Ctffind" in folders and "Expand" in folders and "Autopick" in folders and "OtherUtils" in folders
 
 from PyQt5.QtWidgets import QMessageBox
 

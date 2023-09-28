@@ -145,30 +145,30 @@ class Manual(QTabWidget):
             put the corrected images folder here.\
             </span></p></body></html>"))
 
-
-    '''
-    def check_path(self):
-        if not self.checkbox_use_other_map.isChecked():
-            self.lineEdit_path_other_maps.setEnabled(False)
-            self.pushButton_other_maps.setEnabled(False)
-
-    def check_state_changed(self):
-        if not self.checkbox_use_other_map.isChecked():
-            self.lineEdit_path_other_maps.setEnabled(False)
-            self.pushButton_other_maps.setEnabled(False)
-        else:
-            self.lineEdit_path_other_maps.setEnabled(True)
-            self.pushButton_other_maps.setEnabled(True)
-    '''
     @QtCore.pyqtSlot(str)
     def update_log_window(self, txt):
-        self.log_window = self.parentWidget().parentWidget().children()[3] 
-        self.log_window.setText(self.getLogContent(txt))
-        self.log_window.moveCursor(QtGui.QTextCursor.End)
+        in_current_page = True
+        for x in self.parentWidget().parentWidget().children():
+            if x.objectName() == "listWidget":
+                if not x.currentRow() == 3:
+                    in_current_page = False
+            elif x.objectName() == "log_window":
+                if in_current_page:
+                    self.log_window = x
+                    self.log_window.setText(self.getLogContent(txt))
+                    self.log_window.moveCursor(QtGui.QTextCursor.End)
 
-        custom_font = QtGui.QFont()
-        custom_font.setPointSize(11)
-        self.log_window.setCurrentFont(custom_font)
+                    custom_font = QtGui.QFont()
+                    custom_font.setPointSize(11)
+                    self.log_window.setCurrentFont(custom_font)
+        
+        # self.log_window = self.parentWidget().parentWidget().children()[3] 
+        # self.log_window.setText(self.getLogContent(txt))
+        # self.log_window.moveCursor(QtGui.QTextCursor.End)
+
+        # custom_font = QtGui.QFont()
+        # custom_font.setPointSize(11)
+        # self.log_window.setCurrentFont(custom_font)
 
 
     def read_settting(self):
