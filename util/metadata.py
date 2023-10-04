@@ -1,7 +1,7 @@
 LIST_NAMES = ["Motion Correction", "3D Reconstruction", "CTF Estimation", "Manual Picking", "Auto Expansion", "AI AutoPicking", "Other Utilities"]
 
 header_labels_recon = ['Tomo Name', 'Action', 'Action', 'Action', 'Action', 'Tilts #', \
-    'RE mean', 'RE range', 'Binning', 'Thickness', 'Skipped view(s)']
+    'RE mean', 'RE range', 'Binning', 'Thickness', 'Skipped view(s)', 'Notes']
 
 header_labels_manual = ['Tomo Name', 'Top(one point)', 'Bottom(one point)', \
                         'Side(two points)', 'Action', 'Action', 'Action','Action']

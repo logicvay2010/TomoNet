@@ -455,7 +455,7 @@ class Manual(QTabWidget):
             
             with open("{}/{}".format(self.stalkInit_folder, top_pts_name)) as f:
                 for line in f:
-                    x,y,z = [int(p) for p in line.strip().split()]
+                    x,y,z = [float(p) for p in line.strip().split()]
                     z1 = z+10
                     z2 = z-10
                     particle_pairs.append([x,y,z1])
@@ -472,7 +472,7 @@ class Manual(QTabWidget):
 
             with open("{}/{}".format(self.stalkInit_folder, bottom_pts_name)) as f:
                 for line in f:
-                    x,y,z = [int(p) for p in line.strip().split()]
+                    x,y,z = [float(p) for p in line.strip().split()]
                     z1 = z+10
                     z2 = z-10
                     particle_pairs.append([x,y,z2])

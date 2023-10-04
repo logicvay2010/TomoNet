@@ -1,10 +1,11 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QTabWidget, QTableWidgetItem, QHeaderView, QMessageBox
+from PyQt5.QtWidgets import QTabWidget, QTableWidgetItem, QHeaderView, QMessageBox, QInputDialog, QLineEdit
 from TomoNet.process.bash_gts import Generate_TS
 from TomoNet.util import browse,metadata
 import os, glob, subprocess, shutil, time
 import logging
+import json
 
 
 class Recon(QTabWidget):
@@ -16,6 +17,7 @@ class Recon(QTabWidget):
         self._history_record = "Recon/history_record.txt"
 
         self.log_file = "Recon/recon.log"
+        self.note_json = "Recon/notes.json"
         self.check_log_file("Recon")
 
         self.logger = logging.getLogger(__name__)
@@ -691,8 +693,11 @@ class Recon(QTabWidget):
         tomoNames1 = [os.path.basename(x).split(".")[0] for x in sorted(glob.glob("{}/*.st".format(self.ts_folder)))]
         tomoNames2 = [os.path.basename(x).split(".")[0] for x in sorted(glob.glob("{}/*.rawtlt".format(self.ts_folder)))]
 
-        tomoNames = list(set(tomoNames1) & set(tomoNames2))
-        tomoNames.sort(key=self.natural_keys)
+        tomoNames = sorted(list(set(tomoNames1) & set(tomoNames2)))
+        try:
+            tomoNames.sort(key=self.natural_keys)
+        except:
+            pass
 
         return tomoNames
 
@@ -853,9 +858,25 @@ class Recon(QTabWidget):
                             if not i == ind:
                                 f.write("{}\n".format(record))
                 self.reload_table()
-        else:
-            pass
+        elif j == 11:
+            previous_text = self.tableView.item(i, j).text()
+            #print(previous_text)
+            text, ok = QInputDialog.getText(self, 'Take notes!', 'Confirm changes?', QLineEdit.Normal, previous_text)
+            if ok:
+                self.tableView.setItem(i, j, QTableWidgetItem(text))
+
+                params = self.get_note_params()
+
+                with open("{}".format(self.note_json), 'w') as fp:
+                    json.dump(params, fp, indent=2, default=int)
     
+    def get_note_params(self):
+        row_count = self.tableView.rowCount()
+        params = {}
+        for i in range(row_count):
+            params[self.tableView.item(i, 0).text()] = self.tableView.item(i, 11).text()
+        return params
+
     def read_recon_folder(self, tomoName):
 
         tilt_num, re_mean, re_range, binning, thickness_nm, skipped_view = ["", "", "", "", "", ""]
@@ -925,9 +946,14 @@ class Recon(QTabWidget):
         tomoNames = self.read_tomo()
         self.tableView.setRowCount(0)
         self.tableView.setRowCount(len(tomoNames))
+        
+        try:
+            with open(self.note_json) as f:
+                note_dict = json.load(f)
+        except:
+            note_dict = {}
         if len(tomoNames) > 0:
             for i, tomo in enumerate(tomoNames):
-                start_time = time.time()
                 self.tableView.setItem(i, 0, QTableWidgetItem(tomo))                
                 action_check = QTableWidgetItem("View ST")
                 action_check.setBackground(QtGui.QColor("#a0d2eb"))
@@ -960,6 +986,8 @@ class Recon(QTabWidget):
                 else:
                     self.tableView.setItem(i, 9, QTableWidgetItem(""))
                 self.tableView.setItem(i, 10, QTableWidgetItem(items[5]))
+                notes_i = note_dict[tomo] if tomo in note_dict.keys() else ""
+                self.tableView.setItem(i, 11, QTableWidgetItem(notes_i))
 
     @QtCore.pyqtSlot(str)
     def update_log_window(self, txt):

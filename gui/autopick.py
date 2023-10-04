@@ -792,7 +792,7 @@ class Autopick(QTabWidget):
             elif x.objectName() == "log_window":
                 if in_current_page:
                     self.log_window = x
-                    self.log_window.setText(self.getLogContent(txt))
+                    self.log_window.setText(getLogContent(txt))
                     self.log_window.moveCursor(QtGui.QTextCursor.End)
 
                     custom_font = QtGui.QFont()
