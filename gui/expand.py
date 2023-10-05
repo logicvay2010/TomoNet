@@ -1573,7 +1573,7 @@ class Expand(QTabWidget):
     def read_tomogram_star(self, tomogram_star):
         md = MetaData()
         md.read(tomogram_star)
-        tomoNames = [ x.rlnTomoName for x in md]
+        tomoNames = sorted([ x.rlnTomoName for x in md])
         return tomoNames
 
     def reload_table(self):
