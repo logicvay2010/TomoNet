@@ -186,7 +186,7 @@ class Expand(QTabWidget):
             "<html><head/><body><p><span style=\" \
             font-size:9pt;\">The angular search steps for x,y,z-axis respectively, related to the search ranges. </span></p></body></html>"))
         
-        self.lineEdit_rot_steps.setPlaceholderText(_translate("Form", "10,6,10"))
+        self.lineEdit_rot_steps.setPlaceholderText(_translate("Form", "2,2,2"))
         self.lineEdit_rot_steps.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
             font-size:9pt;\">general format sx,sy,sz or s. sx, sy, sz are the angular search range steps around x, y, z-axis respectively.</span></p></body></html>"))
@@ -1279,7 +1279,7 @@ class Expand(QTabWidget):
         tomo_files.update(rec_files)
         tomoName_tomo = set([ os.path.basename(x).split(".")[0] for x in list(tomo_files)])
 
-        intersection_tomoName = list(tomoName_mod.intersection(tomoName_tomo))
+        intersection_tomoName = sorted(list(tomoName_mod.intersection(tomoName_tomo)))
 
         try:
             intersection_tomoName.sort(key=natural_keys)
@@ -1350,6 +1350,7 @@ class Expand(QTabWidget):
             path = self.lineEdit_expand_folder_to_use.text().strip() if self.lineEdit_expand_folder_to_use.text() else "Expand"
             #path = self.lineEdit_expand_folder_to_use.text().strip()
             self.clean_up(path, tomoName)
+            self.reload_table()
         else:
             pass
     
@@ -1573,7 +1574,7 @@ class Expand(QTabWidget):
     def read_tomogram_star(self, tomogram_star):
         md = MetaData()
         md.read(tomogram_star)
-        tomoNames = sorted([ x.rlnTomoName for x in md])
+        tomoNames = [ x.rlnTomoName for x in md]
         return tomoNames
 
     def reload_table(self):

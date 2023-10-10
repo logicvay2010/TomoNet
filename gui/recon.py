@@ -2,8 +2,9 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QTabWidget, QTableWidgetItem, QHeaderView, QMessageBox, QInputDialog, QLineEdit
 from TomoNet.process.bash_gts import Generate_TS
-from TomoNet.util import browse,metadata
-import os, glob, subprocess, shutil, time
+from TomoNet.util import browse, metadata
+from TomoNet.util.io import mkfolder
+import os, glob, subprocess, shutil
 import logging
 import json
 
@@ -432,7 +433,7 @@ class Recon(QTabWidget):
         self.label_new_data.setText(_translate("Form", "Add New Data?:"))
         self.comboBox_new_data.setItemText(0, _translate("Form", "Yes"))
         self.comboBox_new_data.setItemText(1, _translate("Form", "No"))
-        self.comboBox_rm_dup.setToolTip(_translate("MainWindow", \
+        self.comboBox_new_data.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
             If you dont want to overwrite the existing tomogram, select Yes, otherwise No \
             (default Yes)\
@@ -798,15 +799,16 @@ class Recon(QTabWidget):
             ret = QMessageBox.question(self, 'Risky Action!', "Do you want to star over for {}? All progresses will be reset.".format(tomoName), QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if ret == QMessageBox.Yes:
                 current_tomo_folder = "{}/{}".format(self.etomo_folder,tomoName)
-                if not os.path.exists(current_tomo_folder):
-                    os.makedirs(current_tomo_folder)
-                edfName = "{}/{}.edf".format(current_tomo_folder,tomoName)
-                current_st_path = "{}/{}.st".format(current_tomo_folder,tomoName)
-                if not os.path.exists(current_st_path):
-                    current_st_link_path = "{}/{}.st".format(self.ts_folder,tomoName)
-                    current_rawtlt_link_path = "{}/{}.rawtlt".format(self.ts_folder,tomoName)
-                    cmd = "cd {} ; ln -s ../../../{} ./ ; ln -s ../../../{} ./ ; etomo".format(current_tomo_folder, current_st_link_path,current_rawtlt_link_path)
-                    subprocess.check_output(cmd, shell=True)
+                mkfolder(current_tomo_folder)
+                #if not os.path.exists(current_tomo_folder):
+                #    os.makedirs(current_tomo_folder)
+                #edfName = "{}/{}.edf".format(current_tomo_folder,tomoName)
+                #current_st_path = "{}/{}.st".format(current_tomo_folder, tomoName)
+                #if not os.path.exists(current_st_path):
+                current_st_link_path = "{}/{}.st".format(self.ts_folder,tomoName)
+                current_rawtlt_link_path = "{}/{}.rawtlt".format(self.ts_folder,tomoName)
+                cmd = "cd {} ; ln -s ../../../{} ./ ; ln -s ../../../{} ./ ; etomo".format(current_tomo_folder, current_st_link_path, current_rawtlt_link_path)
+                subprocess.check_output(cmd, shell=True)
                 
                 cmd = "cd {}; etomo".format(current_tomo_folder)
                 subprocess.check_output(cmd, shell=True)

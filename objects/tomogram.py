@@ -33,7 +33,8 @@ class Tomogram:
           self.rotaxesPath = filename
         #elif filename.endswith("InitMOTL.csv"):
         elif filename.endswith("MOTL.csv"):
-          self.motlPath = filename
+          if not (self.motlPath == "{}_MOTL.csv".format(self.tomoName) or self.motlPath == "{}_InitMOTL.csv".format(self.tomoName)):
+            self.motlPath = filename
         elif filename.endswith((".mrc",".rec")):
           self.tomogramPickPath = filename
           self.originTomogramPickPath = filename
@@ -41,7 +42,7 @@ class Tomogram:
           pass
     if self.motlPath == None and less:
       self.set_model_less()
-  
+
   def set_model_less(self):
     less_modPath = "{}_less.mod".format(self.modPath.split(".mod")[0])
     less_ptsPath = "{}_less.pts".format(self.modPath.split(".mod")[0])

@@ -1,8 +1,9 @@
 from PyQt5 import QtGui
 from TomoNet.util.utils import getLogContent
+import os
 
 def mkfolder(folder):
-    import os
+
     try:
         os.makedirs(folder)
     except FileExistsError:

@@ -244,7 +244,7 @@ if __name__ == '__main__':
     
     MainWindow = MyWindow()
     if not check_root():
-        ret = QMessageBox.question(None, 'Notice!', "Are you sure to lunch tomoNet in the current folder?\n", QMessageBox.Yes | QMessageBox.No, \
+        ret = QMessageBox.question(None, 'Notice!', "Are you sure to launch tomoNet in the current folder?\n", QMessageBox.Yes | QMessageBox.No, \
                         QMessageBox.No)        
     else:
         ret = QMessageBox.Yes
