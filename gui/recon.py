@@ -812,6 +812,7 @@ class Recon(QTabWidget):
                 
                 cmd = "cd {}; etomo".format(current_tomo_folder)
                 subprocess.check_output(cmd, shell=True)
+                self.reload_table()
         elif j == 4:
             ret = QMessageBox.question(self, 'Risky Action!', "Do you want to move {} to trash?".format(tomoName), QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if ret == QMessageBox.Yes:
