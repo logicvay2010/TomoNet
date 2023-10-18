@@ -233,16 +233,27 @@ with open(clean_pts_file,"w") as clean_pts_file_w:
     with open(clean_motlfile,"w") as fmotl:
         fmotl.write(peet_motl_header)
         with open(clean_rotfile,"w") as frot:
+            real_i = 0
             for i, coord in enumerate(points_patch):
-                clean_pts_file_w.write(" ".join([str(int(x)) for x in coord])+"\n")
-                
-                motl_list = motls_patch[i][0].split(",")
-                motl_list[3] = str(i+1)
-                motl_line = ",".join(motl_list)
 
-                rot_list = rots_patch[i][0]
-                fmotl.write(motl_line)
-                frot.write(rot_list)
+                motl_list = motls_patch[i][0].split(",")
+                try:
+                    ccc = float(motl_list[0])
+                except:
+                    ccc = 0
+                
+                if ccc >= search_param.threshold_CCC:
+                    real_i +=1
+                    
+                    clean_pts_file_w.write(" ".join([str(int(x)) for x in coord])+"\n")
+                    
+                    motl_list[3] = str(real_i)
+                    motl_line = ",".join(motl_list)
+                    
+                    rot_list = rots_patch[i][0]
+                    
+                    fmotl.write(motl_line)
+                    frot.write(rot_list)
 
 cmd = "cd {}; point2model {} {} -scat -sphere 5 ".format(final_result_folder, clean_pts_file, clean_mod_file)
 subprocess.run(cmd,shell=True, stdout=subprocess.PIPE)
@@ -275,6 +286,6 @@ if len(motls) > 0:
 
     cmd = "cd {}; ln -s {} ./{}.mrc".format(final_result_folder, tomo.tomogramPickPath, tomo.tomoName)
     subprocess.run(cmd,shell=True, stdout=subprocess.PIPE)
-logger.info("Particle numbers {}. After clean {}! with {} patches".format(len(points), len(points_patch), patch_count))
+logger.info("Particle numbers {}. After clean {}! with {} patches".format(len(points), real_i, patch_count))
 logger.info("The final coords and rotation are saved in the final folder!")
 
