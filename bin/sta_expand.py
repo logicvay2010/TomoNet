@@ -102,7 +102,8 @@ for i in range(max_exp_num):
     tomo, search_param, target_cache_folder, peet_iter, end_signal_c = sta_peet_one(star_file, param_file, tomoName, cpus, first_round)
     #print(tomo, target_cache_folder, search_param, peet_iter, end_signal)
     
-    min_count_to_continue = 2
+    # minimum number of particles to continue
+    min_count_to_continue = 1
 
     if end_signal_c <= min_count_to_continue:
         logger.info("no more/too few particles need to be added based on CCC threashold")
