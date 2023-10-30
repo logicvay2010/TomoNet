@@ -315,7 +315,7 @@ class OtherUtils(QTabWidget):
             "<html><head/><body><p><span style=\" \
             </span></p></body></html>"))
         
-        self.lineEdit_bin_factor.setPlaceholderText(_translate("Form", "4"))
+        self.lineEdit_bin_factor.setPlaceholderText(_translate("Form", "1"))
         self.lineEdit_bin_factor.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
             font-size:9pt;\">The binning factor for the tomogram used for picking. \
@@ -1013,7 +1013,6 @@ class OtherUtils(QTabWidget):
         manifoldIndex_start = df_particles['rlnTomoManifoldIndex'].min()
         manifold_num = df_particles['rlnTomoManifoldIndex'].max() - manifoldIndex_start + 1
 
-
         try:
             shutil.copy(average_map, self.others_folder)
         except:
@@ -1024,7 +1023,7 @@ class OtherUtils(QTabWidget):
         average_map_basename = os.path.basename(average_map)
         
         with open(output_file_name, "w") as outfile:
-            for i in range(manifold_num):
+            for i in range(int(manifold_num)):
                 current_manifold_id = manifoldIndex_start+i
                 manifold_df = df_particles.loc[df_particles['rlnTomoManifoldIndex']==current_manifold_id]
                 manifold_df = manifold_df.reset_index()
@@ -1101,7 +1100,6 @@ class OtherUtils(QTabWidget):
 
             outfile.write("view\n")   
   
-
     def placeback(self):
         params = self.get_placeback_params()
         if type(params) is str:
