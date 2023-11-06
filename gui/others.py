@@ -1091,7 +1091,7 @@ class OtherUtils(QTabWidget):
                                 avg_angle =  sum/len(neignbors) 
                             r,g,b = getRGBs(avg_angle)
                             
-                            if len(neignbors) > 2 and avg_angle <= 45:
+                            if len(neignbors) > 1 and avg_angle <= 60:
                                 c_star_line = " ".join([str(x) for x in manifold_df.loc[j].values.flatten().tolist()][2:]) + "\n"
                                 c_star_file.write(c_star_line)
                                 clean_i+=1
