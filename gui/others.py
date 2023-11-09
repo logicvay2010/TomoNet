@@ -1028,90 +1028,90 @@ class OtherUtils(QTabWidget):
         real_patch_num = 0
         clean_i = 0
         average_map_basename = os.path.basename(average_map)
-        
-        with open(output_file_name, "w") as outfile:
-            with open(clean_version_star, "w") as c_star_file:
-                if not manifold_num or math.isnan(manifold_num):
+        if not manifold_num or math.isnan(manifold_num):
                     self.logger.warning("No Tomo Name: {}.".format(tomo_name))
-                    return 0
-                for i in range(int(manifold_num)):
-                    current_manifold_id = manifoldIndex_start+i
-                    manifold_df = df_particles.loc[df_particles['rlnTomoManifoldIndex']==current_manifold_id]
-                    manifold_df = manifold_df.reset_index()
-                    pNum_i = manifold_df.shape[0]
-                    if pNum_i > 0:
-                        real_patch_num+=1
-                        global_id+=pNum_i
-                        
-                        open_line = "open"
-                        move_cmds = ""
-                        turn_cmds = ""
-
-                        centers = []
-                        new_vectors = []
-
-                        for j in range(pNum_i):
+        else:
+            with open(output_file_name, "w") as outfile:
+                with open(clean_version_star, "w") as c_star_file:
+                    
+                    for i in range(int(manifold_num)):
+                        current_manifold_id = manifoldIndex_start+i
+                        manifold_df = df_particles.loc[df_particles['rlnTomoManifoldIndex']==current_manifold_id]
+                        manifold_df = manifold_df.reset_index()
+                        pNum_i = manifold_df.shape[0]
+                        if pNum_i > 0:
+                            real_patch_num+=1
+                            global_id+=pNum_i
                             
-                            xp, yp, zp = [manifold_df['rlnCoordinateX'][j], manifold_df['rlnCoordinateY'][j], manifold_df['rlnCoordinateZ'][j]]
-                            xt, yt, zt = [manifold_df['rlnOriginXAngst'][j], manifold_df['rlnOriginYAngst'][j], manifold_df['rlnOriginZAngst'][j]]
-                            rot, tilt, psi = [manifold_df['rlnAngleRot'][j], manifold_df['rlnAngleTilt'][j], manifold_df['rlnAnglePsi'][j]]
+                            open_line = "open"
+                            move_cmds = ""
+                            turn_cmds = ""
+
+                            centers = []
+                            new_vectors = []
+
+                            for j in range(pNum_i):
+                                
+                                xp, yp, zp = [manifold_df['rlnCoordinateX'][j], manifold_df['rlnCoordinateY'][j], manifold_df['rlnCoordinateZ'][j]]
+                                xt, yt, zt = [manifold_df['rlnOriginXAngst'][j], manifold_df['rlnOriginYAngst'][j], manifold_df['rlnOriginZAngst'][j]]
+                                rot, tilt, psi = [manifold_df['rlnAngleRot'][j], manifold_df['rlnAngleTilt'][j], manifold_df['rlnAnglePsi'][j]]
+                                
+                                output_eulers, output_vector = Relion2ChimeraX(np.array([rot, tilt, psi]))
+
+                                x = round(xp*apix + xt,3)
+                                y = round(yp*apix + yt,3)
+                                z = round(zp*apix + zt,3)
+
+                                centers.append([x,y,z])
+                                new_vectors.append([output_vector[0],output_vector[1],output_vector[2]])
+
+                                if pNum_i == 1:
+                                    model_id = "{}".format(real_patch_num, j+1)
+                                else:
+                                    model_id = "{}.{}".format(real_patch_num, j+1)
+                                
+                                open_line = "{} {}".format(open_line, average_map_basename)
+
+                                move_cmds = "{}move x {} models #{}; move y {} models #{}; move z {} models #{};\n"\
+                                            .format(move_cmds, x, model_id, y, model_id, z, model_id)
+                                
+                                turn_cmds = "{}turn z {} center 0,0,0 models #{} coordinateSystem #{}; turn y {} center 0,0,0 models #{} coordinateSystem #{}; turn z {} center 0,0,0  models #{} coordinateSystem #{};\n"\
+                                            .format(turn_cmds, output_eulers[0], model_id, model_id, output_eulers[1], model_id, model_id, \
+                                                output_eulers[2], model_id, model_id)
+
+                            mat_coords = np.array(distance_matrix(centers, centers))
+                            mat_norm = squareform(pdist(new_vectors, "cosine"))
                             
-                            output_eulers, output_vector = Relion2ChimeraX(np.array([rot, tilt, psi]))
+                            color_cmds = ""
 
-                            x = round(xp*apix + xt,3)
-                            y = round(yp*apix + yt,3)
-                            z = round(zp*apix + zt,3)
+                            for j in range(pNum_i):
+                                neignbors = getNeighbors(mat_coords[j], j, dis_unit*dis_ratio)
+                                sum = 0
+                                avg_angle = 0
+                                for n in neignbors:		
+                                    sum += math.acos(1-mat_norm[j][n])/math.pi*180
+                                if len(neignbors) > 0:
+                                    avg_angle =  sum/len(neignbors) 
+                                r,g,b = getRGBs(avg_angle)
+                                
+                                if len(neignbors) > 2 and avg_angle <= 45:
+                                    c_star_line = " ".join([str(x) for x in manifold_df.loc[j].values.flatten().tolist()][2:]) + "\n"
+                                    c_star_file.write(c_star_line)
+                                    clean_i+=1
+                                if pNum_i == 1:
+                                    model_id = "{}".format(real_patch_num, j+1)
+                                else:
+                                    model_id = "{}.{}".format(real_patch_num, j+1)
 
-                            centers.append([x,y,z])
-                            new_vectors.append([output_vector[0],output_vector[1],output_vector[2]])
+                                color_cmds = "{}color #{} {},{},{};\n".format(color_cmds, model_id, r, g, b)
 
-                            if pNum_i == 1:
-                                model_id = "{}".format(real_patch_num, j+1)
-                            else:
-                                model_id = "{}.{}".format(real_patch_num, j+1)
+                            recenter_line = "vop #{} originIndex {},{},{};\n".format(real_patch_num, map_dimension[2]/2, map_dimension[1]/2, map_dimension[0]/2)
                             
-                            open_line = "{} {}".format(open_line, average_map_basename)
-
-                            move_cmds = "{}move x {} models #{}; move y {} models #{}; move z {} models #{};\n"\
-                                        .format(move_cmds, x, model_id, y, model_id, z, model_id)
-                            
-                            turn_cmds = "{}turn z {} center 0,0,0 models #{} coordinateSystem #{}; turn y {} center 0,0,0 models #{} coordinateSystem #{}; turn z {} center 0,0,0  models #{} coordinateSystem #{};\n"\
-                                        .format(turn_cmds, output_eulers[0], model_id, model_id, output_eulers[1], model_id, model_id, \
-                                            output_eulers[2], model_id, model_id)
-
-                        mat_coords = np.array(distance_matrix(centers, centers))
-                        mat_norm = squareform(pdist(new_vectors, "cosine"))
-                        
-                        color_cmds = ""
-
-                        for j in range(pNum_i):
-                            neignbors = getNeighbors(mat_coords[j], j, dis_unit*dis_ratio)
-                            sum = 0
-                            avg_angle = 0
-                            for n in neignbors:		
-                                sum += math.acos(1-mat_norm[j][n])/math.pi*180
-                            if len(neignbors) > 0:
-                                avg_angle =  sum/len(neignbors) 
-                            r,g,b = getRGBs(avg_angle)
-                            
-                            if len(neignbors) > 2 and avg_angle <= 45:
-                                c_star_line = " ".join([str(x) for x in manifold_df.loc[j].values.flatten().tolist()][2:]) + "\n"
-                                c_star_file.write(c_star_line)
-                                clean_i+=1
-                            if pNum_i == 1:
-                                model_id = "{}".format(real_patch_num, j+1)
-                            else:
-                                model_id = "{}.{}".format(real_patch_num, j+1)
-
-                            color_cmds = "{}color #{} {},{},{};\n".format(color_cmds, model_id, r, g, b)
-
-                        recenter_line = "vop #{} originIndex {},{},{};\n".format(real_patch_num, map_dimension[2]/2, map_dimension[1]/2, map_dimension[0]/2)
-                        
-                        outfile.write(open_line+";\n\n")
-                        outfile.write(recenter_line+"\n")
-                        outfile.write(move_cmds+"\n")
-                        outfile.write(turn_cmds+"\n")
-                        outfile.write(color_cmds+"\n")
+                            outfile.write(open_line+";\n\n")
+                            outfile.write(recenter_line+"\n")
+                            outfile.write(move_cmds+"\n")
+                            outfile.write(turn_cmds+"\n")
+                            outfile.write(color_cmds+"\n")
 
             outfile.write("view\n")  
 
