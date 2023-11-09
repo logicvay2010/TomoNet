@@ -875,27 +875,29 @@ class OtherUtils(QTabWidget):
                 #coord_file=open(coords)
                 pid = -1
                 coords_file = "{}/{}.coords".format(folder,tomo)
-                with open(coords_file,'r') as r:
-                    coords_data=r.readlines()
-                euler_file = "{}/{}.euler".format(folder,tomo)
-                with open(euler_file,'r') as r:
-                    euler_data=r.readlines()
-                for i in range(0, len(coords_data)):
-                    
-                    pair_euler = [float(x) for x in euler_data[i].strip().split(',')]
-                    pair_coords = [float(x) for x in coords_data[i].strip().split()]
-                    pid_now = int(pair_coords[0])
-                    if pid_now > pid:
-                        manifold_id +=1
-                        pid = pid_now
-                    line = "{} {} {} {} {} {} {} {} {} {} {} {} {} {} \n".format(tomo, particle_index, manifold_id, \
-                            pair_coords[1]*bin_factor, pair_coords[2]*bin_factor, pair_coords[3]*bin_factor, \
-                            0, 0, 0,\
-                            pair_euler[0], pair_euler[1], pair_euler[2], \
-                            1, particle_index%2+1)
-                    f.write(line)
-                    particle_index +=1
-    
+                try:
+                    with open(coords_file,'r') as r:
+                        coords_data=r.readlines()
+                    euler_file = "{}/{}.euler".format(folder,tomo)
+                    with open(euler_file,'r') as r:
+                        euler_data=r.readlines()
+                    for i in range(0, len(coords_data)):
+                        
+                        pair_euler = [float(x) for x in euler_data[i].strip().split(',')]
+                        pair_coords = [float(x) for x in coords_data[i].strip().split()]
+                        pid_now = int(pair_coords[0])
+                        if pid_now > pid:
+                            manifold_id +=1
+                            pid = pid_now
+                        line = "{} {} {} {} {} {} {} {} {} {} {} {} {} {} \n".format(tomo, particle_index, manifold_id, \
+                                pair_coords[1]*bin_factor, pair_coords[2]*bin_factor, pair_coords[3]*bin_factor, \
+                                0, 0, 0,\
+                                pair_euler[0], pair_euler[1], pair_euler[2], \
+                                1, particle_index%2+1)
+                        f.write(line)
+                        particle_index +=1
+                except:
+                    self.logger.warning("{} has invalid final result, skip it!".format(tomo))
     def assemble(self):
         params = self.get_assemble_params()
         #print(params)
