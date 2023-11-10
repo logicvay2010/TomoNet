@@ -1029,7 +1029,8 @@ class OtherUtils(QTabWidget):
         clean_i = 0
         average_map_basename = os.path.basename(average_map)
         if not manifold_num or math.isnan(manifold_num):
-                    self.logger.warning("No Tomo Name: {}.".format(tomo_name))
+            self.logger.warning("No Tomo Name: {}.".format(tomo_name))
+            return 0
         else:
             with open(output_file_name, "w") as outfile:
                 with open(clean_version_star, "w") as c_star_file:
@@ -1113,9 +1114,10 @@ class OtherUtils(QTabWidget):
                             outfile.write(turn_cmds+"\n")
                             outfile.write(color_cmds+"\n")
 
-            outfile.write("view\n")  
+                outfile.write("view\n")  
 
-        self.logger.info("Original: {}; Clean version: {}.".format(global_id, clean_i))
+            self.logger.info("Original: {}; Clean version: {}.".format(global_id, clean_i))
+            return 1
     
     def placeback(self):
         params = self.get_placeback_params()
@@ -1130,9 +1132,10 @@ class OtherUtils(QTabWidget):
                 self.pushButton_place_back.setText("STOP")
                 self.pushButton_place_back.setStyleSheet('QPushButton {color: red;}')
                 
-                self.generate_cxs_file(params)
+                result = self.generate_cxs_file(params)
 
-                self.logger.info("Done getting placeback session file for ChimeraX: {}!".format(params['tomo_name']))
+                if result == 1:
+                    self.logger.info("Done getting placeback session file for ChimeraX: {}!".format(params['tomo_name']))
                 
                 self.cmd_finished(self.pushButton_place_back)
     
