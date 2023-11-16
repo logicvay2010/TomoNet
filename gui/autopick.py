@@ -974,7 +974,7 @@ class Autopick(QTabWidget):
                 label_size = string2int(label_size)
 
         if not len(self.lineEdit_lr.text()) > 0:
-            lr = 0.5
+            lr = 0.0001
         else:
             lr = self.lineEdit_lr.text()
             if string2float(lr,d=10) == None or string2float(lr,d=10) <=0 :
@@ -983,7 +983,7 @@ class Autopick(QTabWidget):
                 lr = string2float(lr,d=10)
 
         if not len(self.lineEdit_batch_size.text()) > 0:
-            batch_size = 16
+            batch_size = 4
         else:
             batch_size = self.lineEdit_batch_size.text()
             if string2int(batch_size) == None or string2int(batch_size) <=0 :
@@ -992,7 +992,7 @@ class Autopick(QTabWidget):
                 batch_size = string2int(batch_size)
         
         if not len(self.lineEdit_steps_per_epoch.text()) > 0:
-            steps_per_epoch = 16
+            steps_per_epoch = 100
         else:
             steps_per_epoch = self.lineEdit_steps_per_epoch.text()
             if string2int(steps_per_epoch) == None or string2int(steps_per_epoch) <=0 :
