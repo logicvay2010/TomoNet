@@ -375,13 +375,13 @@ class Recon(QTabWidget):
             </span></p></body></html>"))
 
         self.label_base_name_index.setText(_translate("Form", "Base Name index:"))
-        self.lineEdit_base_name_index.setPlaceholderText(_translate("Form", "1-4"))
+        self.lineEdit_base_name_index.setPlaceholderText(_translate("Form", "1-3"))
         self.lineEdit_base_name_index.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
             This is different from the above Base Name. \
             It is used for identify which images come from the same Tomogram\
-            e.g., 1-4 for 20180101_HIV_mutant42_00030_30.0_ali.tif \
-            because 20180101_HIV_mutant42_00030 can define one of the tomogram. \
+            e.g., 1-3 for 20180101_HIV_mutant42_00030_30.0_ali.tif \
+            because 20180101_HIV_mutant42 can define one of the tomogram. \
             Only single integer or two integers (range) seperate by -\
             </span></p></body></html>"))
 
