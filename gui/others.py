@@ -1093,9 +1093,9 @@ class OtherUtils(QTabWidget):
                                     sum += math.acos(1-mat_norm[j][n])/math.pi*180
                                 if len(neignbors) > 0:
                                     avg_angle =  sum/len(neignbors) 
-                                r,g,b = getRGBs(avg_angle)
+                                r,g,b = getRGBs(avg_angle, max_angle=30)
                                 
-                                if len(neignbors) > 2 and avg_angle <= 45:
+                                if len(neignbors) > 1 and avg_angle <= 30:
                                     c_star_line = " ".join([str(x) for x in manifold_df.loc[j].values.flatten().tolist()][2:]) + "\n"
                                     c_star_file.write(c_star_line)
                                     clean_i+=1
@@ -1104,7 +1104,7 @@ class OtherUtils(QTabWidget):
                                 else:
                                     model_id = "{}.{}".format(real_patch_num, j+1)
 
-                                color_cmds = "{}color #{} {},{},{};\n".format(color_cmds, model_id, r, g, b)
+                                color_cmds = "{}color #{} rgb({},{},{});\n".format(color_cmds, model_id, r, g, b)
 
                             recenter_line = "vop #{} originIndex {},{},{};\n".format(real_patch_num, map_dimension[2]/2, map_dimension[1]/2, map_dimension[0]/2)
                             

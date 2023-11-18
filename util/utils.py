@@ -28,12 +28,16 @@ def mkfolder(folder):
 def natural_keys(text, delimiter='_', index=-1):
         return int(text.split(delimiter)[index])
 
-def getRGBs(a):
-	ratio = min(1, a/30)
-	r = round(255*ratio,2)
-	g = round(255*(1-ratio))
-	b = 0
-	return r,g,b
+def getRGBs(a, max_angle=15, avg_angle=0):
+    offset = max(0, max_angle - avg_angle)
+    a_offset = max(0, a - avg_angle)
+    ratio = min(1, a_offset/offset)
+    r = round(255*ratio)
+    g = 155
+    b = 0
+    #g = 60
+    #b = round(255*(1-ratio))
+    return r, g, b
 
 def check_or_create_path(folder):
     if not os.path.exists(folder):
