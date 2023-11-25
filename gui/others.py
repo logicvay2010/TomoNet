@@ -511,8 +511,6 @@ class OtherUtils(QTabWidget):
         self.lineEdit_pixel_size_fitin_map.setObjectName("lineEdit_pixel_size_fitin_map")
         self.horizontalLayout_2_3.addWidget(self.lineEdit_pixel_size_fitin_map)
 
-# NEWWWW
-
         self.horizontalLayout_2_4 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2_4.setContentsMargins(10, 5, 10, 5)
 
@@ -555,9 +553,6 @@ class OtherUtils(QTabWidget):
         self.lineEdit_avg_angle.setInputMask("")
         self.lineEdit_avg_angle.setObjectName("lineEdit_avg_angle")
         self.horizontalLayout_2_4.addWidget(self.lineEdit_avg_angle)
-
-        
-# NEWWWW
  
         # the last H layout
         self.horizontalLayout_last_2 = QtWidgets.QHBoxLayout()
@@ -583,11 +578,8 @@ class OtherUtils(QTabWidget):
         self.gridLayout_pick_params.addLayout(self.horizontalLayout_2_1, 0, 0, 1, 1)
         self.gridLayout_pick_params.addLayout(self.horizontalLayout_2_2, 1, 0, 1, 1)
         self.gridLayout_pick_params.addLayout(self.horizontalLayout_2_3, 2, 0, 1, 1)
-    
-# New
-        self.gridLayout_pick_params.addLayout(self.horizontalLayout_2_4, 3, 0, 1, 1)
-# New
 
+        self.gridLayout_pick_params.addLayout(self.horizontalLayout_2_4, 3, 0, 1, 1)
 
         self.spacerItem6 = QtWidgets.QSpacerItem(10, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.gridLayout_pick_params.addItem(self.spacerItem6, 4, 0, 1, 1)
@@ -651,8 +643,6 @@ class OtherUtils(QTabWidget):
             "<html><head/><body><p><span style=\" \
             font-size:9pt;\">Distance between two repeating unit.</span></p></body></html>"))
 
-        # NEW
-
         self.label_min_num_neighbors.setText(_translate("Form", "Min # of neighbors:"))
         self.label_min_num_neighbors.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\""))
@@ -670,11 +660,6 @@ class OtherUtils(QTabWidget):
         self.lineEdit_avg_angle.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
             font-size:9pt;\">Maximum neighbor angle tolerance.</span></p></body></html>"))
-
-
-
-
-        # NEW
 
         self.pushButton_place_back.setText(_translate("Form", "RUN"))
           
@@ -728,12 +713,8 @@ class OtherUtils(QTabWidget):
         data['pixel_size_fitin_map'] =""
         data['unit_size_cxs'] =""
 
-        # New
         data['min_num_neighbors'] =""
         data['avg_angle'] =""
-
-        # New
-
 
         try:
             with open(self.setting_file) as f:
@@ -764,13 +745,8 @@ class OtherUtils(QTabWidget):
         self.lineEdit_pixel_size_fitin_map.setText(data['pixel_size_fitin_map'])
         self.lineEdit_unit_size_cxs.setText(data['unit_size_cxs'])
 
-        # New
-
         self.lineEdit_min_num_neighbors.setText(data['min_num_neighbors'])
         self.lineEdit_avg_angle.setText(data['avg_angle'])
-
-        # New
-
           
     def save_setting(self):
         param = {}
@@ -789,14 +765,10 @@ class OtherUtils(QTabWidget):
         param['tomo_name'] = self.lineEdit_tomo_name.text()
         param['pixel_size_unbinned'] = self.lineEdit_pixel_size_unbinned.text()
         param['pixel_size_fitin_map'] = self.lineEdit_pixel_size_fitin_map.text()
+       
         param['unit_size_cxs'] = self.lineEdit_unit_size_cxs.text()
-
-        # NEW
-
         param['min_num_neighbors'] = self.lineEdit_min_num_neighbors.text()
         param['avg_angle'] = self.lineEdit_avg_angle.text()
-
-        # NEW
 
         try:
             with open(self.setting_file, 'w') as f: 
@@ -1090,13 +1062,8 @@ class OtherUtils(QTabWidget):
         output_file_name = "{}/placeback_tomo_{}.cxc".format(self.others_folder, tomo_name)
         clean_version_star = "{}/clean_tomo_{}.star".format(self.others_folder, tomo_name)
         bin_factor = params['pixel_size_fitin_map']/params['pixel_size_unbinned']
-        
-        # New
-
         Min_neighbors = params['min_num_neighbors']
         Avg_angle_limit = params['avg_angle']
-        # New
-
 
         with mrcfile.open(average_map) as mrcData:
             orig_data = mrcData.data.astype(np.float32)
@@ -1194,13 +1161,11 @@ class OtherUtils(QTabWidget):
                                 if len(neignbors) > 0:
                                     avg_angle =  sum/len(neignbors)
 
-                                # New 
                                 #r,g,b = getRGBs(avg_angle, max_angle=30)
                                 r,g,b = getRGBs(avg_angle, max_angle= Avg_angle_limit)
                                 
                                 #if len(neignbors) > 1 and avg_angle <= 30:
                                 if len(neignbors) > Min_neighbors and avg_angle <= Avg_angle_limit:
-                                # New
                                     c_star_line = " ".join([str(x) for x in manifold_df.loc[j].values.flatten().tolist()][2:]) + "\n"
                                     c_star_file.write(c_star_line)
                                     clean_i+=1
