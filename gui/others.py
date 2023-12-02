@@ -472,6 +472,10 @@ class OtherUtils(QTabWidget):
         self.horizontalLayout_2_3.setContentsMargins(10, 5, 10, 5)
 
         self.label_tomo_name = QtWidgets.QLabel(self.tab2)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_fitin_map_file.sizePolicy().hasHeightForWidth())
         self.label_tomo_name.setSizePolicy(sizePolicy)
         self.label_tomo_name.setMinimumSize(QtCore.QSize(130, 0))
         self.label_tomo_name.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
@@ -507,17 +511,48 @@ class OtherUtils(QTabWidget):
         self.lineEdit_pixel_size_fitin_map.setObjectName("lineEdit_pixel_size_fitin_map")
         self.horizontalLayout_2_3.addWidget(self.lineEdit_pixel_size_fitin_map)
 
+        self.horizontalLayout_2_4 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2_4.setContentsMargins(10, 5, 10, 5)
+
         self.label_unit_size_cxs = QtWidgets.QLabel(self.tab2)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_unit_size_cxs.sizePolicy().hasHeightForWidth())
         self.label_unit_size_cxs.setSizePolicy(sizePolicy)
-        self.label_unit_size_cxs.setMinimumSize(QtCore.QSize(150, 0))
+        self.label_unit_size_cxs.setMinimumSize(QtCore.QSize(130, 0))
         self.label_unit_size_cxs.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_unit_size_cxs.setObjectName("label_unit_size_cxs")
-        self.horizontalLayout_2_3.addWidget(self.label_unit_size_cxs)
+        self.horizontalLayout_2_4.addWidget(self.label_unit_size_cxs)
 
         self.lineEdit_unit_size_cxs = QtWidgets.QLineEdit(self.tab2)
         self.lineEdit_unit_size_cxs.setInputMask("")
         self.lineEdit_unit_size_cxs.setObjectName("lineEdit_unit_size_cxs")
-        self.horizontalLayout_2_3.addWidget(self.lineEdit_unit_size_cxs)
+        self.horizontalLayout_2_4.addWidget(self.lineEdit_unit_size_cxs)
+
+        self.label_min_num_neighbors = QtWidgets.QLabel(self.tab2)
+        self.label_min_num_neighbors.setSizePolicy(sizePolicy)
+        self.label_min_num_neighbors.setMinimumSize(QtCore.QSize(130, 0))
+        self.label_min_num_neighbors.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_min_num_neighbors.setObjectName("label_min_num_neighbors")
+        self.horizontalLayout_2_4.addWidget(self.label_min_num_neighbors)
+
+        self.lineEdit_min_num_neighbors = QtWidgets.QLineEdit(self.tab2)
+        self.lineEdit_min_num_neighbors.setInputMask("")
+        self.lineEdit_min_num_neighbors.setObjectName("lineEdit_min_num_neighbors")
+        self.horizontalLayout_2_4.addWidget(self.lineEdit_min_num_neighbors)
+
+        self.label_avg_angle = QtWidgets.QLabel(self.tab2)
+        self.label_avg_angle.setSizePolicy(sizePolicy)
+        self.label_avg_angle.setMinimumSize(QtCore.QSize(130, 0))
+        self.label_avg_angle.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_avg_angle.setObjectName("label_avg_angle")
+        self.horizontalLayout_2_4.addWidget(self.label_avg_angle)
+
+        self.lineEdit_avg_angle = QtWidgets.QLineEdit(self.tab2)
+        self.lineEdit_avg_angle.setInputMask("")
+        self.lineEdit_avg_angle.setObjectName("lineEdit_avg_angle")
+        self.horizontalLayout_2_4.addWidget(self.lineEdit_avg_angle)
  
         # the last H layout
         self.horizontalLayout_last_2 = QtWidgets.QHBoxLayout()
@@ -544,11 +579,12 @@ class OtherUtils(QTabWidget):
         self.gridLayout_pick_params.addLayout(self.horizontalLayout_2_2, 1, 0, 1, 1)
         self.gridLayout_pick_params.addLayout(self.horizontalLayout_2_3, 2, 0, 1, 1)
 
+        self.gridLayout_pick_params.addLayout(self.horizontalLayout_2_4, 3, 0, 1, 1)
 
         self.spacerItem6 = QtWidgets.QSpacerItem(10, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_pick_params.addItem(self.spacerItem6, 3, 0, 1, 1)
+        self.gridLayout_pick_params.addItem(self.spacerItem6, 4, 0, 1, 1)
 
-        self.gridLayout_pick_params.addLayout(self.horizontalLayout_last_2, 4, 0, 1, 1)
+        self.gridLayout_pick_params.addLayout(self.horizontalLayout_last_2, 5, 0, 1, 1)
     
     def retranslateUi_tab2(self):
         _translate = QtCore.QCoreApplication.translate
@@ -607,6 +643,24 @@ class OtherUtils(QTabWidget):
             "<html><head/><body><p><span style=\" \
             font-size:9pt;\">Distance between two repeating unit.</span></p></body></html>"))
 
+        self.label_min_num_neighbors.setText(_translate("Form", "Min # of neighbors:"))
+        self.label_min_num_neighbors.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\""))
+        
+        self.lineEdit_min_num_neighbors.setPlaceholderText(_translate("Form", ""))
+        self.lineEdit_min_num_neighbors.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            font-size:9pt;\">Minimum number of neighboring particles that is tolerated.</span></p></body></html>"))
+        
+        self.label_avg_angle.setText(_translate("Form", "Average Angle:"))
+        self.label_avg_angle.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\""))
+        
+        self.lineEdit_avg_angle.setPlaceholderText(_translate("Form", ""))
+        self.lineEdit_avg_angle.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            font-size:9pt;\">Maximum neighbor angle tolerance.</span></p></body></html>"))
+
         self.pushButton_place_back.setText(_translate("Form", "RUN"))
           
     @QtCore.pyqtSlot(str)
@@ -659,6 +713,9 @@ class OtherUtils(QTabWidget):
         data['pixel_size_fitin_map'] =""
         data['unit_size_cxs'] =""
 
+        data['min_num_neighbors'] =""
+        data['avg_angle'] =""
+
         try:
             with open(self.setting_file) as f:
                 for line in f:
@@ -687,6 +744,9 @@ class OtherUtils(QTabWidget):
         self.lineEdit_pixel_size_unbinned.setText(data['pixel_size_unbinned'])
         self.lineEdit_pixel_size_fitin_map.setText(data['pixel_size_fitin_map'])
         self.lineEdit_unit_size_cxs.setText(data['unit_size_cxs'])
+
+        self.lineEdit_min_num_neighbors.setText(data['min_num_neighbors'])
+        self.lineEdit_avg_angle.setText(data['avg_angle'])
           
     def save_setting(self):
         param = {}
@@ -705,7 +765,11 @@ class OtherUtils(QTabWidget):
         param['tomo_name'] = self.lineEdit_tomo_name.text()
         param['pixel_size_unbinned'] = self.lineEdit_pixel_size_unbinned.text()
         param['pixel_size_fitin_map'] = self.lineEdit_pixel_size_fitin_map.text()
+       
         param['unit_size_cxs'] = self.lineEdit_unit_size_cxs.text()
+        param['min_num_neighbors'] = self.lineEdit_min_num_neighbors.text()
+        param['avg_angle'] = self.lineEdit_avg_angle.text()
+
         try:
             with open(self.setting_file, 'w') as f: 
                 for key, value in param.items(): 
@@ -998,7 +1062,9 @@ class OtherUtils(QTabWidget):
         output_file_name = "{}/placeback_tomo_{}.cxc".format(self.others_folder, tomo_name)
         clean_version_star = "{}/clean_tomo_{}.star".format(self.others_folder, tomo_name)
         bin_factor = params['pixel_size_fitin_map']/params['pixel_size_unbinned']
-        
+        Min_neighbors = params['min_num_neighbors']
+        Avg_angle_limit = params['avg_angle']
+
         with mrcfile.open(average_map) as mrcData:
             orig_data = mrcData.data.astype(np.float32)
 
@@ -1086,16 +1152,20 @@ class OtherUtils(QTabWidget):
                             color_cmds = ""
 
                             for j in range(pNum_i):
+                                
                                 neignbors = getNeighbors(mat_coords[j], j, dis_unit*dis_ratio)
                                 sum = 0
                                 avg_angle = 0
                                 for n in neignbors:		
                                     sum += math.acos(1-mat_norm[j][n])/math.pi*180
                                 if len(neignbors) > 0:
-                                    avg_angle =  sum/len(neignbors) 
-                                r,g,b = getRGBs(avg_angle, max_angle=30)
+                                    avg_angle =  sum/len(neignbors)
+
+                                #r,g,b = getRGBs(avg_angle, max_angle=30)
+                                r,g,b = getRGBs(avg_angle, max_angle= Avg_angle_limit)
                                 
-                                if len(neignbors) > 1 and avg_angle <= 30:
+                                #if len(neignbors) > 1 and avg_angle <= 30:
+                                if len(neignbors) > Min_neighbors and avg_angle <= Avg_angle_limit:
                                     c_star_line = " ".join([str(x) for x in manifold_df.loc[j].values.flatten().tolist()][2:]) + "\n"
                                     c_star_file.write(c_star_line)
                                     clean_i+=1
