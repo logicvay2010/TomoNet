@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import QTabWidget, QMessageBox
 
 from TomoNet.util import browse
 import os, glob
-from TomoNet.util.utils import check_log_file, getLogContent, string2float, getRGBs
+from TomoNet.util.utils import check_log_file, getLogContent, string2float, string2int, getRGBs
 from TomoNet.util.utils import mkfolder
 
 from TomoNet.util.geometry import get_raw_shifts_PEET, apply_slicerRot_PEET, PEET2Relion, Relion2ChimeraX, getNeighbors
@@ -1041,6 +1041,22 @@ class OtherUtils(QTabWidget):
         else:
             unit_size_cxs = 10000.0
 
+        if len(self.lineEdit_min_num_neighbors.text()) > 0:
+            if not string2int(self.lineEdit_min_num_neighbors.text()) == None:
+                min_num_neighbors = string2int(self.lineEdit_min_num_neighbors.text())
+            else:
+                return "Please use the valid format for the min num of neighbors!"
+        else:
+            min_num_neighbors = 0
+
+        if len(self.lineEdit_avg_angle.text()) > 0:
+            if not string2float(self.lineEdit_avg_angle.text()) == None:
+                avg_angle = string2float(self.lineEdit_avg_angle.text())
+            else:
+                return "Please use the valid format for the averaged angle to neighbors!"
+        else:
+            avg_angle = 180
+
         params = {}
         params['result_folder'] = "{}/placeback_result".format(self.others_folder)
         params['data_star_file'] = data_star_file
@@ -1049,6 +1065,8 @@ class OtherUtils(QTabWidget):
         params['pixel_size_unbinned'] = pixel_size_unbinned
         params['pixel_size_fitin_map'] = pixel_size_fitin_map
         params['unit_size_cxs'] = unit_size_cxs
+        params['min_num_neighbors'] = min_num_neighbors
+        params['avg_angle'] = avg_angle
         
         
         return params
@@ -1159,20 +1177,13 @@ class OtherUtils(QTabWidget):
                                 for n in neignbors:		
                                     sum += math.acos(1-mat_norm[j][n])/math.pi*180
                                 if len(neignbors) > 0:
-<<<<<<< HEAD
                                     avg_angle =  sum/len(neignbors)
 
                                 #r,g,b = getRGBs(avg_angle, max_angle=30)
                                 r,g,b = getRGBs(avg_angle, max_angle= Avg_angle_limit)
                                 
                                 #if len(neignbors) > 1 and avg_angle <= 30:
-                                if len(neignbors) > Min_neighbors and avg_angle <= Avg_angle_limit:
-=======
-                                    avg_angle =  sum/len(neignbors) 
-                                r,g,b = getRGBs(avg_angle, max_angle=15, avg_angle=0)
-                                
-                                if len(neignbors) > 1 and avg_angle <= 15:
->>>>>>> 0fab92d (1202 win desktop)
+                                if len(neignbors) >= Min_neighbors and avg_angle <= Avg_angle_limit:
                                     c_star_line = " ".join([str(x) for x in manifold_df.loc[j].values.flatten().tolist()][2:]) + "\n"
                                     c_star_file.write(c_star_line)
                                     clean_i+=1
