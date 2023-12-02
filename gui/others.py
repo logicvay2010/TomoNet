@@ -1159,6 +1159,7 @@ class OtherUtils(QTabWidget):
                                 for n in neignbors:		
                                     sum += math.acos(1-mat_norm[j][n])/math.pi*180
                                 if len(neignbors) > 0:
+<<<<<<< HEAD
                                     avg_angle =  sum/len(neignbors)
 
                                 #r,g,b = getRGBs(avg_angle, max_angle=30)
@@ -1166,6 +1167,12 @@ class OtherUtils(QTabWidget):
                                 
                                 #if len(neignbors) > 1 and avg_angle <= 30:
                                 if len(neignbors) > Min_neighbors and avg_angle <= Avg_angle_limit:
+=======
+                                    avg_angle =  sum/len(neignbors) 
+                                r,g,b = getRGBs(avg_angle, max_angle=15, avg_angle=0)
+                                
+                                if len(neignbors) > 1 and avg_angle <= 15:
+>>>>>>> 0fab92d (1202 win desktop)
                                     c_star_line = " ".join([str(x) for x in manifold_df.loc[j].values.flatten().tolist()][2:]) + "\n"
                                     c_star_file.write(c_star_line)
                                     clean_i+=1
