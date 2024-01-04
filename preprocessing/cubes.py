@@ -2,6 +2,7 @@ import numpy as np
 import scipy.cluster.hierarchy as hcluster
 
 from TomoNet.util.io import log
+from TomoNet.util.geometry import in_boundary
 
 def create_cube_seeds(img3D,nCubesPerImg,cubeSideLen,mask=None):
     sp=img3D.shape
@@ -31,8 +32,14 @@ def create_cube_seeds_new(img3D, nCubesPerImg, cubeSideLen, coords, mask=None, l
     for i in range(len(set(clusters))):
         #x,y,z = np.mean(coords[np.argwhere(clusters == i+1)], axis=0)[0] 
         x,y,z = coords[np.argwhere(clusters == i+1)][0][0]
+        
+        if in_boundary([z,y,x], sp, cubeSideLen//2):
+            random_shifts = np.random.choice(cubeSideLen, 3) - cubeSideLen//2
+            x,y,z = np.array([x,y,z]) + random_shifts
+        
+        #x,y,z = [int(p) for p in [x,y,z]]
         x,y,z = [int(p) for p in [x,y,z]]
-        #print(x,y,z)
+        
         mask_coords[z,y,x] = 1
     
     #with mrcfile.new("mask_coords.mrc", overwrite=True) as output_mrc:

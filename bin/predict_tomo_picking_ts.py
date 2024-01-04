@@ -36,6 +36,7 @@ if __name__ == "__main__":
     y_label_size_predict = int(sys.argv[9])  
     tolerance = float(sys.argv[10])  
 
+    #check if running using terminal or GUI 
     if len(params) == 12:
         log_file = params[11]
         logger = logging.getLogger(__name__)
@@ -48,22 +49,27 @@ if __name__ == "__main__":
     else:
         logger = None
 
+    save_patch_MODE = False
+    # create result folder if not exist
     if not os.path.exists(result_dir):
         os.mkdir(result_dir)
-
     
+    # make a folder storing intermediate subtomograms
     data_dir = "{}/data".format(result_dir)
     mkfolder(data_dir)
 
+    # get the current tomogram base name and read the volume
     log(logger, "######## Predicting tomogram {} ########".format(tomoName))
     baseName = tomoName.split('/')[-1].split('.')[0]
     with mrcfile.open(tomoName) as mrcData:
         orig_data = mrcData.data.astype(np.float32)
-
+    
+    # check if mask file used
     mask_data = None
     if not (mask_file == "None" or mask_file == None):
         with mrcfile.open(mask_file) as m:
                 mask_data = m.data
+        log(logger, "######## Using mask file {} ########".format(mask_file))
 
     sp = np.array(orig_data.shape)
     #print(sp)
@@ -76,7 +82,7 @@ if __name__ == "__main__":
     pad_orig_data = np.pad(orig_data, ((pad_width[0], pad_width[0]),(pad_width[1], pad_width[1]),(pad_width[2], pad_width[2])), 'mean')
     orig_data = pad_orig_data
     sp = np.array(orig_data.shape)
-    if mask_data:
+    if not (mask_file == "None" or mask_file == None):
          mask_data = np.pad(mask_data, ((pad_width[0], pad_width[0]),(pad_width[1], pad_width[1]),(pad_width[2], pad_width[2])), 'constant')
     
     
@@ -84,12 +90,15 @@ if __name__ == "__main__":
 
     crop_start = margin_1
 
-
     count = 0
     location_origins = "{}/location_origins.txt".format(result_dir)
     location_origins_list = []
     log(logger, "Calculated subtomos #:{}".format(sidelen[0]*sidelen[1]*sidelen[2]))
     #with open(location_origins, "w") as f:
+    voxel_num = crop_size**3
+    #print(voxel_num/4)    
+    #print(np.where(mask_data==0)[0])
+    #print(len(np.where(mask_data==0)[0]))
     for i in range(sidelen[0]):
         for j in range(sidelen[1]):
             for k in range(sidelen[2]):
@@ -100,7 +109,11 @@ if __name__ == "__main__":
                 
                 if not (mask_file == "None" or mask_file == None):
                         if np.sum(mask_data[z1:z2, y1:y2, x1:x2]) <= 0:
-                            continue    
+                            continue
+                        # use a default number of one fourth as threshold for using a subtomogram
+                        
+                        #if len(np.where(mask_data[z1:z2, y1:y2, x1:x2]==0)[0]) <= voxel_num/4:
+                        #    continue
                 cube = orig_data[z1:z2, y1:y2, x1:x2]
 
                 cube = normalize(cube)
@@ -131,8 +144,8 @@ if __name__ == "__main__":
     network.load(model_file)
 
     pred_dir = "{}/predict".format(result_dir)
-    if not os.path.exists(pred_dir):
-        mkfolder(pred_dir)
+    #if not os.path.exists(pred_dir):
+    mkfolder(pred_dir)
     
     log(logger,"trained_model={}".format(model_file))
     log(logger,"tolerance={}".format(tolerance))
@@ -183,8 +196,6 @@ if __name__ == "__main__":
         else:
             pass
         
-        
-    
     particle_list = np.array(particle_list)
     particle_list_rmdup = []
     particle_dup_ratio = 0.75
@@ -220,6 +231,7 @@ if __name__ == "__main__":
                                 #w.write("{} {} {}\n".format(n[0]+1,n[1]+1,n[2]+1))
                                 
                                 if n[0]+1-pad_width[2] > 0 and n[1]+1-pad_width[1] > 0 and n[2]+1-pad_width[0] > 0:
+                                    #if mask_data[int(n[0])][int(n[1])][int(n[2])] > 0:
                                     w.write("{} {} {} {}\n".format(patch_c+1, n[0]+1-pad_width[2], n[1]+1-pad_width[1], n[2]+1-pad_width[0]))
                                     wp.write("{} {} {}\n".format(n[0]+1-pad_width[2], n[1]+1-pad_width[1], n[2]+1-pad_width[0]))
                                     min_num_c+=1
@@ -227,8 +239,12 @@ if __name__ == "__main__":
                                 #    
                                 #    w.write("{} {} {}\n".format(n[0]+1,n[1]+1,n[2]+1))
                         prefix_temp = "{}_patch_{}".format(baseName, patch_c+1)
-                        cmd_pts2mod = "cd {}; point2model {}.pts {}.mod -sc -sp 3; rm {}.pts".format(result_dir,prefix_temp, prefix_temp, prefix_temp)
-                        subprocess.check_output(cmd_pts2mod, shell=True)
+                        if save_patch_MODE:
+                            cmd_pts2mod = "cd {}; point2model {}.pts {}.mod -sc -sp 3; rm {}.pts".format(result_dir, prefix_temp, prefix_temp, prefix_temp)
+                            subprocess.check_output(cmd_pts2mod, shell=True)
+                        else:
+                            cmd_pts2mod = "cd {}; rm {}.pts".format(result_dir, prefix_temp)
+                            subprocess.check_output(cmd_pts2mod, shell=True)
                         patch_c+=1
                     #x,y,z = np.mean(particle_list[np.argwhere(clusters == i+1)], axis=0)[0]
                     #if x >=margin_1 and x <=crop_size-margin_1 and y >=margin_1 and y <=crop_size-margin_1 and z >=margin_1 and z <=crop_size-margin_1:
@@ -239,9 +255,9 @@ if __name__ == "__main__":
     log(logger, "Particle # after remove small patches:{}".format(min_num_c))
     
     ####### save global map prediction #############
-    #global_map_filename = "{}/predict.mrc".format(result_dir)
-    #with mrcfile.new(global_map_filename, overwrite=True) as output_mrc:
-    #    output_mrc.set_data(global_map)
+    global_map_filename = "{}/predict.mrc".format(result_dir)
+    with mrcfile.new(global_map_filename, overwrite=True) as output_mrc:
+       output_mrc.set_data(global_map)
     #local center cluster
     #output will be a list of coordinates
     
@@ -254,6 +270,8 @@ if __name__ == "__main__":
     #rm predict folder
     if os.path.exists(pred_dir):
         shutil.rmtree(pred_dir)
+    if os.path.exists("{}~".format(pred_dir)):
+        shutil.rmtree("{}~".format(pred_dir))
     if os.path.exists(data_dir):
         shutil.rmtree(data_dir)
     log(logger, "Particles saved for {} --- {} mins ---".format(baseName, round((time.time() - start_time)/60, 2)))

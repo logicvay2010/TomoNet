@@ -44,8 +44,8 @@ class Train_network(QThread):
         else:
             subprocess.run(cmd, shell=True, encoding="utf-8", stdout=subprocess.PIPE)
 
-        with open("{}/param.json".format(self.d['result_folder_train']), 'w') as fp:
-            json.dump(self.d, fp, indent=2, default=int)
+            with open("{}/param.json".format(self.d['result_folder_train']), 'w') as fp:
+                json.dump(self.d, fp, indent=2, default=int)
 
         cmd = "train_picking_ts.py {} {} {} {} {} {} {} {}".format(self.d['result_folder_train'], self.d['continue_from_model'], \
                 self.d['epoch_num'], self.d['GPU_id'], self.d['lr'], self.d['batch_size'], self.d['steps_per_epoch'], self.log_file)

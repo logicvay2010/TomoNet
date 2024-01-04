@@ -72,6 +72,13 @@ def extract_subtomos_one(tomoName, maskName, coordsFile, data_dir, label_size, n
             high_x = x+crop_size//2 if x < (sp[2] - crop_size//2)  else sp[2]
             high_y = y+crop_size//2 if y < (sp[1] - crop_size//2)  else sp[1]
             high_z = z+crop_size//2 if z < (sp[0] - crop_size//2)  else sp[0]
+
+            # low_x = x-int(crop_size/1.5) if x > int(crop_size/1.5) else 1
+            # low_y = y-int(crop_size/1.5) if y > int(crop_size/1.5) else 1
+            # low_z = z-int(crop_size/1.5) if z > int(crop_size/1.5) else 1
+            # high_x = x+int(crop_size/1.5) if x < (sp[2] - int(crop_size/1.5))  else sp[2]
+            # high_y = y+int(crop_size/1.5) if y < (sp[1] - int(crop_size/1.5))  else sp[1]
+            # high_z = z+int(crop_size/1.5) if z < (sp[0] - int(crop_size/1.5))  else sp[0]
             
             mask_data[low_z:high_z, low_y:high_y, low_x:high_x] = 1
 
