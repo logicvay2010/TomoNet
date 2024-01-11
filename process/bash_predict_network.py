@@ -26,11 +26,12 @@ class Predict_network(QThread):
         mask_list = []
         for tomo in tomo_list:
             if tomo.endswith(".mrc"):
-                prefix = tomo.split(".mrc")
+                prefix = tomo.split(".mrc")[0]
                 suffix = ".mrc"
             else:
-                prefix = tomo.split(".rec")
+                prefix = tomo.split(".rec")[0]
                 suffix = ".rec"
+
             mask_file = "{}_mask{}".format(prefix, suffix)
             if os.path.exists(mask_file):
                 mask_list.append(mask_file)
@@ -58,20 +59,33 @@ class Predict_network(QThread):
             else:
                 subprocess.run(cmd, shell=True, encoding="utf-8", stdout=open(self.log_file, 'a'))
         
-        with open("{}/param.json".format(predict_result_path), 'w') as fp:
-            json.dump(self.d, fp, indent=2, default=int)        
+                with open("{}/param.json".format(predict_result_path), 'w') as fp:
+                    json.dump(self.d, fp, indent=2, default=int)        
         
     def get_tomo_list(self, folder):
 
         rec_files = set(glob.glob("{}/*.rec".format(folder)))
         tomo_files = set(glob.glob("{}/*.mrc".format(folder)))
         tomo_files.update(rec_files)
-
         tomo_files = list(tomo_files)
-        
-        return sorted(tomo_files)
+        tomo_files_filtered = []
+        for tomo in tomo_files:
+            if "mask" not in tomo:
+                tomo_files_filtered.append(tomo)
+        return sorted(tomo_files_filtered)
 
     def stop_process(self):
+
+        import psutil, time
         self.terminate()
         self.quit()
         self.wait()
+        
+        # while True:
+        #     a = [p.info['pid'] for p in psutil.process_iter(attrs=['pid', 'name']) if ('python' == p.info['name'] or 'python3' == p.info['name'])]
+        #     print(a)
+        #     if len(a) > 0:
+        #         [p.kill() for p in psutil.process_iter(attrs=['pid', 'name']) if ('python' == p.info['name'] or 'python3' == p.info['name'])]
+        #     else:
+        #         break
+        #     time.sleep(3)
