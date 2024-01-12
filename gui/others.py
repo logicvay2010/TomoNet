@@ -879,7 +879,7 @@ class OtherUtils(QTabWidget):
             random_euler = True
             self.logger.warning("MOTL.csv file is not detected for tomogram {}, use random euler angles instead!".format(tomo))
 
-        if len(origin_coords_lines) <=0 or origin_coords_lines.shape[1] <3 or origin_coords_lines.shape[1] >4:
+        if len(origin_coords_lines) <=0 or origin_coords_lines.shape[1] < 3 or origin_coords_lines.shape[1] > 4:
             self.logger.warning(".pts file format is wrong for tomogram {}, skip it!".format(tomo))
         else:
             with open(output_coords_file, 'w') as w_c:
@@ -962,6 +962,7 @@ class OtherUtils(QTabWidget):
                         particle_index +=1
                 except:
                     self.logger.warning("{} has invalid final result, skip it!".format(tomo))
+    
     def assemble(self):
         params = self.get_assemble_params()
         #print(params)

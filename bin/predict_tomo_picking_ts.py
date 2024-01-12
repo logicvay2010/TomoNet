@@ -95,7 +95,12 @@ if __name__ == "__main__":
     location_origins_list = []
     log(logger, "Calculated subtomos #:{}".format(sidelen[0]*sidelen[1]*sidelen[2]))
     #with open(location_origins, "w") as f:
-    voxel_num = crop_size**3
+    #voxel num for cubic labeling
+    #voxel_num = crop_size**3
+
+    #voxel num for psedo sphere labeling
+    #voxel_num = crop_size**3/4
+
     #print(voxel_num/4)    
     #print(np.where(mask_data==0)[0])
     #print(len(np.where(mask_data==0)[0]))
@@ -110,10 +115,11 @@ if __name__ == "__main__":
                 if not (mask_file == "None" or mask_file == None):
                         if np.sum(mask_data[z1:z2, y1:y2, x1:x2]) <= 0:
                             continue
-                        # use a default number of one fourth as threshold for using a subtomogram
                         
-                        #if len(np.where(mask_data[z1:z2, y1:y2, x1:x2]==0)[0]) <= voxel_num/4:
-                        #    continue
+                # use a default number (voxel_num) as threshold for using a subtomogram        
+                #elif len(np.where(mask_data[z1:z2, y1:y2, x1:x2]==0)[0]) <= voxel_num:
+                #        continue
+                
                 cube = orig_data[z1:z2, y1:y2, x1:x2]
 
                 cube = normalize(cube)
@@ -169,9 +175,18 @@ if __name__ == "__main__":
 
     thresh = 1.5
 
+    #create folder for current tomogram
+    tomoName_final = "{}_final".format(baseName)
+    tomo_current_dir = "{}/{}".format(result_dir, tomoName_final)
+    #if not os.path.exists(pred_dir):
+    mkfolder(tomo_current_dir)
+
     particle_list = []
     mini_cube_size = (y_label_size_predict*2)+1
+    # for cube labeling
     cube_activate_num = mini_cube_size**3*3
+    # for psedo sphere labeling (pyramid)
+    cube_activate_num = mini_cube_size**3*3/4
     for i in range(len(all_mrc_pred_list)):
         pred = all_mrc_pred_list[i]
 
@@ -216,14 +231,14 @@ if __name__ == "__main__":
     particle_list_rmdup = np.array(particle_list_rmdup)
     if particle_list_rmdup.shape[0] > 1:
         #with open("{}/{}_full.pts".format(result_dir, baseName),'w') as w:
-        with open("{}/{}.pts".format(result_dir, baseName),'w') as w:
+        with open("{}/{}/{}.pts".format(result_dir, tomoName_final, baseName),'w') as w:
             clusters = hcluster.fclusterdata(particle_list_rmdup, repeat_unit*patch_dis_ratio, criterion="distance")
             log(logger, "Detected patch #:{}".format(len(set(clusters))))
             for i in range(len(set(clusters))):
                     neighbors = np.squeeze(particle_list_rmdup[np.argwhere(clusters == i+1)], axis=1)
                     if len(neighbors) >= min_patch_size:
                         
-                        with open("{}/{}_patch_{}.pts".format(result_dir, baseName, patch_c+1),'w') as wp:
+                        with open("{}/{}/{}_patch_{}.pts".format(result_dir, tomoName_final, baseName, patch_c+1),'w') as wp:
                             #min_num_c+=len(neighbors)
                             for n in neighbors:
                                 #w.write("{} {} {}\n".format(n[0],n[1],n[2]))
@@ -240,10 +255,10 @@ if __name__ == "__main__":
                                 #    w.write("{} {} {}\n".format(n[0]+1,n[1]+1,n[2]+1))
                         prefix_temp = "{}_patch_{}".format(baseName, patch_c+1)
                         if save_patch_MODE:
-                            cmd_pts2mod = "cd {}; point2model {}.pts {}.mod -sc -sp 3; rm {}.pts".format(result_dir, prefix_temp, prefix_temp, prefix_temp)
+                            cmd_pts2mod = "cd {}/{}; point2model {}.pts {}.mod -sc -sp 3; rm {}.pts".format(result_dir, tomoName_final, prefix_temp, prefix_temp, prefix_temp)
                             subprocess.check_output(cmd_pts2mod, shell=True)
                         else:
-                            cmd_pts2mod = "cd {}; rm {}.pts".format(result_dir, prefix_temp)
+                            cmd_pts2mod = "cd {}/{}; rm {}.pts".format(result_dir, tomoName_final, prefix_temp)
                             subprocess.check_output(cmd_pts2mod, shell=True)
                         patch_c+=1
                     #x,y,z = np.mean(particle_list[np.argwhere(clusters == i+1)], axis=0)[0]
@@ -255,15 +270,18 @@ if __name__ == "__main__":
     log(logger, "Particle # after remove small patches:{}".format(min_num_c))
     
     ####### save global map prediction #############
-    global_map_filename = "{}/predict.mrc".format(result_dir)
-    with mrcfile.new(global_map_filename, overwrite=True) as output_mrc:
-       output_mrc.set_data(global_map)
+    #global_map_filename = "{}/{}/predict.mrc".format(result_dir, tomoName_final)
+    #with mrcfile.new(global_map_filename, overwrite=True) as output_mrc:
+    #   output_mrc.set_data(global_map)
+
+    cmd_linkMrc = "cd {}/{}; ln -s {} ./".format(result_dir, tomoName_final, tomoName)
+    subprocess.check_output(cmd_linkMrc, shell=True)
     #local center cluster
     #output will be a list of coordinates
     
     if min_num_c > 0:
-        mod_file = "{}/{}.mod".format(result_dir, baseName)
-        pts_file = "{}/{}.pts".format(result_dir, baseName)
+        mod_file = "{}/{}/{}.mod".format(result_dir, tomoName_final, baseName)
+        pts_file = "{}/{}/{}.pts".format(result_dir, tomoName_final, baseName)
         cmd_pts2mod = "point2model {} {} -sc -sp 3".format(pts_file, mod_file)
         subprocess.run(cmd_pts2mod, shell=True, encoding="utf-8")
 

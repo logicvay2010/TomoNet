@@ -32,9 +32,12 @@ class Predict_network(QThread):
                 prefix = tomo.split(".rec")[0]
                 suffix = ".rec"
 
-            mask_file = "{}_mask{}".format(prefix, suffix)
-            if os.path.exists(mask_file):
-                mask_list.append(mask_file)
+            mask_file_mrc = "{}_mask{}".format(prefix, ".mrc")
+            mask_file_rec = "{}_mask{}".format(prefix, ".rec")
+            if os.path.exists(mask_file_mrc):
+                mask_list.append(mask_file_mrc)
+            elif os.path.exists(mask_file_rec):
+                mask_list.append(mask_file_rec)
             else:
                 mask_list.append(None)
         input_model = self.d['input_model']
