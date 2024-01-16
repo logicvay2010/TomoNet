@@ -589,7 +589,10 @@ class Ctffind(QTabWidget):
                 if os.path.isfile("{}/{}_ctf.txt".format(f, tomoName)):
                     tomoNames.append(tomoName)
 
-        tomoNames.sort(key=self.natural_keys)
+        try:
+            tomoNames.sort(key=self.natural_keys)
+        except:
+            pass
 
 
         results = {}
