@@ -1,7 +1,7 @@
-bin/__pycache__
-gui/__pycache__
-models/__pycache__
-objects/__pycache__
-preprocessing/__pycache__
-process/__pycache__
-util/__pycache__
+bin/__pycache__/*
+gui/__pycache__/*
+models/__pycache__/*
+objects/__pycache__/*
+preprocessing/__pycache__/*
+process/__pycache__/*
+util/__pycache__/*

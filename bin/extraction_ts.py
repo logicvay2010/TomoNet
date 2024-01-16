@@ -162,9 +162,23 @@ def extract_subtomos_one(tomoName, maskName, coordsFile, data_dir, label_size, n
                 zmin = z - label_size if z >= label_size else 0
                 zmax = z + label_size + 1 if z < shape[0] - label_size else shape[0]
                 
-                #cube labeling
-                y_temp[zmin:zmax,ymin:ymax,xmin:xmax] = 1
+                #labeling (cubic)
+                #y_temp[zmin:zmax,ymin:ymax,xmin:xmax] = 1
+                
+                #labeling (psedo sphere)
+                #radius_label = label_size
+                #tuple_x, tuple_y, tuple_z = np.mgrid[0:xmax-xmin:1, 0:ymax-ymin:1, 0:zmax-zmin:1]
+                #distance_label = np.sqrt((tuple_x - x)**2 + (tuple_y - y)**2 + (tuple_z - z)**2)
+                #distance_label[distance_label > radius_label] = -1
+                #distance_label[distance_label >=0] = 1
+
                 #sphere labeling
+                for z_i in range(zmin,zmax):
+                    for y_i in range(ymin,ymax):
+                        for x_i in range(xmin,xmax):
+                            if abs(z-z_i) + abs(y-y_i) + abs(x-x_i) <= label_size:
+                                y_temp[z_i,y_i,x_i] = 1
+                
 
             for l in range(4):
                 x_name = '{}/{}/{}_x_{}_{}.mrc'.format(data_dir, dirs_tomake[0], baseName, j, l)
