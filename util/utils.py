@@ -29,8 +29,8 @@ def natural_keys(text, delimiter='_', index=-1):
         return int(text.split(delimiter)[index])
 
 def getRGBs(a, max_angle=15, avg_angle=0):
-    offset = max(0, max_angle - avg_angle)
-    a_offset = max(0, a - avg_angle)
+    offset = max(1e-12, max_angle - avg_angle)
+    a_offset = max(1e-12, a - avg_angle)
     ratio = min(1, a_offset/offset)
     r = round(255*ratio)
     g = 155

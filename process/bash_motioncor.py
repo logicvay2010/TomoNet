@@ -20,14 +20,17 @@ def check_output(output_file):
 
 def motioncor_single(param):
     cmd = '{}{}{}{}; {}'.format(param['cmd_1'],param['cmd_2'],param['cmd_3'],param['cmd_4'],param['cmd_5'])
-    subprocess.check_output(cmd, shell=True)
-    if check_output(param['output_file']):
-        cmd = param['cmd_6']
+    try:
         subprocess.check_output(cmd, shell=True)
+        if check_output(param['output_file']):
+            cmd = param['cmd_6']
+            subprocess.check_output(cmd, shell=True)
 
-        param['logger'].info('Done processing on GPU {}: {}'.format(param['gpu'], param['image']))
-    else:
-        param['logger'].warning('processing on GPU {} error: {}. Will try it later.'.format(param['gpu'], param['image']))
+            param['logger'].info('Done processing on GPU {}: {}'.format(param['gpu'], param['image']))
+        else:
+            param['logger'].warning('processing on GPU {} error: {}. Will try it later.'.format(param['gpu'], param['image']))
+    except:
+        param['logger'].warning('processing on GPU {} error: {}. File is not detected, maybe it is already been processed.'.format(param['gpu'], param['image']))
 
 
 class MotionCor2(QThread):

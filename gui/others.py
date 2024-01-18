@@ -652,7 +652,7 @@ class OtherUtils(QTabWidget):
             "<html><head/><body><p><span style=\" \
             font-size:9pt;\">Minimum number of neighboring particles that is tolerated.</span></p></body></html>"))
         
-        self.label_avg_angle.setText(_translate("Form", "Average Angle:"))
+        self.label_avg_angle.setText(_translate("Form", "Maximum Angle:"))
         self.label_avg_angle.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\""))
         
@@ -889,7 +889,8 @@ class OtherUtils(QTabWidget):
                         if not random_euler:
                             zxz_euler = np.array([float(origin_motl_lines[i][16]),float(origin_motl_lines[i][18]),float(origin_motl_lines[i][17])])
                         else:
-                            zxz_euler = np.random.rand(3,) * 360-180
+                            #zxz_euler = np.random.rand(3,) * 360-180
+                            zxz_euler = np.random.rand(3,) * 0
                         real_shifts = get_raw_shifts_PEET(zxz_euler, shifts)
 
                         if origin_coords_lines.shape[1] ==4:
