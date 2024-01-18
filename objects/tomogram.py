@@ -46,7 +46,9 @@ class Tomogram:
   def set_model_less(self):
     less_modPath = "{}_less.mod".format(self.modPath.split(".mod")[0])
     less_ptsPath = "{}_less.pts".format(self.modPath.split(".mod")[0])
-    less_number = 200
+    
+    # a parameter for defining using less particles from the input to improve efficiency
+    less_number = 1000
     if os.path.exists(self.modPath):
       particle_list = np.array(imodmodel.read(self.modPath))[:,2:]
       clusters = hcluster.fclusterdata(particle_list, less_number, criterion="maxclust")
