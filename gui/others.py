@@ -3,7 +3,6 @@ import os.path
 import shutil
 import mrcfile
 import math
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QTabWidget, QMessageBox
 
@@ -255,6 +254,33 @@ class OtherUtils(QTabWidget):
         self.lineEdit_rotation_z.setInputMask("")
         self.lineEdit_rotation_z.setObjectName("lineEdit_rotation_z")
         self.horizontalLayout_4.addWidget(self.lineEdit_rotation_z)
+ 
+        self.groupBox_1 = QtWidgets.QGroupBox()
+
+        self.verticalLayout_1 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_1.setContentsMargins(5, 5, 5, 5)
+
+        self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_5.setContentsMargins(10, 5, 10, 5)
+
+        self.label_random_euler = QtWidgets.QLabel(self.tab)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_random_euler.sizePolicy().hasHeightForWidth())
+        self.label_random_euler.setSizePolicy(sizePolicy)
+        self.label_random_euler.setMinimumSize(QtCore.QSize(100, 0))
+        self.label_random_euler.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_random_euler.setObjectName("label_random_euler")
+        self.horizontalLayout_5.addWidget(self.label_random_euler)
+        self.comboBox_random_euler = QtWidgets.QComboBox(self.tab)
+        self.comboBox_random_euler.setObjectName("comboBox_random_euler")
+        self.comboBox_random_euler.addItem("")
+        self.comboBox_random_euler.addItem("")
+        self.horizontalLayout_5.addWidget(self.comboBox_random_euler)
+
+        self.verticalLayout_1.addLayout(self.horizontalLayout_5)
+        self.groupBox_1.setLayout(self.verticalLayout_1)
 
         self.horizontalLayout_last = QtWidgets.QHBoxLayout()
         self.horizontalLayout_last.setObjectName("horizontalLayout_last")
@@ -273,17 +299,20 @@ class OtherUtils(QTabWidget):
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_last.addItem(spacerItem2)
 
+
         self.gridLayout_run_tab_1 = QtWidgets.QGridLayout(self.tab)
 
         self.gridLayout_run_tab_1.addLayout(self.horizontalLayout_1, 0, 0, 1, 1)
         self.gridLayout_run_tab_1.addLayout(self.horizontalLayout_2, 1, 0, 1, 1)
         self.gridLayout_run_tab_1.addLayout(self.horizontalLayout_4, 2, 0, 1, 1)
         self.gridLayout_run_tab_1.addLayout(self.horizontalLayout_3, 3, 0, 1, 1)
+        self.gridLayout_run_tab_1.addWidget(self.groupBox_1, 4, 0, 1, 1)
+
 
         self.spacerItem3 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_run_tab_1.addItem(self.spacerItem3, 4, 0, 1, 1)
+        self.gridLayout_run_tab_1.addItem(self.spacerItem3, 5, 0, 1, 1)
 
-        self.gridLayout_run_tab_1.addLayout(self.horizontalLayout_last, 5, 0, 1, 1)
+        self.gridLayout_run_tab_1.addLayout(self.horizontalLayout_last, 6, 0, 1, 1)
     
     def retranslateUi_tab1(self):
         _translate = QtCore.QCoreApplication.translate
@@ -405,7 +434,17 @@ class OtherUtils(QTabWidget):
             font-size:9pt;\">rotation apply on Z-axis.\
             </span></p></body></html>"))
         
-        
+        self.groupBox_1.setTitle("Advanced")
+        self.groupBox_1.setFlat(False)
+            
+        self.label_random_euler.setText(_translate("Form", "use random euler angles:"))
+        self.comboBox_random_euler.setItemText(0, _translate("Form", "No"))
+        self.comboBox_random_euler.setItemText(1, _translate("Form", "Yes"))
+        self.comboBox_random_euler.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            font-size:9pt;\">Select Yes to generate random euler angles. (default No)\
+            </span></p></body></html>"))
+
         self.pushButton_assemble.setText(_translate("Form", "RUN"))
 
     def setUI_tab2(self):
@@ -706,6 +745,8 @@ class OtherUtils(QTabWidget):
         data['rotation_y'] = ""
         data['rotation_z'] = ""
 
+        data['random_euler'] = "No"
+
         data['data_star_file'] =""
         data['fitin_map_file'] =""
         data['tomo_name'] =""
@@ -737,6 +778,8 @@ class OtherUtils(QTabWidget):
         self.lineEdit_rotation_x.setText(data['rotation_x'])
         self.lineEdit_rotation_y.setText(data['rotation_y'])
         self.lineEdit_rotation_z.setText(data['rotation_z'])
+        
+        self.comboBox_random_euler.setCurrentText(data['random_euler'])
 
         self.lineEdit_data_star_file.setText(data['data_star_file'])
         self.lineEdit_fitin_map_file.setText(data['fitin_map_file'])
@@ -759,6 +802,8 @@ class OtherUtils(QTabWidget):
         param['rotation_x'] = self.lineEdit_rotation_x.text()
         param['rotation_y'] = self.lineEdit_rotation_y.text()
         param['rotation_z'] = self.lineEdit_rotation_z.text()
+
+        param['random_euler'] = self.comboBox_random_euler.currentText()
 
         param['data_star_file'] = self.lineEdit_data_star_file.text()
         param['fitin_map_file'] = self.lineEdit_fitin_map_file.text()
@@ -871,10 +916,11 @@ class OtherUtils(QTabWidget):
         with open(origin_coords_file, 'r') as f:
             origin_coords_lines = np.array([ x.split() for x in f.readlines()])
         #print(origin_coords_lines.shape)
-        random_euler = False
-        if os.path.exists(origin_motl_file):
-            with open(origin_motl_file, 'r') as f:
-                origin_motl_lines = np.array([ x.split(',') for x in f.readlines()][1:])
+        if self.comboBox_random_euler.currentText() == "No":
+            random_euler = False
+            if os.path.exists(origin_motl_file):
+                with open(origin_motl_file, 'r') as f:
+                    origin_motl_lines = np.array([ x.split(',') for x in f.readlines()][1:])
         else:
             random_euler = True
             self.logger.warning("MOTL.csv file is not detected for tomogram {}, use random euler angles instead!".format(tomo))
