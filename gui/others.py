@@ -73,6 +73,9 @@ class OtherUtils(QTabWidget):
             (lambda: browse.browseSlot(self.lineEdit_data_star_file, 'star')) 
         self.pushButton_fitin_map_file.clicked.connect\
             (lambda: browse.browseSlot(self.lineEdit_fitin_map_file, 'map')) 
+        
+        for child in self.findChildren(QtWidgets.QComboBox):
+            child.currentIndexChanged.connect(self.save_setting)
 
         self.pushButton_assemble.clicked.connect(self.assemble)
         self.pushButton_place_back.clicked.connect(self.placeback)
@@ -270,14 +273,19 @@ class OtherUtils(QTabWidget):
         sizePolicy.setHeightForWidth(self.label_random_euler.sizePolicy().hasHeightForWidth())
         self.label_random_euler.setSizePolicy(sizePolicy)
         self.label_random_euler.setMinimumSize(QtCore.QSize(100, 0))
+        self.label_random_euler.setMaximumSize(QtCore.QSize(200, 30))
         self.label_random_euler.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_random_euler.setObjectName("label_random_euler")
         self.horizontalLayout_5.addWidget(self.label_random_euler)
         self.comboBox_random_euler = QtWidgets.QComboBox(self.tab)
+        self.comboBox_random_euler.setMaximumSize(QtCore.QSize(50, 30))
         self.comboBox_random_euler.setObjectName("comboBox_random_euler")
         self.comboBox_random_euler.addItem("")
         self.comboBox_random_euler.addItem("")
+        
         self.horizontalLayout_5.addWidget(self.comboBox_random_euler)
+        spacerItem0 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_5.addItem(spacerItem0)
 
         self.verticalLayout_1.addLayout(self.horizontalLayout_5)
         self.groupBox_1.setLayout(self.verticalLayout_1)
@@ -442,7 +450,7 @@ class OtherUtils(QTabWidget):
         self.comboBox_random_euler.setItemText(1, _translate("Form", "Yes"))
         self.comboBox_random_euler.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
-            font-size:9pt;\">Select Yes to generate random euler angles. (default No)\
+            font-size:9pt;\">Select Yes to generate random euler angles. Only use this if the MOTL.csv (euler angles) is not provided. (default No)\
             </span></p></body></html>"))
 
         self.pushButton_assemble.setText(_translate("Form", "RUN"))
@@ -916,14 +924,17 @@ class OtherUtils(QTabWidget):
         with open(origin_coords_file, 'r') as f:
             origin_coords_lines = np.array([ x.split() for x in f.readlines()])
         #print(origin_coords_lines.shape)
-        if self.comboBox_random_euler.currentText() == "No":
+        if os.path.exists(origin_motl_file):
+            with open(origin_motl_file, 'r') as f:
+                origin_motl_lines = np.array([ x.split(',') for x in f.readlines()][1:])
             random_euler = False
-            if os.path.exists(origin_motl_file):
-                with open(origin_motl_file, 'r') as f:
-                    origin_motl_lines = np.array([ x.split(',') for x in f.readlines()][1:])
         else:
-            random_euler = True
-            self.logger.warning("MOTL.csv file is not detected for tomogram {}, use random euler angles instead!".format(tomo))
+            if self.comboBox_random_euler.currentText() == "No":
+                random_euler = False
+                self.logger.warning("MOTL.csv file is not detected for tomogram {}, set euler angles as 0,0,0 !".format(tomo))
+            else:
+                random_euler = True
+                self.logger.warning("MOTL.csv file is not detected for tomogram {}, use random euler angles instead!".format(tomo))
 
         if len(origin_coords_lines) <=0 or origin_coords_lines.shape[1] < 3 or origin_coords_lines.shape[1] > 4:
             self.logger.warning(".pts file format is wrong for tomogram {}, skip it!".format(tomo))
