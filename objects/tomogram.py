@@ -51,6 +51,8 @@ class Tomogram:
     less_number = 1000
     if os.path.exists(self.modPath):
       particle_list = np.array(imodmodel.read(self.modPath))[:,2:]
+      print(particle_list)
+      print(less_number)
       clusters = hcluster.fclusterdata(particle_list, less_number, criterion="maxclust")
       new_particle_list = []
       for i in range(len(set(clusters))):
