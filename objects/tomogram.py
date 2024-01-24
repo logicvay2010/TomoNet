@@ -47,21 +47,25 @@ class Tomogram:
     less_modPath = "{}_less.mod".format(self.modPath.split(".mod")[0])
     less_ptsPath = "{}_less.pts".format(self.modPath.split(".mod")[0])
     
-    # a parameter for defining using less particles from the input to improve efficiency
+    #a parameter for defining using less particles from the input to improve efficiency
     less_number = 1000
     if os.path.exists(self.modPath):
       particle_list = np.array(imodmodel.read(self.modPath))[:,2:]
-      print(particle_list)
-      print(less_number)
-      clusters = hcluster.fclusterdata(particle_list, less_number, criterion="maxclust")
-      new_particle_list = []
-      for i in range(len(set(clusters))):
-        new_particle_list.append(particle_list[np.argwhere(clusters == i+1)][0][0])
+      # clusters = hcluster.fclusterdata(particle_list, t=less_number, criterion="maxclust")
+      # new_particle_list = []
+      # for i in range(len(set(clusters))):
+      #   new_particle_list.append(particle_list[np.argwhere(clusters == i+1)][0][0])
 
+    new_particle_list = particle_list
     with open(less_ptsPath, "w") as f_pts:
       for p in new_particle_list:
         f_pts.write("{} {} {}\n".format(p[0],p[1],p[2]))
     
+    # with open("123.txt", "w") as wwww:
+    #   for p in particle_list:
+    #     wwww.write("{} {} {}\n".format(p[0],p[1],p[2]))
+    #   wwww.write("\n"+str(clusters))
+
     cmd = "point2model {} {}".format(less_ptsPath, less_modPath)
     subprocess.check_output(cmd, shell=True)
     self.modPath = less_modPath
