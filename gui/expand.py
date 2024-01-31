@@ -104,7 +104,8 @@ class Expand(QTabWidget):
         self.lineEdit_expand_folder_to_use.textChanged.connect(self.reload_table)
         self.currentChanged.connect(self.tab_changed)
 
-        self.tableView.clicked.connect(self.table_click)
+        #self.tableView.clicked.connect(self.table_click)
+        self.tableView.doubleClicked.connect(self.table_click)
 
         #self.read_settting()
         self.setTabShape(QtWidgets.QTabWidget.Triangular)

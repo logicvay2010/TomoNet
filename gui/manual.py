@@ -112,7 +112,8 @@ class Manual(QTabWidget):
         self.addTab(self.tab, "Results")
 
         self.tableView.doubleClicked.connect(self.table_doubleClick)
-        self.tableView.clicked.connect(self.table_click)
+        #self.tableView.clicked.connect(self.table_click)
+        self.tableView.doubleClicked.connect(self.table_click)
 
         self.lineEdit_path_other_maps.textChanged.connect(self.save_setting)
         self.lineEdit_path_other_maps.textChanged.connect(self.reload_table)

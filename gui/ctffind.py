@@ -356,8 +356,8 @@ class Ctffind(QTabWidget):
         
         self.currentChanged.connect(self.tab_changed)
 
-        self.tableView.clicked.connect(self.table_click)
-
+        #self.tableView.clicked.connect(self.table_click)
+        self.tableView.doubleClicked.connect(self.table_click)
         self.read_settting()
         self.setTabShape(QtWidgets.QTabWidget.Triangular)
         self.retranslateUi()
@@ -598,6 +598,7 @@ class Ctffind(QTabWidget):
         results = {}
         tilt_nums = []
         defocus = []
+        best_ctf_rings = []
         for tomoName in tomoNames:
             ctf_txt_file = "{}/{}/{}_ctf.txt".format(searchPath, tomoName, tomoName)
             with open(ctf_txt_file) as f:
@@ -620,11 +621,14 @@ class Ctffind(QTabWidget):
             tilt_nums.append(tilt_num)
             defocus.append(defoci)
 
+            best_fit = np.array([round(float(l.split()[6]),1) for l in newlines])
+            best_ctf_rings.append(best_fit)
         
 
         results['tomoNames'] = tomoNames
         results['tilt_nums'] = tilt_nums
         results['defocus'] = defocus
+        results['best_ctf_rings'] = best_ctf_rings
         
         return results
     
@@ -633,6 +637,7 @@ class Ctffind(QTabWidget):
         tomoNames = results['tomoNames']
         tilt_nums = results['tilt_nums']
         defocus = results['defocus']
+        best_ctf_rings =results['best_ctf_rings']
         self.ctf_results = results
         self.tableView.setRowCount(0)
         self.tableView.setRowCount(len(tomoNames))
@@ -644,21 +649,27 @@ class Ctffind(QTabWidget):
                 action_defocus.setFont(QFont("sans-serif", 8, QFont.Bold))
                 self.tableView.setItem(i, 1, action_defocus)
 
-                defoci = defocus[i][len(defocus[i])//2] if len(defocus[i]) > 0 else 0
+                defoci = defocus[i][len(defocus[i])//2] if len(defocus[i]) > 0 else 'NA'
                 action_plot_1 = QTableWidgetItem(str(defoci))
                 action_plot_1.setBackground(QtGui.QColor("#008CBA"))
                 action_plot_1.setFont(QFont("sans-serif", 8, QFont.Bold))
                 self.tableView.setItem(i, 2, action_plot_1)
 
-                action_plot_2 = QTableWidgetItem("Plot all tilt")
-                action_plot_2.setBackground(QtGui.QColor("#f75990"))
+                best_ctf_fit = min(best_ctf_rings[i]) if len(best_ctf_rings[i]) > 0 else 'NA'
+                action_plot_2 = QTableWidgetItem(str(best_ctf_fit))
+                action_plot_2.setBackground(QtGui.QColor("#f44336"))
                 action_plot_2.setFont(QFont("sans-serif", 8, QFont.Bold))
                 self.tableView.setItem(i, 3, action_plot_2)
 
-                action_plot_3 = QTableWidgetItem("Plot Thon-ring")
-                action_plot_3.setBackground(QtGui.QColor("#d0bdf4"))
+                action_plot_3 = QTableWidgetItem("Plot all tilt")
+                action_plot_3.setBackground(QtGui.QColor("#f75990"))
                 action_plot_3.setFont(QFont("sans-serif", 8, QFont.Bold))
                 self.tableView.setItem(i, 4, action_plot_3)
+
+                action_plot_4 = QTableWidgetItem("Plot Thon-ring")
+                action_plot_4.setBackground(QtGui.QColor("#d0bdf4"))
+                action_plot_4.setFont(QFont("sans-serif", 8, QFont.Bold))
+                self.tableView.setItem(i, 5, action_plot_4)
 
     ##### 2023/06/06 to be changed to adapt ctffind section
     def get_params(self):
@@ -882,7 +893,7 @@ class Ctffind(QTabWidget):
         j = item.column()
         #tomoName = self.tableView.item(i, 0).text()
         tomoName = self.ctf_results['tomoNames'][i]
-        if j == 3:
+        if j == 4:
             defoci = self.ctf_results['defocus'][i]
             xpoints = np.arange(len(defoci)) + 1
             ypoints = defoci
@@ -891,7 +902,7 @@ class Ctffind(QTabWidget):
             plt.ylabel("defocus est. (Å)")
             plt.title(tomoName)
             plt.show()
-        elif j == 4:
+        elif j == 5:
             searchPath = self.ctffind4_path
             ctf_mrc_file = "{}/{}/{}_ctf.mrc".format(searchPath, tomoName, tomoName)
             cmd = "3dmod {}".format(ctf_mrc_file)

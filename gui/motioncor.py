@@ -12,7 +12,8 @@ class MotionCor(QTabWidget):
         super().__init__()
         ############### Define variables ################
         self.corrected_folder = "MotionCorrection/MotionCor/corrected_images"
-        self.processed_folder = "MotionCorrection/MotionCor/processed_raw_images"
+        #self.processed_folder = "MotionCorrection/MotionCor/processed_raw_images"
+        self.processed_folder = "Raw_frames_DoNotDelete"
         self.setting_file ="MotionCorrection/MotionCor/motioncor.setting"
         
         self.log_file = "MotionCorrection/motion.log"
