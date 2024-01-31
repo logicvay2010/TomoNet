@@ -270,9 +270,9 @@ if __name__ == "__main__":
     log(logger, "Particle # after remove small patches:{}".format(min_num_c))
     
     ####### save global map prediction #############
-    #global_map_filename = "{}/{}/predict.mrc".format(result_dir, tomoName_final)
-    #with mrcfile.new(global_map_filename, overwrite=True) as output_mrc:
-    #   output_mrc.set_data(global_map)
+    global_map_filename = "{}/{}/predict.mrc".format(result_dir, tomoName_final)
+    with mrcfile.new(global_map_filename, overwrite=True) as output_mrc:
+      output_mrc.set_data(global_map)
 
     cmd_linkMrc = "cd {}/{}; ln -s {} ./".format(result_dir, tomoName_final, tomoName)
     subprocess.check_output(cmd_linkMrc, shell=True)
