@@ -1153,9 +1153,13 @@ class OtherUtils(QTabWidget):
         apix = params['pixel_size_unbinned']
 
         df_particles = starfile.read(star_file,  always_dict=True)['particles']
-        df_particles = df_particles.loc[df_particles['rlnTomoName']==tomo_name]
+        try:
+            df_particles = df_particles.loc[df_particles['rlnTomoName']==tomo_name]
+        except:
+            #no such TomoName
+            return -1
         df_particles = df_particles.reset_index()
-        pNum = df_particles.shape[0]
+        #pNum = df_particles.shape[0]
 
 
         manifoldIndex_start = df_particles['rlnTomoManifoldIndex'].astype(int).min()
@@ -1283,6 +1287,10 @@ class OtherUtils(QTabWidget):
 
                 if result == 1:
                     self.logger.info("Done getting placeback session file for ChimeraX: {}!".format(params['tomo_name']))
+                elif result == -1:
+                    self.logger.error("No particle was found for tomogame: {}!".format(params['tomo_name']))
+                else:
+                    self.logger.error("Unexpected error for tomogame: {}!".format(params['tomo_name']))
                 
                 self.cmd_finished(self.pushButton_place_back)
     
