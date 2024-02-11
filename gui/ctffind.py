@@ -657,7 +657,7 @@ class Ctffind(QTabWidget):
 
                 best_ctf_fit = min(best_ctf_rings[i]) if len(best_ctf_rings[i]) > 0 else 'NA'
                 action_plot_2 = QTableWidgetItem(str(best_ctf_fit))
-                action_plot_2.setBackground(QtGui.QColor("#f44336"))
+                action_plot_2.setBackground(QtGui.QColor("#a0d2eb"))
                 action_plot_2.setFont(QFont("sans-serif", 8, QFont.Bold))
                 self.tableView.setItem(i, 3, action_plot_2)
 

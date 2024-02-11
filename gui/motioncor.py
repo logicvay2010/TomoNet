@@ -4,7 +4,7 @@ import logging
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QTabWidget, QMessageBox
 from TomoNet.util import browse
-from TomoNet.util.utils import check_or_create_path
+from TomoNet.util.utils import check_or_create_path, string2float, string2int
 from TomoNet.process.bash_motioncor import MotionCor2
 
 class MotionCor(QTabWidget):
@@ -313,21 +313,36 @@ class MotionCor(QTabWidget):
             self.cmd_finished()
             return "please provide your gain reference image!"
 
-        if len(self.lineEdit_pixel_size.text()) > 0:
-            pixel_size = self.lineEdit_pixel_size.text()
+        if len(self.lineEdit_pixel_size.text()) > 0 :
+            pixel_size = string2float(self.lineEdit_pixel_size.text())
+            if pixel_size == None or pixel_size < 0:
+                return "please use correct format for pixel size (positive real number)!"
+            #pixel_size = self.lineEdit_pixel_size.text()
         else: 
             self.cmd_finished()
             return "please provide pixel size!"
         
         if len(self.lineEdit_frame_dose.text()) > 0:
-            frame_dose = self.lineEdit_frame_dose.text()
+            frame_dose = string2float(self.lineEdit_frame_dose.text())
+            if frame_dose == None or frame_dose < 0:
+                return "please use correct format for frame dose (positive real number)!"
+            #frame_dose = self.lineEdit_frame_dose.text()
         else: 
             frame_dose = None
 
         gpu_ID = self.lineEdit_gpu_ID.text() if len(self.lineEdit_gpu_ID.text()) > 0 else 0
 
+        if len(self.lineEdit_ftbin.text()) > 0 :
+            ftbin = string2int(self.lineEdit_ftbin.text())
+            if ftbin == None or ftbin < 0:
+                return "please use correct format for binning (positive int number)!"
+            #pixel_size = self.lineEdit_pixel_size.text()
+        else: 
+            ftbin = 1
+            #return "please provide pixel size!"
+        
 
-        ftbin = self.lineEdit_ftbin.text() if len(self.lineEdit_ftbin.text()) > 0 else 1
+        #ftbin = self.lineEdit_ftbin.text() if len(self.lineEdit_ftbin.text()) > 0 else 1
 
         input_file_type = self.comboBox_input_file_type.currentText()
         addtional_param = self.lineEdit_addtional_param.text()

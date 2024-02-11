@@ -21,7 +21,7 @@ class Manual(QTabWidget):
 
         self.recon_folder = "Recon/eTomo"
 
-        self.stalkInit_folder = "ManualPick/stalkInit"
+        self.stalkInit_folder = "ManualPick/stalkInit_Prep"
 
         self.initParams_folder = "ManualPick/initParams"
 

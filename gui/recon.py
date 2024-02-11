@@ -342,7 +342,7 @@ class Recon(QTabWidget):
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("Form", "Form"))
-        self.label_corrected_image_folder.setText(_translate("Form", "Motion Corrected Images:"))
+        self.label_corrected_image_folder.setText(_translate("Form", "Motion Corrected Images Folder:"))
         self.lineEdit_corrected_image_folder.setPlaceholderText(_translate("Form", "MotionCorrection/corrected_images"))
         self.lineEdit_corrected_image_folder.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
@@ -394,11 +394,10 @@ class Recon(QTabWidget):
             </span></p></body></html>"))
 
         self.label_image_file_suffix.setText(_translate("Form", "Images file suffix:"))
-        self.lineEdit_image_file_suffix.setPlaceholderText(_translate("Form", "_ali.mrc"))
+        self.lineEdit_image_file_suffix.setPlaceholderText(_translate("Form", "xx.mrc"))
         self.lineEdit_image_file_suffix.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
-            Filter image with its suffix. MotionCor2 could \
-            output different types of image, e.g., _ali.mrc, _ali_DW.mrc or _ali_DWS.mrc\
+            Filter image with its suffix.\
             </span></p></body></html>"))
         
         self.label_cpus.setText(_translate("Form", "cpu(s) #:"))
