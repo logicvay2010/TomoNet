@@ -13,8 +13,9 @@ class Recon(QTabWidget):
     def __init__(self):
         super().__init__()
         self.setTabShape(QtWidgets.QTabWidget.Triangular)
+        
         self.setupUi()
-
+        self.setupUi_aretomo()
         self._history_record = "Recon/history_record.txt"
 
         self.log_file = "Recon/recon.log"
@@ -339,6 +340,169 @@ class Recon(QTabWidget):
         self.setting_file ="Recon/recon.setting"
         self.read_setting()
 
+    def setupUi_aretomo(self):
+        self.tab_aretomo = QtWidgets.QWidget()
+        self.tab_aretomo.setObjectName("tab")
+
+        scriptDir = os.path.dirname(os.path.realpath(__file__))
+
+        icon =  QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("{}/icons/icon_folder.png".format(scriptDir)), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        
+        self.gridLayout_3 = QtWidgets.QGridLayout(self.tab_aretomo)
+        self.gridLayout_3.setObjectName("gridLayout_3")
+        
+        self.horizontalLayout_6 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_6.setContentsMargins(10, 5, 10, 5)
+        self.horizontalLayout_6.setObjectName("horizontalLayout_6")
+        self.label_aretomo_input_folder = QtWidgets.QLabel(self.tab_aretomo)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_aretomo_input_folder.sizePolicy().hasHeightForWidth())
+        self.label_aretomo_input_folder.setSizePolicy(sizePolicy)
+        self.label_aretomo_input_folder.setMinimumSize(QtCore.QSize(120, 0))
+        self.label_aretomo_input_folder.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_aretomo_input_folder.setObjectName("label_aretomo_input_folder")
+        self.horizontalLayout_6.addWidget(self.label_aretomo_input_folder)
+        
+        self.lineEdit_aretomo_input_folder = QtWidgets.QLineEdit(self.tab_aretomo)
+        self.lineEdit_aretomo_input_folder.setInputMask("")
+        self.lineEdit_aretomo_input_folder.setObjectName("lineEdit_aretomo_input_folder")
+        self.horizontalLayout_6.addWidget(self.lineEdit_aretomo_input_folder)
+
+        self.pushButton_aretomo_input_folder = QtWidgets.QPushButton(self.tab_aretomo)
+        self.pushButton_aretomo_input_folder.setText("")
+        self.pushButton_aretomo_input_folder.setIcon(icon)
+        self.pushButton_aretomo_input_folder.setIconSize(QtCore.QSize(24, 24))
+        self.pushButton_aretomo_input_folder.setMaximumSize(QtCore.QSize(60, 24))
+        self.pushButton_aretomo_input_folder.setObjectName("pushButton_aretomo_input_folder")
+        self.horizontalLayout_6.addWidget(self.pushButton_aretomo_input_folder)
+        
+        #######
+        self.horizontalLayout_7 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_7.setContentsMargins(10, 5, 10, 5)
+        self.horizontalLayout_7.setObjectName("horizontalLayout_7")
+        
+        self.label_VolZ = QtWidgets.QLabel(self.tab_aretomo)
+        self.label_VolZ.setSizePolicy(sizePolicy)
+        self.label_VolZ.setMinimumSize(QtCore.QSize(40, 0))
+        self.label_VolZ.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_VolZ.setObjectName("label_VolZ")
+        self.horizontalLayout_7.addWidget(self.label_VolZ)
+        
+        self.lineEdit_VolZ = QtWidgets.QLineEdit(self.tab_aretomo)
+        self.lineEdit_VolZ.setInputMask("")
+        self.lineEdit_VolZ.setMinimumSize(QtCore.QSize(160, 0))
+        self.lineEdit_VolZ.setObjectName("lineEdit_VolZ")
+        self.horizontalLayout_7.addWidget(self.lineEdit_VolZ)
+        
+        self.label_OutBin = QtWidgets.QLabel(self.tab_aretomo)
+        self.label_OutBin.setSizePolicy(sizePolicy)
+        self.label_OutBin.setMinimumSize(QtCore.QSize(60, 0))
+        self.label_OutBin.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_OutBin.setObjectName("label_OutBin")
+        self.horizontalLayout_7.addWidget(self.label_OutBin)
+        
+        self.lineEdit_OutBin = QtWidgets.QLineEdit(self.tab_aretomo)
+        self.lineEdit_OutBin.setInputMask("")
+        self.lineEdit_OutBin.setObjectName("lineEdit_OutBin")
+        self.horizontalLayout_7.addWidget(self.lineEdit_OutBin)
+        
+        self.label_TiltAxis = QtWidgets.QLabel(self.tab_aretomo)
+        self.label_TiltAxis.setSizePolicy(sizePolicy)
+        self.label_TiltAxis.setMinimumSize(QtCore.QSize(60, 0))
+        self.label_TiltAxis.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_TiltAxis.setObjectName("label_TiltAxis")
+        self.horizontalLayout_7.addWidget(self.label_TiltAxis)
+        
+        self.lineEdit_TiltAxis = QtWidgets.QLineEdit(self.tab_aretomo)
+        self.lineEdit_TiltAxis.setInputMask("")
+        self.lineEdit_TiltAxis.setObjectName("lineEdit_TiltAxis")
+        self.horizontalLayout_7.addWidget(self.lineEdit_TiltAxis)        
+
+        ##############
+        self.horizontalLayout_8 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_8.setContentsMargins(10, 5, 10, 5)
+        self.horizontalLayout_8.setObjectName("horizontalLayout_8")
+        
+        self.label_OutImod = QtWidgets.QLabel(self.tab_aretomo)
+        self.label_OutImod.setSizePolicy(sizePolicy)
+        self.label_OutImod.setMinimumSize(QtCore.QSize(60, 0))
+        self.label_OutImod.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_OutImod.setObjectName("label_OutImod")
+        self.horizontalLayout_8.addWidget(self.label_OutImod)
+        
+        self.lineEdit_OutImod = QtWidgets.QLineEdit(self.tab_aretomo)
+        self.lineEdit_OutImod.setInputMask("")
+        self.lineEdit_OutImod.setMinimumSize(QtCore.QSize(160, 0))
+        self.lineEdit_OutImod.setObjectName("lineEdit_OutImod")
+        self.horizontalLayout_8.addWidget(self.lineEdit_OutImod)
+        
+        self.label_FlipVol = QtWidgets.QLabel(self.tab_aretomo)
+        self.label_FlipVol.setSizePolicy(sizePolicy)
+        self.label_FlipVol.setMinimumSize(QtCore.QSize(60, 0))
+        self.label_FlipVol.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_FlipVol.setObjectName("label_FlipVol")
+        self.horizontalLayout_8.addWidget(self.label_FlipVol)
+        
+        self.lineEdit_FlipVol = QtWidgets.QLineEdit(self.tab_aretomo)
+        self.lineEdit_FlipVol.setInputMask("")
+        self.lineEdit_FlipVol.setObjectName("lineEdit_FlipVol")
+        self.horizontalLayout_8.addWidget(self.lineEdit_FlipVol)
+        
+        self.label_UseAlnFile = QtWidgets.QLabel(self.tab_aretomo)
+        self.label_UseAlnFile.setSizePolicy(sizePolicy)
+        self.label_UseAlnFile.setMinimumSize(QtCore.QSize(60, 0))
+        self.label_UseAlnFile.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_UseAlnFile.setObjectName("label_UseAlnFile")
+        self.horizontalLayout_8.addWidget(self.label_UseAlnFile)
+        
+        self.lineEdit_UseAlnFile = QtWidgets.QLineEdit(self.tab_aretomo)
+        self.lineEdit_UseAlnFile.setInputMask("")
+        self.lineEdit_UseAlnFile.setObjectName("lineEdit_UseAlnFile")
+        self.horizontalLayout_8.addWidget(self.lineEdit_UseAlnFile)  
+
+        self.label_GPU_ID = QtWidgets.QLabel(self.tab_aretomo)
+        self.label_GPU_ID.setSizePolicy(sizePolicy)
+        self.label_GPU_ID.setMinimumSize(QtCore.QSize(60, 0))
+        self.label_GPU_ID.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_GPU_ID.setObjectName("label_GPU_ID")
+        self.horizontalLayout_8.addWidget(self.label_GPU_ID)
+        
+        self.lineEdit_GPU_ID = QtWidgets.QLineEdit(self.tab_aretomo)
+        self.lineEdit_GPU_ID.setInputMask("")
+        self.lineEdit_GPU_ID.setObjectName("lineEdit_GPU_ID")
+        self.horizontalLayout_8.addWidget(self.lineEdit_GPU_ID) 
+        
+        ############
+        self.horizontalLayout_9 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_9.setContentsMargins(10, 5, 10, 5)
+        self.horizontalLayout_9.setObjectName("horizontalLayout_9")
+
+        self.label_aretomo_addtional_param = QtWidgets.QLabel(self.tab_aretomo)
+        self.label_aretomo_addtional_param.setSizePolicy(sizePolicy)
+        self.label_aretomo_addtional_param.setMinimumSize(QtCore.QSize(90, 0))
+        self.label_aretomo_addtional_param.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_aretomo_addtional_param.setObjectName("label_aretomo_addtional_param")
+        self.horizontalLayout_9.addWidget(self.label_aretomo_addtional_param)
+        
+        self.lineEdit_aretomo_addtional_param = QtWidgets.QLineEdit(self.tab_aretomo)
+        self.lineEdit_aretomo_addtional_param.setInputMask("")
+        self.lineEdit_aretomo_addtional_param.setObjectName("lineEdit_aretomo_addtional_param")
+        self.horizontalLayout_9.addWidget(self.lineEdit_aretomo_addtional_param)
+        
+        self.gridLayout_3.addLayout(self.horizontalLayout_6, 0, 0, 1, 1)
+        self.gridLayout_3.addLayout(self.horizontalLayout_7, 1, 0, 1, 1)
+        self.gridLayout_3.addLayout(self.horizontalLayout_8, 2, 0, 1, 1)
+        self.gridLayout_3.addLayout(self.horizontalLayout_9, 3, 0, 1, 1)
+        self.spacerItem_aretomo_1 = QtWidgets.QSpacerItem(10, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.gridLayout_3.addItem(self.spacerItem_aretomo_1, 4, 0, 1, 1)
+
+        self.addTab(self.tab_aretomo, "")
+
+        self.retranslateUi_aretomo()
+
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("Form", "Form"))
@@ -444,6 +608,76 @@ class Recon(QTabWidget):
         self.setTabText(self.indexOf(self.tab1), _translate("Form", "eTomo Reconstruction"))
 
         self.pushButton_reload.setText(_translate("Form", "Reload"))
+
+    def retranslateUi_aretomo(self):
+        _translate = QtCore.QCoreApplication.translate
+        self.setTabText(self.indexOf(self.tab_aretomo), _translate("Form", "AreTomo Reconstruction"))
+
+        self.label_aretomo_input_folder.setText(_translate("Form", "Tilt Series Folder:"))
+        self.lineEdit_aretomo_input_folder.setPlaceholderText(_translate("Form", "Root/Recon/ts_tlt"))
+        self.lineEdit_aretomo_input_folder.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" font-size:9pt;\">\
+            Folder path to your tilt series and tlt files. \
+            </span></p></body></html>"))
+        
+        self.label_VolZ.setText(_translate("Form", "-VolZ:"))
+        self.lineEdit_VolZ.setPlaceholderText(_translate("Form", "2000"))
+        self.lineEdit_VolZ.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" font-size:9pt;\">\
+            volume height or the z dimension to unbinned voxels (default: 2000) \
+            </span></p></body></html>"))
+        
+        self.label_OutBin.setText(_translate("Form", "-OutBin:"))
+        self.lineEdit_OutBin.setPlaceholderText(_translate("Form", "4"))
+        self.lineEdit_OutBin.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" font-size:9pt;\">\
+            Binning of final output reconstruction map (default: 4) \
+            </span></p></body></html>"))
+        
+        self.label_TiltAxis.setText(_translate("Form", "-TiltAxis:"))
+        self.lineEdit_TiltAxis.setPlaceholderText(_translate("Form", "0"))
+        self.lineEdit_TiltAxis.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" font-size:9pt;\">\
+            tilt axis is relative to the y-axis (vertical axis of tilt image) and rotates counter-clockwise. (default: 0)\
+            </span></p></body></html>"))
+        
+        self.label_OutImod.setText(_translate("Form", "-OutImod:"))
+        self.lineEdit_OutImod.setPlaceholderText(_translate("Form", "1"))
+        self.lineEdit_OutImod.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" font-size:9pt;\">\
+            tilt axis is relative to the y-axis (vertical axis of tilt image) and rotates counter-clockwise. (default: 0)\
+            </span></p></body></html>"))
+        
+        self.label_FlipVol.setText(_translate("Form", "-FlipVol:"))
+        self.lineEdit_FlipVol.setPlaceholderText(_translate("Form", "1"))
+        self.lineEdit_FlipVol.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" font-size:9pt;\">\
+            0: Disabled; 1: for Relion4; 2: Warp; 3: Global- and local-aligned tilt series (default: 1)\
+            </span></p></body></html>"))
+        
+        self.label_UseAlnFile.setText(_translate("Form", "-UseAlnFile?"))
+        self.lineEdit_UseAlnFile.setPlaceholderText(_translate("Form", "0"))
+        self.lineEdit_UseAlnFile.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" font-size:9pt;\">\
+            Should users decide to reconstruct the volume with a different setting, \
+            the corresponding aln file can be loaded by means of -AlnFile to bypass the lengthy alignment process. \
+            1: use Aln file if found, 0: redo the alignment (default: 0)\
+            </span></p></body></html>"))
+        
+        self.label_GPU_ID.setText(_translate("Form", "GPUs ID:"))
+        self.lineEdit_GPU_ID.setPlaceholderText(_translate("Form", "0"))
+        self.lineEdit_GPU_ID.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" font-size:9pt;\">\
+            use format like 0,1,2,3 to use multiple GPUs for parallel processing\
+            </span></p></body></html>"))
+        
+        self.label_aretomo_addtional_param.setText(_translate("Form", "Other Parameters:"))
+        self.lineEdit_aretomo_addtional_param.setPlaceholderText(_translate("Form", ""))
+        self.lineEdit_aretomo_addtional_param.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" font-size:9pt;\">\
+            Addtional parameters to be used. Follow format: -Option1 value1 -Option2 value2 ...\
+            </span></p></body></html>"))
+
 
     def generate_ts(self):
         if self.pushButton_run_ts_generation.text() == "RUN":
