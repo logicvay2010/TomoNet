@@ -7,7 +7,6 @@ import re
 import logging
 import torch
 import shutil
-from TomoNet.util.utils import mkfolder
 
 def read_header(st_path):
     d = {}
@@ -24,12 +23,6 @@ def read_header(st_path):
             d['sections'] = int(sections)  
     return d
 
-def aretomo_single(param):
-    cmd = '{}{}{}{}; {}'.format(param['cmd_1'],param['cmd_2'],param['cmd_3'],param['cmd_4'],param['cmd_5'])
-    try:
-        subprocess.check_output(cmd, shell=True)
-    except:
-        param['logger'].warning('processing on GPU {} error: {}. File is not detected, maybe it is already been processed.'.format(param['gpu'], param['image']))
 
 def check_output(aretomo_folder, ts, tomoName):
     log_file = "{}/{}.log".format(aretomo_folder,tomoName)
@@ -80,10 +73,27 @@ def check_output(aretomo_folder, ts, tomoName):
 
         except:
             return -1
-        
-        
-
     return 1
+
+def aretomo_single(param):
+    cmd = param['cmd']
+    processed_folder = param['processed_folder']
+    ts = param['ts']
+    tomoName = param['tomoName']
+    gpu_ID = param['gpu_ID']
+    #cmd = '{}{}{}{}; {}'.format(param['cmd_1'],param['cmd_2'],param['cmd_3'],param['cmd_4'],param['cmd_5'])
+    try:
+        #print(cmd)
+        subprocess.check_output(cmd, shell=True)
+    except:
+        param['logger'].error('AreTomo reconstruction failed on GPU {} for tomo: {}. \
+            Please check {}.log for details if needed.'.format(param['gpu'], param['tomoName'], param['tomoName']))
+        return 
+    
+    if check_output(processed_folder, ts=ts, tomoName=tomoName) >= 0:
+        param['logger'].info('Done AreTomo on GPU {}: {}'.format(gpu_ID, ts))
+    else:
+        param['logger'].error('Failed AreTomo on GPU {}: {}'.format(gpu_ID, ts))
 
 class AreTomo(QThread):
 
@@ -151,20 +161,91 @@ class AreTomo(QThread):
                         self.logger.warning('AlnFile is not detected for: {}'.format(ts))
                 header = read_header(full_ts_path)
 
-                cmd_6 = "-VolZ {} -OutBin {} -TiltAxis {} -OutImod {} -FlipVol {} {} -PixSize {} > {}/{}.log".format(self.d['VolZ'],\
+                cmd_6 = "-Gpu {}".format(gpu_ID[0])
+
+                cmd_7 = "-VolZ {} -OutBin {} -TiltAxis {} -OutImod {} -FlipVol {} {} -PixSize {} > {}/{}.log".format(self.d['VolZ'],\
                         self.d['OutBin'], self.d['TiltAxis'], self.d['OutImod'], self.d['FlipVol'],\
                         self.d['aretomo_addtional_param'], header['apix'], self.processed_folder, tomoName)
 
-                cmd = "{} {} {} {} {} {}".format(cmd_1, cmd_2, cmd_3, cmd_4, cmd_5, cmd_6)
-                print(cmd)
-                subprocess.check_output(cmd, shell=True)
+                cmd = "{} {} {} {} {} {} {}".format(cmd_1, cmd_2, cmd_3, cmd_4, cmd_5, cmd_6, cmd_7)
+                #print(cmd)
+                #subprocess.check_output(cmd, shell=True)
+                param = {}
+                param['cmd'] = cmd
+                param['processed_folder'] = self.processed_folder
+                param['ts'] = ts
+                param['tomoName'] = tomoName
+                param['gpu_ID'] = gpu_ID[0]
+                param['logger'] = self.logger
 
-                if check_output(self.processed_folder, ts=ts, tomoName=tomoName) >= 0:
-                    self.logger.info('Done AreTomo on GPU {}: {}'.format(gpu_ID[0], ts))
-                else:
-                    self.logger.error('Failed AreTomo on GPU {}: {}'.format(gpu_ID[0], ts))
+                aretomo_single(param)
+
         elif batch_size > 1:
-            pass
+            ts_todo_list = self.d['current_ts_list']
+            while len(ts_todo_list) > 0:
+                params = []
+                current_ts = []
+                s = min(len(ts_todo_list), batch_size)
+                for i, ts in enumerate(ts_todo_list[:s]):
+                    param = {}
+                    tomoName = ts.split(".st")[0] 
+                    full_ts_path = "{}/{}".format(self.d['aretomo_input_folder'], ts)
+                    cmd_2 = "-InMrc {}".format(full_ts_path)
+                    
+                    output_path = "{}/{}.rec".format(self.processed_folder, tomoName) 
+                    cmd_3 = "-OutMrc {}".format(output_path)
+                    
+                    full_rawtlt_path = "{}/{}.rawtlt".format(self.d['aretomo_input_folder'], tomoName)
+                    if not os.path.exists(full_rawtlt_path):
+                        self.logger.warning("*.rawtlt file is not found! Skip tomo {}".format(tomoName))
+                        continue
+                    else:
+                        cmd_4 = "-AngFile {}".format(full_rawtlt_path)
+
+                    cmd_5=''
+                    if self.d['UseAlnFile'] == 1:
+                        full_path_AlnFile = "{}/{}/{}.aln".format(self.processed_folder, tomoName, tomoName)
+                        if os.path.exists(full_path_AlnFile):
+                            cmd_5 = "-AlnFile {}".format(full_path_AlnFile)
+                            self.logger.info('AlnFile detected for: {}'.format(ts))
+                        else:
+                            self.logger.warning('AlnFile is not detected for: {}'.format(ts))
+                    header = read_header(full_ts_path)
+
+                    cmd_6 = "-Gpu {}".format(gpu_ID[i])
+
+                    cmd_7 = "-VolZ {} -OutBin {} -TiltAxis {} -OutImod {} -FlipVol {} {} -PixSize {} > {}/{}.log".format(self.d['VolZ'],\
+                            self.d['OutBin'], self.d['TiltAxis'], self.d['OutImod'], self.d['FlipVol'],\
+                            self.d['aretomo_addtional_param'], header['apix'], self.processed_folder, tomoName)
+
+                    cmd = "{} {} {} {} {} {} {}".format(cmd_1, cmd_2, cmd_3, cmd_4, cmd_5, cmd_6, cmd_7)
+
+                    param['cmd'] = cmd
+                    param['gpu_ID'] = gpu_ID[i]
+                    param['processed_folder'] = self.processed_folder
+                    param['ts'] = ts
+                    param['tomoName'] = tomoName
+                    param['logger'] = self.logger
+
+                    params.append(param)
+                    current_ts.append(ts)
+
+                with Pool(s) as pool:
+                    pool.map(aretomo_single, params)
+
+                #with Pool(s) as pool:
+                #    [pool.apply_async(aretomo_single, args=(v,)) for v in params]
+                #set timeout just in case progress get stucked
+
+                ts_todo_list = ts_todo_list[batch_size:]
+                if len(ts_todo_list) > 0:
+                    self.logger.info('{} AreTomo Reconstructions remains to do.'.format(len(ts_todo_list)))  
+                else:
+                    self.logger.info('AreTomo Reconstructions all Done.')  
+        
+        else:
+            self.logger.info('No GPU ID provided')
+            return -1
     
     def stop_process(self):
 
