@@ -1,13 +1,14 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QTabWidget, QTableWidgetItem, QHeaderView, QMessageBox, QInputDialog, QLineEdit
-from TomoNet.process.bash_gts import Generate_TS
+
 from TomoNet.util import browse, metadata
 from TomoNet.util.io import mkfolder
 from TomoNet.util.utils import string2float, string2int
 import os, glob, subprocess, shutil
 import logging
 import json
+from TomoNet.process.bash_gts import Generate_TS
 from TomoNet.process.bash_aretomo import AreTomo
 
 
@@ -162,6 +163,20 @@ class Recon(QTabWidget):
         self.lineEdit_key_index.setInputMask("")
         self.lineEdit_key_index.setObjectName("lineEdit_key_index")
         self.horizontalLayout_2.addWidget(self.lineEdit_key_index)
+
+        self.label_flip_axis = QtWidgets.QLabel(self.tab)
+        self.label_flip_axis.setSizePolicy(sizePolicy)
+        self.label_flip_axis.setMinimumSize(QtCore.QSize(100, 0))
+        self.label_flip_axis.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_flip_axis.setObjectName("label_flip_axis")
+        self.horizontalLayout_2.addWidget(self.label_flip_axis)
+        self.comboBox_flip_axis = QtWidgets.QComboBox(self.tab)
+        self.comboBox_flip_axis.setObjectName("comboBox_flip_axis")
+        self.comboBox_flip_axis.addItem("")
+        self.comboBox_flip_axis.addItem("")
+        self.comboBox_flip_axis.addItem("")
+        self.horizontalLayout_2.addWidget(self.comboBox_flip_axis)
+
         self.gridLayout_2.addLayout(self.horizontalLayout_2, 1, 0, 1, 1)
 
         self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
@@ -577,6 +592,16 @@ class Recon(QTabWidget):
             tilt angle and it's index is 5 with delimiter _\
             </span></p></body></html>"))
 
+        self.label_flip_axis.setText(_translate("Form", "Flip images?"))
+        self.comboBox_flip_axis.setItemText(0, _translate("Form", "No"))
+        self.comboBox_flip_axis.setItemText(1, _translate("Form", "Horizontally"))
+        self.comboBox_flip_axis.setItemText(2, _translate("Form", "Vertically"))
+        self.comboBox_flip_axis.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" font-size:9pt;\">\
+            If you want to flip images before 3D reconstruction, select either Horizontally (flip over the current X-axis) or Vertically (flip over the current Y-axis). \
+            (default No)\
+            </span></p></body></html>"))
+
         self.label_base_name_index.setText(_translate("Form", "Base Name index:"))
         self.lineEdit_base_name_index.setPlaceholderText(_translate("Form", "1-3"))
         self.lineEdit_base_name_index.setToolTip(_translate("MainWindow", \
@@ -867,14 +892,17 @@ class Recon(QTabWidget):
                     if not self.lineEdit_target_base_name.text() == "" else "TS"
                 
                 cpus = int(self.lineEdit_cpus.text()) if len(self.lineEdit_cpus.text()) > 0 else 8
+
+                flip_axis = self.comboBox_flip_axis.currentIndex()
+
                 if not self.thread_gt:
-                    self.thread_gt = Generate_TS(image_folder,tomo_lists,\
-                        rawtlt_lists,target_base_name,start_index,delimiter,\
-                        key_index,self.ts_folder,cpus)
+                    self.thread_gt = Generate_TS(image_folder, tomo_lists,\
+                        rawtlt_lists, target_base_name, start_index, delimiter,\
+                        key_index, self.ts_folder, cpus, flip_axis)
                 else:
-                    self.thread_gt = Generate_TS(image_folder,tomo_lists,\
-                        rawtlt_lists,target_base_name,start_index,delimiter,\
-                        key_index,self.ts_folder,cpus)
+                    self.thread_gt = Generate_TS(image_folder, tomo_lists,\
+                        rawtlt_lists, target_base_name, start_index, delimiter,\
+                        key_index, self.ts_folder, cpus, flip_axis)
 
                 self.thread_gt.finished.connect(self.cmd_finished)
                 
@@ -908,6 +936,7 @@ class Recon(QTabWidget):
             data['base_name'] = ""
             data['delimiter'] = ""
             data['key_index'] = ""
+            data['flip_axis'] = 0
             data['min_num_tilt'] = ""
             data['target_base_name'] = ""
             data['rm_dup'] = "Yes"
@@ -935,6 +964,7 @@ class Recon(QTabWidget):
                 self.lineEdit_base_name.setText(data['base_name'])
                 self.lineEdit_delimiter.setText(data['delimiter'])
                 self.lineEdit_key_index.setText(data['key_index'])
+                self.comboBox_flip_axis.setCurrentIndex(int(data['flip_axis']))
                 self.lineEdit_base_name_index.setText(data['base_name_index'])
                 self.lineEdit_image_file_suffix.setText(data['image_file_suffix'])
                 self.lineEdit_cpus.setText(data['cpus'])
@@ -963,6 +993,7 @@ class Recon(QTabWidget):
         param['base_name'] = self.lineEdit_base_name.text()
         param['delimiter'] = self.lineEdit_delimiter.text()
         param['key_index'] = self.lineEdit_key_index.text()
+        param['flip_axis'] = self.comboBox_flip_axis.currentIndex()
         param['base_name_index'] = self.lineEdit_base_name_index.text()
         param['image_file_suffix'] = self.lineEdit_image_file_suffix.text()
         param['cpus'] = self.lineEdit_cpus.text()
@@ -1475,7 +1506,11 @@ class Recon(QTabWidget):
                 self.label_aretomo_tomoNum_detect.setText("< 0 Tomo(s)>")
         else:
             self.label_aretomo_tomoNum_detect.setText("< 0 Tomo(s)>")
-            self.logger.warning("The input folder path is not found!")
+            try:
+                if len(self.lineEdit_aretomo_input_folder.text()) > 0:
+                    self.logger.warning("The input folder path is not found!")
+            except:
+                pass
 
     def get_aretomo_param(self):
         params = {}
