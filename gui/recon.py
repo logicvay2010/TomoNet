@@ -4,9 +4,11 @@ from PyQt5.QtWidgets import QTabWidget, QTableWidgetItem, QHeaderView, QMessageB
 from TomoNet.process.bash_gts import Generate_TS
 from TomoNet.util import browse, metadata
 from TomoNet.util.io import mkfolder
+from TomoNet.util.utils import string2float, string2int
 import os, glob, subprocess, shutil
 import logging
 import json
+from TomoNet.process.bash_aretomo import AreTomo
 
 
 class Recon(QTabWidget):
@@ -16,7 +18,47 @@ class Recon(QTabWidget):
         
         self.setupUi()
         self.setupUi_aretomo()
+        ############### Define variables ################
+        self.ts_folder = "Recon/ts_tlt"
+        self.etomo_folder = "Recon/eTomo"
+        self.areTomo_folder = "Recon/AreTomo"
         self._history_record = "Recon/history_record.txt"
+        self.current_ts_list = None
+        ############### Define variables ################
+
+        self.retranslateUi()
+        self.retranslateUi_aretomo()
+
+        self.thread_gt = None
+        self.thread_aretomo = None
+
+
+        self.pushButton_check_tomo_num.clicked.connect(self.check_tomo_num)
+
+        self.pushButton_corrected_image_folder.clicked.connect(lambda: browse.browseFolderSlot(self.lineEdit_corrected_image_folder)) 
+        
+        self.pushButton_run_ts_generation.clicked.connect(self.generate_ts)
+
+        self.pushButton_reload.clicked.connect(self.reload_table)
+
+        self.pushButton_run_aretomo.clicked.connect(self.run_aretomo)
+
+        self.pushButton_aretomo_input_folder.clicked.connect(lambda: browse.browseFolderSlot(self.lineEdit_aretomo_input_folder)) 
+        
+        self.currentChanged.connect(self.tab_changed)
+        self.tableView.doubleClicked.connect(self.table_click)
+
+        for child in self.findChildren(QtWidgets.QLineEdit):
+            child.textChanged.connect(self.save_setting)
+
+        for child in self.findChildren(QtWidgets.QComboBox):
+            child.currentIndexChanged.connect(self.save_setting)
+
+        self.lineEdit_aretomo_input_folder.textChanged.connect(self.aretomo_count_tomo)
+
+        self.setting_file ="Recon/recon.setting"
+        
+        self.read_setting()
 
         self.log_file = "Recon/recon.log"
         self.note_json = "Recon/notes.json"
@@ -34,7 +76,6 @@ class Recon(QTabWidget):
         self.fileSystemWatcher.addPath(self.log_file)
         self.fileSystemWatcher.fileChanged.connect(self.update_log_window)  
         
-
     def setupUi(self):
         
         self.tab = QtWidgets.QWidget()
@@ -301,6 +342,7 @@ class Recon(QTabWidget):
         self.tableView = QtWidgets.QTableWidget(self)
         
         header_labels = metadata.header_labels_recon
+        
         self.tableView.setColumnCount(len(header_labels))
         self.tableView.setHorizontalHeaderLabels(header_labels)
         header = self.tableView.horizontalHeader()   
@@ -311,34 +353,6 @@ class Recon(QTabWidget):
         self.gridLayout_recon.addWidget(self.tableView, 1, 0)
         
         self.addTab(self.tab1, "")
-
-        self.retranslateUi()
-
-        ############### Define variables ################
-        self.ts_folder = "Recon/ts_tlt"
-        self.etomo_folder = "Recon/eTomo"
-        self.areTomo_folder = "Recon/areTomo"
-        ############### Define variables ################
-
-        self.thread_gt = None
-        self.pushButton_check_tomo_num.clicked.connect(self.check_tomo_num)
-
-        self.pushButton_corrected_image_folder.clicked.connect(lambda: browse.browseFolderSlot(self.lineEdit_corrected_image_folder)) 
-        self.pushButton_run_ts_generation.clicked.connect(self.generate_ts)
-
-        self.pushButton_reload.clicked.connect(self.reload_table)
-        
-        self.currentChanged.connect(self.tab_changed)
-        self.tableView.doubleClicked.connect(self.table_click)
-
-        for child in self.findChildren(QtWidgets.QLineEdit):
-            child.textChanged.connect(self.save_setting)
-
-        for child in self.findChildren(QtWidgets.QComboBox):
-            child.currentIndexChanged.connect(self.save_setting)
-
-        self.setting_file ="Recon/recon.setting"
-        self.read_setting()
 
     def setupUi_aretomo(self):
         self.tab_aretomo = QtWidgets.QWidget()
@@ -378,6 +392,13 @@ class Recon(QTabWidget):
         self.pushButton_aretomo_input_folder.setMaximumSize(QtCore.QSize(60, 24))
         self.pushButton_aretomo_input_folder.setObjectName("pushButton_aretomo_input_folder")
         self.horizontalLayout_6.addWidget(self.pushButton_aretomo_input_folder)
+
+        self.label_aretomo_tomoNum_detect = QtWidgets.QLabel(self.tab_aretomo)
+        self.label_aretomo_tomoNum_detect.setSizePolicy(sizePolicy)
+        self.label_aretomo_tomoNum_detect.setMinimumSize(QtCore.QSize(120, 0))
+        self.label_aretomo_tomoNum_detect.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_aretomo_tomoNum_detect.setObjectName("label_aretomo_tomoNum_detect")
+        self.horizontalLayout_6.addWidget(self.label_aretomo_tomoNum_detect)
         
         #######
         self.horizontalLayout_7 = QtWidgets.QHBoxLayout()
@@ -491,6 +512,25 @@ class Recon(QTabWidget):
         self.lineEdit_aretomo_addtional_param.setInputMask("")
         self.lineEdit_aretomo_addtional_param.setObjectName("lineEdit_aretomo_addtional_param")
         self.horizontalLayout_9.addWidget(self.lineEdit_aretomo_addtional_param)
+
+        ############################# Run button ###########################
+        self.horizontalLayout_10 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_10.setObjectName("horizontalLayout_10")
+        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_10.addItem(spacerItem2)
+        self.pushButton_run_aretomo = QtWidgets.QPushButton(self.tab_aretomo)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.pushButton_run_aretomo.sizePolicy().hasHeightForWidth())
+        self.pushButton_run_aretomo.setSizePolicy(sizePolicy)
+        self.pushButton_run_aretomo.setMinimumSize(QtCore.QSize(98, 50))
+        self.pushButton_run_aretomo.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.pushButton_run_aretomo.setObjectName("run")
+        self.horizontalLayout_10.addWidget(self.pushButton_run_aretomo)
+        spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_10.addItem(spacerItem3)
+        
         
         self.gridLayout_3.addLayout(self.horizontalLayout_6, 0, 0, 1, 1)
         self.gridLayout_3.addLayout(self.horizontalLayout_7, 1, 0, 1, 1)
@@ -498,10 +538,9 @@ class Recon(QTabWidget):
         self.gridLayout_3.addLayout(self.horizontalLayout_9, 3, 0, 1, 1)
         self.spacerItem_aretomo_1 = QtWidgets.QSpacerItem(10, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.gridLayout_3.addItem(self.spacerItem_aretomo_1, 4, 0, 1, 1)
+        self.gridLayout_3.addLayout(self.horizontalLayout_10, 5, 0, 1, 1)
 
         self.addTab(self.tab_aretomo, "")
-
-        self.retranslateUi_aretomo()
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
@@ -512,7 +551,7 @@ class Recon(QTabWidget):
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
             Folder path to your motion corrected images. \
             </span></p></body></html>"))
-
+        self.label_corrected_image_folder.setText(_translate("Form", "Motion Corrected Images Folder:"))
         
         self.label_base_name.setText(_translate("Form", "Filename filter text:"))
         self.lineEdit_base_name.setPlaceholderText(_translate("Form", "e.g TS_1201_* for X_TS_1201_001_X_ali.mrc"))
@@ -619,6 +658,7 @@ class Recon(QTabWidget):
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
             Folder path to your tilt series and tlt files. \
             </span></p></body></html>"))
+        self.label_aretomo_tomoNum_detect.setText(_translate("Form", "< 0 Tomo(s) >"))
         
         self.label_VolZ.setText(_translate("Form", "-VolZ:"))
         self.lineEdit_VolZ.setPlaceholderText(_translate("Form", "2000"))
@@ -677,7 +717,8 @@ class Recon(QTabWidget):
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
             Addtional parameters to be used. Follow format: -Option1 value1 -Option2 value2 ...\
             </span></p></body></html>"))
-
+        
+        self.pushButton_run_aretomo.setText(_translate("Form", "RUN"))
 
     def generate_ts(self):
         if self.pushButton_run_ts_generation.text() == "RUN":
@@ -874,6 +915,17 @@ class Recon(QTabWidget):
             data['base_name_index'] = ""
             data['image_file_suffix'] = ""
             data['cpus'] = ""
+
+            #tab 3
+            data['aretomo_input_folder'] = ""
+            data['VolZ'] = ""
+            data['OutBin'] = ""
+            data['TiltAxis'] = ""
+            data['OutImod'] = ""
+            data['FlipVol'] = ""
+            data['UseAlnFile'] = ""
+            data['GPU_ID'] = ""
+            data['aretomo_addtional_param'] = ""
             try:
                 with open(self.setting_file) as f:
                     for line in f:
@@ -890,6 +942,17 @@ class Recon(QTabWidget):
                 self.lineEdit_target_base_name.setText(data['target_base_name'])
                 self.comboBox_rm_dup.setCurrentText(data['rm_dup'])
                 self.comboBox_new_data.setCurrentText(data['new_data'])
+
+                #tab 3
+                self.lineEdit_aretomo_input_folder.setText(data['aretomo_input_folder'])
+                self.lineEdit_VolZ.setText(data['VolZ'])
+                self.lineEdit_OutBin.setText(data['OutBin'])
+                self.lineEdit_TiltAxis.setText(data['TiltAxis'])
+                self.lineEdit_OutImod.setText(data['OutImod'])
+                self.lineEdit_FlipVol.setText(data['FlipVol'])
+                self.lineEdit_UseAlnFile.setText(data['UseAlnFile'])
+                self.lineEdit_GPU_ID.setText(data['GPU_ID'])
+                self.lineEdit_aretomo_addtional_param.setText(data['aretomo_addtional_param'])
                 
             except:
                 self.logger.error("error reading {}!".format(self.setting_file))
@@ -907,6 +970,17 @@ class Recon(QTabWidget):
         param['target_base_name'] = self.lineEdit_target_base_name.text()
         param['rm_dup'] = self.comboBox_rm_dup.currentText()
         param['new_data'] = self.comboBox_new_data.currentText()
+
+        #tab aretomo
+        param['aretomo_input_folder'] = self.lineEdit_aretomo_input_folder.text()
+        param['VolZ'] = self.lineEdit_VolZ.text()
+        param['OutBin'] = self.lineEdit_OutBin.text()
+        param['TiltAxis'] = self.lineEdit_TiltAxis.text()
+        param['OutImod'] = self.lineEdit_OutImod.text()
+        param['FlipVol'] = self.lineEdit_FlipVol.text()
+        param['UseAlnFile'] = self.lineEdit_UseAlnFile.text()
+        param['GPU_ID'] = self.lineEdit_GPU_ID.text()
+        param['aretomo_addtional_param'] = self.lineEdit_aretomo_addtional_param.text()
         try:
             with open(self.setting_file, 'w') as f: 
                 for key, value in param.items(): 
@@ -919,6 +993,8 @@ class Recon(QTabWidget):
             # You are now at Reconstruction tab, refresh the table contain the tomo information
 
             self.reload_table()
+        if i == 2:
+            self.aretomo_count_tomo()
 
     def natural_keys(self, text):
         return int(text.split("_")[-1]) 
@@ -1386,3 +1462,144 @@ class Recon(QTabWidget):
         rawtlt_lists = [x for x in rawtlt_lists if len(x) >= min_num_tilt]    
 
         self.logger.info("Check: Total tomo # is {} from {} images".format(len(tomo_lists), len(images_list)))
+
+    
+    ############# for AreTomo tab ###########################
+    def aretomo_count_tomo(self):
+        folder_path = self.lineEdit_aretomo_input_folder.text()
+        if os.path.exists(folder_path):
+            self.current_ts_list = sorted([os.path.basename(x) for x in glob.glob("{}/*.st".format(folder_path))])
+            if self.current_ts_list and len(self.current_ts_list) > 0:
+                self.label_aretomo_tomoNum_detect.setText("< {} Tomo(s)>".format(len(self.current_ts_list)))
+            else:
+                self.label_aretomo_tomoNum_detect.setText("< 0 Tomo(s)>")
+        else:
+            self.label_aretomo_tomoNum_detect.setText("< 0 Tomo(s)>")
+            self.logger.warning("The input folder path is not found!")
+
+    def get_aretomo_param(self):
+        params = {}
+
+        if not len(self.lineEdit_aretomo_input_folder.text()) > 0:
+            return "Please specify the tilt series folder as input!"
+        elif not os.path.exists(self.lineEdit_aretomo_input_folder.text()):
+            return "The input folder path is not found!"
+        else:
+            aretomo_input_folder = self.lineEdit_aretomo_input_folder.text()
+        params['aretomo_input_folder'] = aretomo_input_folder
+
+        if len(self.lineEdit_VolZ.text()) > 0:
+            VolZ = string2int(self.lineEdit_VolZ.text())
+            if VolZ == None:
+                return "error reading -VolZ value!"   
+            if VolZ < 0:
+                return "VolZ should be a positive integer!"      
+        else:
+            VolZ = 2000
+        params['VolZ'] = VolZ
+
+        if len(self.lineEdit_OutBin.text()) > 0:
+            OutBin = string2int(self.lineEdit_OutBin.text())
+            if OutBin == None:
+                return "error reading -OutBin value!"   
+            if OutBin < 0:
+                return "OutBin should be a positive integer!"      
+        else:
+            OutBin = 4
+        params['OutBin'] = OutBin    
+
+        if len(self.lineEdit_TiltAxis.text()) > 0:
+            TiltAxis = string2float(self.lineEdit_TiltAxis.text())
+            if TiltAxis == None:
+                return "error reading -TiltAxis value!"   
+        else:
+            TiltAxis = 0
+        params['TiltAxis'] = TiltAxis      
+
+        if len(self.lineEdit_OutImod.text()) > 0:
+            OutImod = string2int(self.lineEdit_OutImod.text())
+            if OutImod == None:
+                return "error reading -OutImod value!" 
+            if OutImod not in [0, 1, 2, 3]:
+                return "-OutImod value has to be one from 0, 1, 2, 3!"
+        else:
+            OutImod = 1
+        params['OutImod'] = OutImod    
+
+        if len(self.lineEdit_FlipVol.text()) > 0:
+            FlipVol = string2int(self.lineEdit_FlipVol.text())
+            if FlipVol == None:
+                return "error reading -FlipVol value!" 
+            if FlipVol not in [0, 1]:
+                return "-FlipVol value has to be one from 0, 1!"
+        else:
+            FlipVol = 1
+        params['FlipVol'] = FlipVol    
+
+        if len(self.lineEdit_UseAlnFile.text()) > 0:
+            UseAlnFile = string2int(self.lineEdit_UseAlnFile.text())
+            if UseAlnFile == None:
+                return "error reading -UseAlnFile value!" 
+            if UseAlnFile not in [0, 1]:
+                return "-UseAlnFile value has to be one from 0, 1!"
+        else:
+            UseAlnFile = 0
+        params['UseAlnFile'] = UseAlnFile
+        
+        GPU_ID = self.lineEdit_GPU_ID.text() if len(self.lineEdit_GPU_ID.text()) > 0 else "0"
+        params['GPU_ID'] = GPU_ID
+
+        aretomo_addtional_param = self.lineEdit_aretomo_addtional_param.text()
+        params['aretomo_addtional_param'] = aretomo_addtional_param
+        
+        params['current_ts_list'] = self.current_ts_list
+        return params
+    
+    def run_aretomo(self):
+        d = self.get_aretomo_param()
+        if (not self.current_ts_list) or len(self.current_ts_list) == 0:
+            self.logger.error("No Tomogram has detected yet! Please adjust your tilt series folder!")
+        elif type(d) is dict:
+            if self.pushButton_run_aretomo.text() == "RUN":
+                ret = QMessageBox.question(self, 'Run AreTomo Reconstruction!', \
+                    "Run AreTomo for all the image from {}. \
+                    \nContinue?\n".format(d['aretomo_input_folder'])\
+                    , QMessageBox.Yes | QMessageBox.No, \
+                    QMessageBox.No)
+                
+                if ret == QMessageBox.Yes:
+                    self.pushButton_run_aretomo.setText("STOP")
+                    self.pushButton_run_aretomo.setStyleSheet('QPushButton {color: red;}')
+                    
+                    self.thread_aretomo = AreTomo(d, self.areTomo_folder)
+        
+                    self.thread_aretomo.finished.connect(self.cmd_finished_aretomo)
+                    try:
+                        self.thread_aretomo.start()
+                    except:
+                        self.thread_aretomo.stop_process()
+                else:
+                    self.cmd_finished_aretomo()
+            else :
+                ret = QMessageBox.question(self, 'Stop AreTomo Reconstruction!', \
+                    "Stop AreTomo Reconstruction! \
+                    \nConfirm?\n"\
+                    , QMessageBox.Yes | QMessageBox.No, \
+                    QMessageBox.No)
+                if ret == QMessageBox.Yes:
+                    self.pushButton_run_aretomo.setText("RUN")
+                    self.pushButton_run_aretomo.setStyleSheet("QPushButton {color: black;}")
+                    # try:
+                    #     self.thread_motioncor.stop_process()
+
+                    # except:
+                    #     self.logger.warning("no thread are running!")
+        else:
+             self.logger.error(d)
+             self.cmd_finished_aretomo()
+
+    def cmd_finished_aretomo(self):
+        self.pushButton_run_aretomo.setText("RUN")
+        self.pushButton_run_aretomo.setStyleSheet("QPushButton {color: black;}")
+        #self.thread_gt.quit()
+        #self.thread_gt.wait()
