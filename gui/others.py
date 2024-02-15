@@ -936,36 +936,39 @@ class OtherUtils(QTabWidget):
                 random_euler = True
                 self.logger.warning("MOTL.csv file is not detected for tomogram {}, use random euler angles instead!".format(tomo))
 
-        if len(origin_coords_lines) <=0 or origin_coords_lines.shape[1] < 3 or origin_coords_lines.shape[1] > 4:
-            self.logger.warning(".pts file format is wrong for tomogram {}, skip it!".format(tomo))
-        else:
-            with open(output_coords_file, 'w') as w_c:
-                with open(output_euler_file, 'w') as w_e:
-                    
-                    for i, line in enumerate(origin_coords_lines):
-                        if not random_euler:
-                            zxz_euler = np.array([float(origin_motl_lines[i][16]),float(origin_motl_lines[i][18]),float(origin_motl_lines[i][17])])
-                        else:
-                            #zxz_euler = np.random.rand(3,) * 360-180
-                            zxz_euler = np.random.rand(3,) * 0
-                        real_shifts = get_raw_shifts_PEET(zxz_euler, shifts)
-
-                        if origin_coords_lines.shape[1] ==4:
-                            pid = line[0]
-                            new_coords = np.array([float(v) for v in line[1:]]) + real_shifts
-                        else:
-                            pid = 1
-                            new_coords = np.array([float(v) for v in line]) + real_shifts
+        try:
+            if len(origin_coords_lines) <=0 or origin_coords_lines.shape[1] < 3 or origin_coords_lines.shape[1] > 4:
+                self.logger.warning(".pts file format is wrong for tomogram {}, skip it!".format(tomo))
+            else:
+                with open(output_coords_file, 'w') as w_c:
+                    with open(output_euler_file, 'w') as w_e:
                         
-                        new_coords_line = "{} {} {} {}\n".format(pid, round(new_coords[0],2), round(new_coords[1],2), round(new_coords[2],2))
-                        w_c.write(new_coords_line)
-                        
-                        new_zxz_euler = apply_slicerRot_PEET(zxz_euler, rotation)
-                        zyz_euler = PEET2Relion(new_zxz_euler)
-                        new_euler_line = "{},{},{}\n".format(round(zyz_euler[0],2), round(zyz_euler[1],2), round(zyz_euler[2],2))
-                        w_e.write(new_euler_line)
+                        for i, line in enumerate(origin_coords_lines):
+                            if not random_euler:
+                                zxz_euler = np.array([float(origin_motl_lines[i][16]),float(origin_motl_lines[i][18]),float(origin_motl_lines[i][17])])
+                            else:
+                                #zxz_euler = np.random.rand(3,) * 360-180
+                                zxz_euler = np.random.rand(3,) * 0
+                            real_shifts = get_raw_shifts_PEET(zxz_euler, shifts)
 
-        self.logger.info("coords and euler files are generated for {}!".format(tomo))
+                            if origin_coords_lines.shape[1] ==4:
+                                pid = line[0]
+                                new_coords = np.array([float(v) for v in line[1:]]) + real_shifts
+                            else:
+                                pid = 1
+                                new_coords = np.array([float(v) for v in line]) + real_shifts
+                            
+                            new_coords_line = "{} {} {} {}\n".format(pid, round(new_coords[0],2), round(new_coords[1],2), round(new_coords[2],2))
+                            w_c.write(new_coords_line)
+                            
+                            new_zxz_euler = apply_slicerRot_PEET(zxz_euler, rotation)
+                            zyz_euler = PEET2Relion(new_zxz_euler)
+                            new_euler_line = "{},{},{}\n".format(round(zyz_euler[0],2), round(zyz_euler[1],2), round(zyz_euler[2],2))
+                            w_e.write(new_euler_line)
+
+            self.logger.info("coords and euler files are generated for {}!".format(tomo))
+        except:
+            self.logger.error("It seems that the number of particle is not consistent from MOTL and pts files for {}!".format(tomo))
 
     def combine_all(self, tomo_list, folder, bin_factor=1):
         out_file = "{}/particles.star".format(folder)
@@ -1044,12 +1047,15 @@ class OtherUtils(QTabWidget):
                 shifts = [params['recenter_x'], params['recenter_y'], params['recenter_z']]
                 for tomo in tomo_list:
                     pts_file = "{}/{}_final/{}.pts".format(params['expand_result_folder'], tomo, tomo)
-                    motl_file = "{}/{}_final/{}_MOTL.csv".format(params['expand_result_folder'], tomo, tomo)
+                    motl_file = "{}/{}_final/{}_InitMOTL.csv".format(params['expand_result_folder'], tomo, tomo)
                     #motl_convert_file = "{}/{}_final/{}_convert_MOTL.csv".format(params['assemble_output_folder'], tomo, tomo)
 
                     coords_file = "{}/{}.coords".format(params['assemble_output_folder'], tomo)
                     euler_file = "{}/{}.euler".format(params['assemble_output_folder'], tomo)
                     
+                    if not os.path.exists(motl_file):
+                        motl_file = "{}/{}_final/{}_MOTL.csv".format(params['expand_result_folder'], tomo, tomo)
+
                     if os.path.exists(pts_file):
                         self.transform_coords_euler(tomo, pts_file, motl_file, coords_file, euler_file, shifts, rotations)
                     else:
