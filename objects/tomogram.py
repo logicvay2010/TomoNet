@@ -85,18 +85,19 @@ class Tomogram:
 
     
     less_tomogramPickPath = "{}/{}".format(less_folder, os.path.basename(self.tomogramPickPath))
-    less_rotaxesPath = "{}/{}".format(less_folder, os.path.basename(self.rotaxesPath))
+    
     cmd = "cd {}; ln -s ../{} ./;".format(less_folder, os.path.basename(self.tomogramPickPath))
     subprocess.run(cmd,shell=True)
-
-    f_rot = open(self.rotaxesPath, "r")
-    with open(less_rotaxesPath, "w") as f_rot_less:
-      lines = np.array(f_rot.readlines())
-      for c in range(len(set(clusters))):
-        f_rot_less.write(lines[np.argwhere(clusters == c+1)][0][0])
-
     self.tomogramPickPath = less_tomogramPickPath
-    self.rotaxesPath = less_rotaxesPath
+
+    if os.path.exists(self.rotaxesPath):
+      less_rotaxesPath = "{}/{}".format(less_folder, os.path.basename(self.rotaxesPath))
+      f_rot = open(self.rotaxesPath, "r")
+      with open(less_rotaxesPath, "w") as f_rot_less:
+        lines = np.array(f_rot.readlines())
+        for c in range(len(set(clusters))):
+          f_rot_less.write(lines[np.argwhere(clusters == c+1)][0][0])
+      self.rotaxesPath = less_rotaxesPath
     
     if use_motl_info:
       f_motl = open(self.motlPath, "r")
