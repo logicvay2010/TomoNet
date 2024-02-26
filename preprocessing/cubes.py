@@ -37,10 +37,10 @@ def create_cube_seeds_new(img3D, nCubesPerImg, cubeSideLen, coords, mask=None, l
             random_shifts = np.random.choice(cubeSideLen, 3) - cubeSideLen//2
             x,y,z = np.array([x,y,z]) + random_shifts
         
-        #x,y,z = [int(p) for p in [x,y,z]]
-        x,y,z = [int(p) for p in [x,y,z]]
-        
-        mask_coords[z,y,x] = 1
+            #x,y,z = [int(p) for p in [x,y,z]]
+            x,y,z = [int(p) for p in [x,y,z]]
+            
+            mask_coords[z,y,x] = 1
     
     #with mrcfile.new("mask_coords.mrc", overwrite=True) as output_mrc:
     #    output_mrc.set_data(mask_coords.astype(np.float32))

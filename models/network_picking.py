@@ -57,10 +57,10 @@ class Net:
         train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, persistent_workers=True,
                                                 num_workers=ncpus//2, pin_memory=True, drop_last=True)
 
-        #val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=True, persistent_workers=True,
-        #                                        pin_memory=True, num_workers=ncpus//2, drop_last=True)
-        val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False, persistent_workers=True,
+        val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=True, persistent_workers=True,
                                                 pin_memory=True, num_workers=ncpus//2, drop_last=True)
+        #val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False, persistent_workers=True,
+        #                                        pin_memory=True, num_workers=ncpus//2, drop_last=True)
         self.model.train()
         if isinstance(gpuID, str):
             gpuID = list(map(int,gpuID.split(',')))

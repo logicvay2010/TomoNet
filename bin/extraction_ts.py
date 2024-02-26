@@ -284,7 +284,7 @@ if __name__ == "__main__":
         
         sys.exit()
 
-    mkfolder(data_dir)
+    #mkfolder(data_dir)
     tomoList = []
     coordsList = []
     maskList = []
