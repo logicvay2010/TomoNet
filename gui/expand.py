@@ -289,6 +289,14 @@ class Expand(QTabWidget):
             "<html><head/><body><p><span style=\" \
             font-size:9pt;\">Particles have less than this defined CCC value comparing with the reference will be excluded. </span></p></body></html>"))
         
+        self.label_max_seed_num.setText(_translate("Form", "Max seed #:"))
+        
+        self.lineEdit_max_seed_num.setPlaceholderText(_translate("Form", "200"))
+        self.lineEdit_max_seed_num.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            font-size:9pt;\">Maximum seeds number at Iteration 0. This can be used to speed up the calculation by clustering you input seed particles into Max_# representive particles.\
+            Can be useful when the seed particle set is already crowded. For example after AutoPicking, then you want to add the missed particles. (Default 200) </span></p></body></html>"))
+
         self.label_reference.setText(_translate("Form", "Reference:"))
         self.label_reference.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
@@ -764,6 +772,19 @@ class Expand(QTabWidget):
 
         self.horizontalLayout_2_5.addWidget(self.lineEdit_threshold_CCC)
 
+        self.label_max_seed_num = QtWidgets.QLabel(self.tab2)
+        self.label_max_seed_num.setSizePolicy(sizePolicy)
+        self.label_max_seed_num.setMinimumSize(QtCore.QSize(120, 0))
+        self.label_max_seed_num.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_max_seed_num.setObjectName("label_max_seed_num")
+        self.horizontalLayout_2_5.addWidget(self.label_max_seed_num)
+
+        self.lineEdit_max_seed_num = QtWidgets.QLineEdit(self.tab2)
+        self.lineEdit_max_seed_num.setInputMask("")
+        self.lineEdit_max_seed_num.setObjectName("lineEdit_max_seed_num")
+
+        self.horizontalLayout_2_5.addWidget(self.lineEdit_max_seed_num)
+
         self.horizontalLayout_2_6 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2_6.setContentsMargins(10, 5, 10, 5)
 
@@ -1141,6 +1162,7 @@ class Expand(QTabWidget):
         data['pick_param_file_to_use'] = ""
         data['expand_folder_to_use'] = ""
         data['threshold_CCC'] = ""
+        data['max_seed_num'] = ""
         data['tomo_index'] = ""
         data['iterations'] = ""
         data['min_patch_size'] = ""
@@ -1175,6 +1197,7 @@ class Expand(QTabWidget):
         self.lineEdit_boxSize.setText(data['boxSize'])
         self.lineEdit_repeating_unit.setText(data['repeating_unit'])
         self.lineEdit_threshold_CCC.setText(data['threshold_CCC'])
+        self.lineEdit_max_seed_num.setText(data['max_seed_num'])
         
         self.lineEdit_reference.setText(data['reference'])
         self.lineEdit_mask.setText(data['mask'])
@@ -1213,6 +1236,7 @@ class Expand(QTabWidget):
         param['boxSize'] = self.lineEdit_boxSize.text()
         param['repeating_unit'] = self.lineEdit_repeating_unit.text()
         param['threshold_CCC'] = self.lineEdit_threshold_CCC.text()
+        param['max_seed_num'] = self.lineEdit_max_seed_num.text()
         
         param['reference'] = self.lineEdit_reference.text()
         param['mask'] = self.lineEdit_mask.text()
@@ -1475,6 +1499,13 @@ class Expand(QTabWidget):
         else: 
             return "Please specify the CCC threshold!"
         
+        if len(self.lineEdit_max_seed_num.text()) > 0:
+            max_seed_num = string2int(self.lineEdit_max_seed_num.text())
+            if max_seed_num == None or max_seed_num < 5:
+                return "CCC threshold should be a positive integer larger than 5!"
+        else: 
+            max_seed_num = 200
+        
         if len(self.lineEdit_reference.text()) > 0:
             reference = self.lineEdit_reference.text()
             header = self.read_header(reference)
@@ -1517,6 +1548,8 @@ class Expand(QTabWidget):
         
         #params['min_num_neighbors'] = min_num_neighbors
         params['threshold_CCC'] = threshold_CCC
+        params['max_seed_num'] = max_seed_num
+
         params['reference'] = reference
         params['mask'] = mask
 

@@ -125,17 +125,19 @@ def sta_peet_one(star_file, param_file, tomoName, cpus, first_round):
 
   if item != None:
 
-    tomo = Tomogram(item.rlnTomoName, initialParamFolder=item.rlnInitialParamFolder, \
-      reconstructionPath=item.rlnReconstructionPath, pickingPath=item.rlnPickingPath)
-
     ###################### define the search parameters ##################################################
 
     from TomoNet.util.searchParam import SearchParam
     search_param = SearchParam(param_file)
+    
+    ###################### build current tomogram ##################################################
+    tomo = Tomogram(item.rlnTomoName, initialParamFolder=item.rlnInitialParamFolder, \
+      reconstructionPath=item.rlnReconstructionPath, pickingPath=item.rlnPickingPath, max_seed_num = search_param.max_seed_num)
       
     ########################  detect which round is going on ########################################
     cache_folder_path = "{}_cache".format(tomo.staPath)
     latest_round = -1
+    
     if os.path.exists(cache_folder_path):
       rounds_num = [int(x.split("_")[1]) for x in os.listdir(cache_folder_path)]
       if len(rounds_num) > 0:

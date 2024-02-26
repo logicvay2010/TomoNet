@@ -4,16 +4,18 @@ import numpy as np
 import imodmodel
 import scipy.cluster.hierarchy as hcluster
 import subprocess
+from TomoNet.util.io import mkfolder
 
 class Tomogram:
-  def __init__(self, tomoName, tiltSeriesPath=None, rawtltPath=None, reconstructionPath=None, initialParamFolder=None, pickingPath=None):
+  def __init__(self, tomoName, tiltSeriesPath=None, rawtltPath=None, reconstructionPath=None, initialParamFolder=None, pickingPath=None, max_seed_num = 200):
     self.tomoName = tomoName
     self.tiltSeriesPath = tiltSeriesPath
     self.rawtltPath = rawtltPath
     self.reconstructionPath = reconstructionPath
     self.initialParamFolder = initialParamFolder
     self.pickingPath = pickingPath
-    self.staPath = "{}/{}".format(pickingPath,tomoName)
+    self.max_seed_num = max_seed_num
+    self.staPath = "{}/{}".format(pickingPath, tomoName)
     self.rotaxesPath = None
     self.modPath = None
     self.motlPath = None
@@ -32,7 +34,7 @@ class Tomogram:
         elif filename.endswith("RotAxes.csv"):
           self.rotaxesPath = filename
         #elif filename.endswith("InitMOTL.csv"):
-        elif filename.endswith("MOTL.csv"):
+        elif (filename.endswith("MOTL.csv") or filename.endswith("motl.csv")) and "less" not in filename:
           if not (self.motlPath == "{}_MOTL.csv".format(self.tomoName) or self.motlPath == "{}_InitMOTL.csv".format(self.tomoName)):
             self.motlPath = filename
         elif filename.endswith((".mrc",".rec")):
@@ -40,37 +42,81 @@ class Tomogram:
           self.originTomogramPickPath = filename
         else:
           pass
-    if self.motlPath == None and less:
-      self.set_model_less()
-
-  def set_model_less(self):
-    less_modPath = "{}_less.mod".format(self.modPath.split(".mod")[0])
-    less_ptsPath = "{}_less.pts".format(self.modPath.split(".mod")[0])
     
+    if os.path.exists(self.modPath):
+      actual_particle_num = len(np.array(imodmodel.read(self.modPath))[:,2:])
+      if self.max_seed_num > actual_particle_num:
+        less = False
+        self.max_seed_num = actual_particle_num
+    else:
+      less = False
+      print("error: .mod file has not found for {}!".format(self.tomoName))
+
+    if self.motlPath == None or less:
+      use_motl_info = not (self.motlPath == None)
+      self.set_model_less(use_motl_info)
+
+  def set_model_less(self, use_motl_info=False):
+    less_folder = "{}/less_{}".format(self.initialParamFolder, self.tomoName)
+    mkfolder(less_folder)
+    
+    #less_modPath = "{}_less.mod".format(self.modPath.split(".mod")[0])
+    #less_ptsPath = "{}_less.pts".format(self.modPath.split(".mod")[0])
+    less_modPath = "{}/{}".format(less_folder, os.path.basename(self.modPath))
+    less_ptsPath = "{}.pts".format(less_modPath.split(".mod")[0])
+
     #a parameter for defining using less particles from the input to improve efficiency
-    less_number = 1000
+    less_number = self.max_seed_num
     if os.path.exists(self.modPath):
       particle_list = np.array(imodmodel.read(self.modPath))[:,2:]
-      # clusters = hcluster.fclusterdata(particle_list, t=less_number, criterion="maxclust")
-      # new_particle_list = []
-      # for i in range(len(set(clusters))):
-      #   new_particle_list.append(particle_list[np.argwhere(clusters == i+1)][0][0])
+      clusters = hcluster.fclusterdata(particle_list, t=less_number, criterion="maxclust")
+      new_particle_list = []
+      for i in range(len(set(clusters))):
+        new_particle_list.append(particle_list[np.argwhere(clusters == i+1)][0][0])
 
-    new_particle_list = particle_list
+    #new_particle_list = particle_list
     with open(less_ptsPath, "w") as f_pts:
       for p in new_particle_list:
         f_pts.write("{} {} {}\n".format(p[0],p[1],p[2]))
-    
-    # with open("123.txt", "w") as wwww:
-    #   for p in particle_list:
-    #     wwww.write("{} {} {}\n".format(p[0],p[1],p[2]))
-    #   wwww.write("\n"+str(clusters))
 
     cmd = "point2model {} {}".format(less_ptsPath, less_modPath)
     subprocess.check_output(cmd, shell=True)
     self.modPath = less_modPath
-    
 
+    
+    less_tomogramPickPath = "{}/{}".format(less_folder, os.path.basename(self.tomogramPickPath))
+    less_rotaxesPath = "{}/{}".format(less_folder, os.path.basename(self.rotaxesPath))
+    cmd = "cd {}; ln -s ../{} ./;".format(less_folder, os.path.basename(self.tomogramPickPath))
+    subprocess.run(cmd,shell=True)
+
+    f_rot = open(self.rotaxesPath, "r")
+    with open(less_rotaxesPath, "w") as f_rot_less:
+      lines = np.array(f_rot.readlines())
+      for c in range(len(set(clusters))):
+        f_rot_less.write(lines[np.argwhere(clusters == c+1)][0][0])
+
+    self.tomogramPickPath = less_tomogramPickPath
+    self.rotaxesPath = less_rotaxesPath
+    
+    if use_motl_info:
+      f_motl = open(self.motlPath, "r")
+      #less_motlPath = "{}_less_MOTL.csv".format(self.motlPath.split("motl.csv")[0]) if self.motlPath.endswith("motl.csv") \
+      #    else "{}_less_MOTL.csv".format(self.motlPath.split("MOTL.csv")[0]) 
+      less_motlPath = "{}/{}".format(less_folder, os.path.basename(self.motlPath))
+
+      with open(less_motlPath, "w") as f_motl_less:
+        lines = f_motl.readlines()
+        lines_no_header = np.array(lines[1:])
+        f_motl_less.write(lines[0])
+        for c in range(len(set(clusters))):
+          new_line = lines_no_header[np.argwhere(clusters == c+1)][0][0]
+          new_line_split = new_line.split(',')
+          new_line_split[3] = str(c+1)
+
+          f_motl_less.write(','.join(new_line_split))
+        
+      self.motlPath = less_motlPath
+    
   def getInitialParams(self):
     try:
       return [self.tomogramPickPath, self.modPath, self.motlPath, self.rotaxesPath]

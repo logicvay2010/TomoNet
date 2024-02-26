@@ -257,7 +257,7 @@ with open(clean_pts_file,"w") as clean_pts_file_w:
                     frot.write(rot_list)
 
 cmd = "cd {}; point2model {} {} -scat -sphere 5 ".format(final_result_folder, clean_pts_file, clean_mod_file)
-subprocess.run(cmd,shell=True, stdout=subprocess.PIPE)
+subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
 
 if len(motls) > 0:
     coordfile = "{}/{}_raw.pts".format(final_result_folder,tomo.tomoName)
