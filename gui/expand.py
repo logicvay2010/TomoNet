@@ -16,6 +16,7 @@ import numpy as np
 import json
 from ast import literal_eval
 
+from TomoNet.util.searchParam import SearchParam
 
 class Expand(QTabWidget):
     def __init__(self):
@@ -83,6 +84,8 @@ class Expand(QTabWidget):
         self.pushButton_expand_folder.clicked.connect\
             (lambda: browse.browseFolderSlot(self.lineEdit_expand_folder)) 
         
+        self.pushButton_load_params.clicked.connect\
+            (lambda: browse.browseSlot(self.lineEdit_load_params, 'params')) 
         self.pushButton_reference.clicked.connect\
             (lambda: browse.browseSlot(self.lineEdit_reference, 'map')) 
         self.pushButton_mask.clicked.connect\
@@ -101,6 +104,7 @@ class Expand(QTabWidget):
         self.pushButton_expand_select.clicked.connect(self.expand_select)
         
         self.lineEdit_star_file_to_use.textChanged.connect(self.reload_table)
+        self.lineEdit_load_params.textChanged.connect(self.reload_params)
         self.lineEdit_expand_folder_to_use.textChanged.connect(self.reload_table)
         self.currentChanged.connect(self.tab_changed)
 
@@ -172,6 +176,12 @@ class Expand(QTabWidget):
         _translate = QtCore.QCoreApplication.translate
         #self.setWindowTitle(_translate("Form", "Form"))
         
+        self.label_load_params.setText(_translate("Form", "Load picking params:"))      
+        self.lineEdit_load_params.setPlaceholderText(_translate("Form", ""))
+        self.lineEdit_load_params.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            font-size:9pt;\">Load secific param setting (.params file) </span></p></body></html>"))
+
         self.label_rotRange.setText(_translate("Form", "First round search range:"))
         self.label_rotRange.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
@@ -289,7 +299,7 @@ class Expand(QTabWidget):
             "<html><head/><body><p><span style=\" \
             font-size:9pt;\">Particles have less than this defined CCC value comparing with the reference will be excluded. </span></p></body></html>"))
         
-        self.label_max_seed_num.setText(_translate("Form", "Max seed #:"))
+        self.label_max_seed_num.setText(_translate("Form", "Max initial seed #:"))
         
         self.lineEdit_max_seed_num.setPlaceholderText(_translate("Form", "200"))
         self.lineEdit_max_seed_num.setToolTip(_translate("MainWindow", \
@@ -328,6 +338,13 @@ class Expand(QTabWidget):
             No: equal to template matching, the reference will stay the same for all iterations; Yes: reference will be replaced by the reconstruction result from each iterations.\
             </span></p></body></html>"))
 
+        self.label_min_count_to_continue.setText(_translate("Form", "Min seed particle # per expansion:"))
+        self.lineEdit_min_count_to_continue.setPlaceholderText(_translate("Form", "5"))
+        self.lineEdit_min_count_to_continue.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            font-size:9pt;\"> Before each expansion, the current round seed particles will be counted. \
+                if under the specific number, then Expansion will end early. Thus, please use number between 1 to your initial seed particle#. (default 5) </span></p></body></html>"))
+        
         self.label_pick_param_filename.setText(_translate("Form", "Output filename:"))
         self.label_pick_param_filename.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
@@ -584,6 +601,36 @@ class Expand(QTabWidget):
         self.tab2 = QtWidgets.QWidget()
         self.tab2.setObjectName("tab")
 
+        self.horizontalLayout_2_0 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2_0.setContentsMargins(10, 5, 10, 5)
+
+        
+        self.label_load_params = QtWidgets.QLabel(self.tab2)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_load_params.sizePolicy().hasHeightForWidth())
+        self.label_load_params.setSizePolicy(sizePolicy)
+        self.label_load_params.setMinimumSize(QtCore.QSize(60, 0))
+        self.label_load_params.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_load_params.setObjectName("label_load_params")
+        self.horizontalLayout_2_0.addWidget(self.label_load_params)
+
+        self.lineEdit_load_params = QtWidgets.QLineEdit(self.tab2)
+        self.lineEdit_load_params.setInputMask("")
+        self.lineEdit_load_params.setObjectName("lineEdit_load_params")
+
+        self.horizontalLayout_2_0.addWidget(self.lineEdit_load_params)
+
+        self.pushButton_load_params = QtWidgets.QPushButton(self.tab2)
+        self.pushButton_load_params.setText("")
+        self.pushButton_load_params.setIcon(self.icon)
+        self.pushButton_load_params.setIconSize(QtCore.QSize(24, 24))
+        self.pushButton_load_params.setMaximumSize(QtCore.QSize(160, 24))
+        self.pushButton_load_params.setMinimumSize(QtCore.QSize(60, 24))
+        self.pushButton_load_params.setObjectName("pushButton_load_params")
+        self.horizontalLayout_2_0.addWidget(self.pushButton_load_params)
+
 
         self.groupBox_1 = QtWidgets.QGroupBox()
 
@@ -774,7 +821,7 @@ class Expand(QTabWidget):
 
         self.label_max_seed_num = QtWidgets.QLabel(self.tab2)
         self.label_max_seed_num.setSizePolicy(sizePolicy)
-        self.label_max_seed_num.setMinimumSize(QtCore.QSize(120, 0))
+        self.label_max_seed_num.setMinimumSize(QtCore.QSize(140, 0))
         self.label_max_seed_num.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_max_seed_num.setObjectName("label_max_seed_num")
         self.horizontalLayout_2_5.addWidget(self.label_max_seed_num)
@@ -857,6 +904,19 @@ class Expand(QTabWidget):
         self.comboBox_refine_reference.addItem("")
         self.horizontalLayout_2_8.addWidget(self.comboBox_refine_reference)
 
+        self.label_min_count_to_continue = QtWidgets.QLabel(self.tab2)
+        self.label_min_count_to_continue.setSizePolicy(sizePolicy)
+        self.label_min_count_to_continue.setMinimumSize(QtCore.QSize(100, 0))
+        self.label_min_count_to_continue.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_min_count_to_continue.setObjectName("label_min_count_to_continue")
+        self.horizontalLayout_2_8.addWidget(self.label_min_count_to_continue)
+
+        self.lineEdit_min_count_to_continue = QtWidgets.QLineEdit(self.tab2)
+        self.lineEdit_min_count_to_continue.setInputMask("")
+        self.lineEdit_min_count_to_continue.setMaximumSize(QtCore.QSize(60, 40))
+        self.lineEdit_min_count_to_continue.setObjectName("lineEdit_min_count_to_continue")
+        self.horizontalLayout_2_8.addWidget(self.lineEdit_min_count_to_continue)
+
         self.label_pick_param_filename = QtWidgets.QLabel(self.tab2)
         self.label_pick_param_filename.setSizePolicy(sizePolicy)
         self.label_pick_param_filename.setMinimumSize(QtCore.QSize(60, 0))
@@ -867,7 +927,6 @@ class Expand(QTabWidget):
         self.lineEdit_pick_param_filename = QtWidgets.QLineEdit(self.tab2)
         self.lineEdit_pick_param_filename.setInputMask("")
         self.lineEdit_pick_param_filename.setObjectName("lineEdit_pick_param_filename")
-
         self.horizontalLayout_2_8.addWidget(self.lineEdit_pick_param_filename)
 
 
@@ -896,18 +955,18 @@ class Expand(QTabWidget):
         spacerItem5 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_last_2.addItem(spacerItem5)
         
-        
         self.gridLayout_pick_params = QtWidgets.QGridLayout(self.tab2)
 
         #self.gridLayout_pick_params.addLayout(self.horizontalLayout_2_1, 0, 0, 1, 1)
-        self.gridLayout_pick_params.addWidget(self.groupBox_1, 0, 0, 1, 1)
-        self.gridLayout_pick_params.addWidget(self.groupBox_2, 1, 0, 1, 1)
-        self.gridLayout_pick_params.addWidget(self.groupBox_3, 2, 0, 1, 1)
+        self.gridLayout_pick_params.addLayout(self.horizontalLayout_2_0, 0, 0, 1, 1)
+        self.gridLayout_pick_params.addWidget(self.groupBox_1, 1, 0, 1, 1)
+        self.gridLayout_pick_params.addWidget(self.groupBox_2, 2, 0, 1, 1)
+        self.gridLayout_pick_params.addWidget(self.groupBox_3, 3, 0, 1, 1)
 
         self.spacerItem6 = QtWidgets.QSpacerItem(10, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_pick_params.addItem(self.spacerItem6, 3, 0, 1, 1)
+        self.gridLayout_pick_params.addItem(self.spacerItem6, 4, 0, 1, 1)
 
-        self.gridLayout_pick_params.addLayout(self.horizontalLayout_last_2, 4, 0, 1, 1)
+        self.gridLayout_pick_params.addLayout(self.horizontalLayout_last_2, 5, 0, 1, 1)
 
     def setUI_tab3(self):
         #tab 1
@@ -1155,6 +1214,7 @@ class Expand(QTabWidget):
         data['repeating_unit'] = ""
         data['reference'] = "" 
         data['mask'] = ""
+        data['min_count_to_continue'] = ""
         data['checkBox_mask'] = True
         data['refine_reference'] = "No"
         data['pick_param_filename'] = ""
@@ -1202,6 +1262,7 @@ class Expand(QTabWidget):
         self.lineEdit_reference.setText(data['reference'])
         self.lineEdit_mask.setText(data['mask'])
         self.checkBox_mask.setChecked(data['checkBox_mask'])
+        self.lineEdit_min_count_to_continue.setText(data['min_count_to_continue'])
 
         self.comboBox_refine_reference.setCurrentText(data['refine_reference'])
         self.lineEdit_pick_param_filename.setText(data['pick_param_filename'])
@@ -1239,6 +1300,7 @@ class Expand(QTabWidget):
         param['max_seed_num'] = self.lineEdit_max_seed_num.text()
         
         param['reference'] = self.lineEdit_reference.text()
+        param['min_count_to_continue'] = self.lineEdit_min_count_to_continue.text()
         param['mask'] = self.lineEdit_mask.text()
         param['checkBox_mask'] = self.checkBox_mask.isChecked()
 
@@ -1501,8 +1563,8 @@ class Expand(QTabWidget):
         
         if len(self.lineEdit_max_seed_num.text()) > 0:
             max_seed_num = string2int(self.lineEdit_max_seed_num.text())
-            if max_seed_num == None or max_seed_num < 5:
-                return "CCC threshold should be a positive integer larger than 5!"
+            if max_seed_num == None or max_seed_num < 1:
+                return "Maximum of initial # should be a positive integer!"
         else: 
             max_seed_num = 200
         
@@ -1524,6 +1586,13 @@ class Expand(QTabWidget):
             else: 
                 return "Please specify the mask!"
         
+        if len(self.lineEdit_min_count_to_continue.text()) > 0:
+            min_count_to_continue = string2int(self.lineEdit_min_count_to_continue.text())
+            if min_count_to_continue == None or min_count_to_continue < 1:
+                return "Minimum # of seed particles per iteration should be a positive integer!"
+        else: 
+            min_count_to_continue = 5
+
         flgNoReferenceRefinement = 0 if self.comboBox_refine_reference.currentText()=="Yes" else 1
 
         if not len(self.lineEdit_pick_param_filename.text()) > 0:
@@ -1552,6 +1621,7 @@ class Expand(QTabWidget):
 
         params['reference'] = reference
         params['mask'] = mask
+        params['min_count_to_continue'] = min_count_to_continue
 
         #######Advanced params#######
         params['threshold_dis'] = repeating_unit*0.75
@@ -1611,6 +1681,68 @@ class Expand(QTabWidget):
         tomoNames = [ x.rlnTomoName for x in md]
         return tomoNames
 
+    def reload_params(self):
+        param_file = self.lineEdit_load_params.text()
+        if os.path.exists(param_file):
+            try:
+                search_param = SearchParam(param_file)
+                rotRange = ",".join([str(x) for x in search_param.rotRanges])
+                self.lineEdit_rotRange.setText(rotRange)
+                rot_steps = ",".join([str(x) for x in search_param.rot_steps])
+                self.lineEdit_rot_steps.setText(rot_steps)
+
+                fineRotRange = ",".join([str(x) for x in search_param.fineRotRanges])
+                self.lineEdit_fineRotRange.setText(fineRotRange)
+
+                fineRot_steps = ",".join([str(x) for x in search_param.fineRot_steps])
+                self.lineEdit_fineRot_steps.setText(fineRot_steps)
+
+                transRange = ",".join([str(x) for x in search_param.transRanges])
+                self.lineEdit_transRange.setText(transRange)
+
+                fineTransRange = ",".join([str(x) for x in search_param.fineTransRanges])
+                self.lineEdit_fineTransRange.setText(fineTransRange)
+ 
+
+                try:
+                    transition_list = np.array(search_param.transition_list).reshape(-1,3)
+                    transition_list_text = ','.join(['[{}]'.format(",".join(str(x) for x in y)) for y in transition_list])
+
+                    self.lineEdit_transition_list.setText(transition_list_text)
+                except:
+                    self.logger.warning("error reading transition list!")     
+
+                boxSize = ",".join([str(x) for x in search_param.box_sizes])
+                self.lineEdit_boxSize.setText(boxSize)
+
+                self.lineEdit_repeating_unit.setText(str(search_param.repeating_unit))
+                self.lineEdit_threshold_CCC.setText(str(search_param.threshold_CCC))
+                
+                try:
+                    self.lineEdit_max_seed_num.setText(str(search_param.max_seed_num))
+                except:
+                    self.lineEdit_max_seed_num.setText("")
+                self.lineEdit_reference.setText(str(search_param.reference))
+                
+                try:
+                    self.lineEdit_min_count_to_continue.setText(str(search_param.min_count_to_continue))
+                except:
+                    self.lineEdit_min_count_to_continue.setText("")
+                
+                self.lineEdit_mask.setText(str(search_param.mask))
+                if len(search_param.mask) > 0:
+                    self.checkBox_mask.setChecked(True)
+                else:
+                    self.checkBox_mask.setChecked(False)
+                
+                refine_reference = "Yes" if search_param.flgNoReferenceRefinement==0 else "No"
+                self.comboBox_refine_reference.setCurrentText(str(refine_reference))
+                #self.lineEdit_pick_param_filename.setText(str(search_param.pick_param_filename))
+                self.logger.info("loaded {}!".format(param_file))   
+            except Exception as error:
+                self.logger.error(error)  
+                self.logger.error("error reading {}!".format(param_file))              
+    
     def reload_table(self):
         if self.lineEdit_star_file_to_use.text().endswith(".star"):
             try:

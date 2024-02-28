@@ -92,7 +92,7 @@ formatter.datefmt = "%y-%m-%d %H:%M:%S"
 logger.handlers = [handler]
 logger.setLevel(logging.INFO)
 ########################
-
+#search_param = SearchParam(param_file)
 
 for i in range(max_exp_num):
     first_round = i==0
@@ -103,7 +103,8 @@ for i in range(max_exp_num):
     #print(tomo, target_cache_folder, search_param, peet_iter, end_signal)
     
     # minimum number of particles to continue
-    min_count_to_continue = 1
+    
+    min_count_to_continue = search_param.min_count_to_continue
 
     if end_signal_c <= min_count_to_continue:
         logger.info("no more/too few particles need to be added based on CCC threashold")
@@ -159,7 +160,7 @@ if os.path.exists(cache_folder_path):
 import scipy.cluster.hierarchy as hcluster
 #repeat_unit = 12
 tomo.readTomo()
-search_param = SearchParam(param_file)
+#search_param = SearchParam(param_file)
 #logger.info(search_param.repeating_unit)
 #logger.info(tomo.apix)
 repeat_unit = round(search_param.repeating_unit/tomo.apix, 1)
