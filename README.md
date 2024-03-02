@@ -12,6 +12,8 @@ https://drive.google.com/drive/folders/11-C55NptELHsv0vi-ZCuFckbLx4un8a1?usp=sha
 
 Any issues related to usage of TomoNet can be posted here or sent to email: logicvay2010@g.ucla.edu 
 
+Google group: https://groups.google.com/g/tomonet_cryoet
+
 **Update 02/12/2024:**
 
 TomoNet now support AreTomo Reconstruction
