@@ -90,7 +90,7 @@ class Tomogram:
     subprocess.run(cmd,shell=True)
     self.tomogramPickPath = less_tomogramPickPath
 
-    if os.path.exists(self.rotaxesPath):
+    if not (self.rotaxesPath == None) and os.path.exists(self.rotaxesPath):
       less_rotaxesPath = "{}/{}".format(less_folder, os.path.basename(self.rotaxesPath))
       f_rot = open(self.rotaxesPath, "r")
       with open(less_rotaxesPath, "w") as f_rot_less:

@@ -1730,7 +1730,7 @@ class Expand(QTabWidget):
                     self.lineEdit_min_count_to_continue.setText("")
                 
                 self.lineEdit_mask.setText(str(search_param.mask))
-                if len(search_param.mask) > 0:
+                if len(search_param.mask) > 0 and not(search_param.mask == 'none') and not(search_param.mask == 'None'):
                     self.checkBox_mask.setChecked(True)
                 else:
                     self.checkBox_mask.setChecked(False)

@@ -141,7 +141,7 @@ class MotionCor(QTabWidget):
         self.horizontalLayout_4.addWidget(self.lineEdit_pixel_size)
         self.label_frame_dose = QtWidgets.QLabel(self.tab)
         self.label_frame_dose.setSizePolicy(sizePolicy)
-        self.label_frame_dose.setMinimumSize(QtCore.QSize(60, 0))
+        self.label_frame_dose.setMinimumSize(QtCore.QSize(80, 0))
         self.label_frame_dose.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_frame_dose.setObjectName("label_frame_dose")
         self.horizontalLayout_4.addWidget(self.label_frame_dose)

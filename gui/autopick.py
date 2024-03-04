@@ -94,7 +94,7 @@ class Autopick(QTabWidget):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_input_folder_train.sizePolicy().hasHeightForWidth())
         self.label_input_folder_train.setSizePolicy(sizePolicy)
-        self.label_input_folder_train.setMinimumSize(QtCore.QSize(120, 0))
+        self.label_input_folder_train.setMinimumSize(QtCore.QSize(60, 0))
         self.label_input_folder_train.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_input_folder_train.setObjectName("label_input_folder_train")
         self.horizontalLayout_1.addWidget(self.label_input_folder_train)
@@ -1179,7 +1179,6 @@ class Autopick(QTabWidget):
                     self.thread_predict_network.stop_process()
                 except:
                     self.logger.warning("no thread are running!")
-
 
     def cmd_finished(self, button, text="Run"):
         button.setText(text)

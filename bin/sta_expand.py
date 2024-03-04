@@ -160,7 +160,7 @@ if os.path.exists(cache_folder_path):
 import scipy.cluster.hierarchy as hcluster
 #repeat_unit = 12
 tomo.readTomo()
-#search_param = SearchParam(param_file)
+search_param = SearchParam(param_file)
 #logger.info(search_param.repeating_unit)
 #logger.info(tomo.apix)
 repeat_unit = round(search_param.repeating_unit/tomo.apix, 1)

@@ -23,10 +23,16 @@ class Expand_CMDS(QThread):
         #print(self.cmds)
         
         for cmd in self.cmds:
-            self.logger.info("Start expand {} for {} rounds".format(cmd.split()[3],cmd.split()[4]))
+            if cmd.split()[4] == '0':
+                    self.logger.info("Start generating a new final folder for {}".format(cmd.split()[3]))
+            else:
+                self.logger.info("Start expand {} for {} rounds".format(cmd.split()[3],cmd.split()[4]))
             subprocess.check_output(cmd, shell=True)
             try:
-                self.logger.info("Finish expand {} for {} rounds".format(cmd.split()[3],cmd.split()[4]))
+                if cmd.split()[4] == '0':
+                    self.logger.info("Finish generating a new final folder for {}".format(cmd.split()[3]))
+                else:
+                    self.logger.info("Finish expand {} for {} rounds".format(cmd.split()[3],cmd.split()[4]))
             except:
                 pass
 
