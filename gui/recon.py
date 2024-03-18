@@ -8,6 +8,7 @@ from TomoNet.util.utils import string2float, string2int
 import os, glob, subprocess, shutil
 import logging
 import json
+import numpy as np
 from TomoNet.process.bash_gts import Generate_TS
 from TomoNet.process.bash_aretomo import AreTomo
 
@@ -710,14 +711,15 @@ class Recon(QTabWidget):
         self.lineEdit_OutImod.setPlaceholderText(_translate("Form", "1"))
         self.lineEdit_OutImod.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
-            tilt axis is relative to the y-axis (vertical axis of tilt image) and rotates counter-clockwise. (default: 0)\
+            0: Disabled; 1: for Relion4; 2: Warp; 3: Global- and local-aligned tilt series (default: 1)\
             </span></p></body></html>"))
         
         self.label_FlipVol.setText(_translate("Form", "-FlipVol:"))
         self.lineEdit_FlipVol.setPlaceholderText(_translate("Form", "1"))
         self.lineEdit_FlipVol.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
-            0: Disabled; 1: for Relion4; 2: Warp; 3: Global- and local-aligned tilt series (default: 1)\
+            By default, the x-z slices of the reconstructed volume are saved according to their y coordinates\
+            in the output MRC file. -FlipVol 1 saves x-y slices instead according to their z coordinates.(default: 1)\
             </span></p></body></html>"))
         
         self.label_UseAlnFile.setText(_translate("Form", "-UseAlnFile?"))
@@ -1244,7 +1246,7 @@ class Recon(QTabWidget):
                 
                 taError_path = "{}/{}".format(etomo_path, "taError.log")
                 
-                binning = str(int(d_rec["apix"]/d_st["apix"]))
+                binning = str(np.ceil(d_rec["apix"]/d_st["apix"]))
 
                 thickness_nm = str(int(d_rec["sections"] * d_rec["apix"]))
 
