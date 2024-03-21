@@ -33,5 +33,5 @@ Our preprint is available here: https://www.biorxiv.org/content/10.1101/2024.02.
 <p align="center"> <img src="assets/images/1Dlattice-DMT.png" width=600 /> </p> 
 
 ### <p align="center"> S-layer 2D lattice </p> ###
-<p align="center"> <img src="assets/images/2Dlattice-Slayer.png" width=600 /> </p> 
+<p align="center"> <img src="assets/images/2Dlattice-S-layer.png" width=600 /> </p> 
 
