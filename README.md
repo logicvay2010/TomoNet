@@ -19,6 +19,9 @@ Any issues related to usage of TomoNet can be posted here or sent to email: logi
 ## Google Group ##
 Google group: https://groups.google.com/g/tomonet_cryoet
 
+## Examples of TomoNet Application ##
+### <p align="center"> Microtubule Doulets </p> ###
+<img src="assets/images/1Dlattice-DMT.png" alt="Microtubule Doulets"/> 
 
 
 ## Reference ##
