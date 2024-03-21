@@ -1152,8 +1152,8 @@ class Recon(QTabWidget):
                 cmd = "cd {} ; ln -s ../../../{} ./ ; ln -s ../../../{} ./ ; etomo".format(current_tomo_folder, current_st_link_path, current_rawtlt_link_path)
                 subprocess.check_output(cmd, shell=True)
                 
-                cmd = "cd {}; etomo".format(current_tomo_folder)
-                subprocess.check_output(cmd, shell=True)
+                #cmd = "cd {}; etomo".format(current_tomo_folder)
+                #subprocess.check_output(cmd, shell=True)
                 self.reload_table()
         elif j == 4:
             ret = QMessageBox.question(self, 'Risky Action!', "Do you want to move {} to trash?".format(tomoName), QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
