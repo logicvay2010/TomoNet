@@ -19,10 +19,19 @@ Any issues related to usage of TomoNet can be posted here or sent to email: logi
 ## Google Group ##
 Google group: https://groups.google.com/g/tomonet_cryoet
 
-## Examples of TomoNet Application ##
-### <p align="center"> Microtubule Doulets </p> ###
-<img src="assets/images/1Dlattice-DMT.png" alt="Microtubule Doulets"/> 
-
-
 ## Reference ##
 Our preprint is available here: https://www.biorxiv.org/content/10.1101/2024.02.17.580557v1
+
+## Examples of TomoNet Application ##
+### <p align="center"> HIV Gag 2D lattice </p> ###
+<p align="center"> <img src="assets/images/2Dlattice-HIV-Gag.png" width=600/> </p> 
+
+### <p align="center"> Gag Hexamer STA using 4 tomograms </p> ###
+<p align="center"> <img src="assets/images/STA-HIV.png" width=600/> </p> 
+
+### <p align="center"> Microtubule Doulets 1D lattice </p> ###
+<p align="center"> <img src="assets/images/1Dlattice-DMT.png" width=600 /> </p> 
+
+### <p align="center"> S-layer 2D lattice </p> ###
+<p align="center"> <img src="assets/images/2Dlattice-Slayer.png" width=600 /> </p> 
+
