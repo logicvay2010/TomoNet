@@ -50,13 +50,13 @@ class Predict_network(QThread):
 
         for i, tomo in enumerate(tomo_list):
             margin = self.d['margin']
-            cmd = "predict_tomo_picking_ts.py {} {} {} {} {} {} {} {} {} {} {}".\
+            cmd = "predict_tomo_picking_ts.py {} {} {} {} {} {} {} {} {} {} {} {}".\
                 format(tomo, predict_result_path, input_model, self.d['box_size_predict'], self.d['box_size_predict']-margin,\
-                mask_list[i], self.d['unit_size_predict'], self.d['min_patch_size_predict'], self.d['y_label_size_predict'], self.d['tolerance'], self.log_file)
+                mask_list[i], self.d['unit_size_predict'], self.d['min_patch_size_predict'], self.d['y_label_size_predict'], self.d['tolerance'], self.d['save_seg_map'], self.log_file)
             if self.d['checkBox_print_only_predict_network']:
-                cmd = "predict_tomo_picking_ts.py {} {} {} {} {} {} {} {} {} {}".\
+                cmd = "predict_tomo_picking_ts.py {} {} {} {} {} {} {} {} {} {} {}".\
                     format(tomo, predict_result_path, input_model, self.d['box_size_predict'], self.d['box_size_predict']-margin,\
-                    mask_list[i], self.d['unit_size_predict'], self.d['min_patch_size_predict'], self.d['y_label_size_predict'], self.d['tolerance'])
+                    mask_list[i], self.d['unit_size_predict'], self.d['min_patch_size_predict'], self.d['y_label_size_predict'], self.d['tolerance'], self.d['save_seg_map'])
                 self.logger.info("########cmd for network predicting: {}########".format(os.path.basename(tomo)))
                 self.logger.info(cmd)
             else:

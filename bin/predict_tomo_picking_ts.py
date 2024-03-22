@@ -35,10 +35,10 @@ if __name__ == "__main__":
     min_patch_size = int(sys.argv[8])
     y_label_size_predict = int(sys.argv[9])  
     tolerance = float(sys.argv[10])  
-
+    save_seg_map = int(sys.argv[11])
     #check if running using terminal or GUI 
-    if len(params) == 12:
-        log_file = params[11]
+    if len(params) == 13:
+        log_file = params[12]
         logger = logging.getLogger(__name__)
         handler = logging.FileHandler(filename=log_file, mode='a')
         formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
@@ -270,9 +270,10 @@ if __name__ == "__main__":
     log(logger, "Particle # after remove small patches:{}".format(min_num_c))
     
     ####### save global map prediction #############
-    global_map_filename = "{}/{}/predict.mrc".format(result_dir, tomoName_final)
-    with mrcfile.new(global_map_filename, overwrite=True) as output_mrc:
-      output_mrc.set_data(global_map)
+    if save_seg_map == 1:
+        global_map_filename = "{}/{}/predict.mrc".format(result_dir, tomoName_final)
+        with mrcfile.new(global_map_filename, overwrite=True) as output_mrc:
+            output_mrc.set_data(global_map)
 
     cmd_linkMrc = "cd {}/{}; ln -s {} ./".format(result_dir, tomoName_final, tomoName)
     subprocess.check_output(cmd_linkMrc, shell=True)

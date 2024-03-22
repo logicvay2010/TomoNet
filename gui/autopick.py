@@ -67,18 +67,22 @@ class Autopick(QTabWidget):
         
         self.pushButton_train_network.clicked.connect(self.train_network)
 
+        for child in self.findChildren(QtWidgets.QComboBox):
+            child.currentIndexChanged.connect(self.save_setting)
+
         for child in self.findChildren(QtWidgets.QCheckBox):
             child.stateChanged.connect(self.save_setting)
 
         self.pushButton_predict_network.clicked.connect(self.predict_network)
 
-        self.read_settting()
+        
 
         self.setTabShape(QtWidgets.QTabWidget.Triangular)
         
         self.retranslateUi_tab1()
         self.retranslateUi_tab2()
         #self.retranslateUi_tab3()
+        self.read_settting()
 
     def setUI_tab1(self):
         #tab 1
@@ -279,8 +283,6 @@ class Autopick(QTabWidget):
         self.lineEdit_coords_scale.setObjectName("lineEdit_coords_scale")
         self.horizontalLayout_9.addWidget(self.lineEdit_coords_scale)
 
-
-
         self.verticalLayout_2.addLayout(self.horizontalLayout_9)
         self.groupBox_2.setLayout(self.verticalLayout_2)
 
@@ -461,17 +463,28 @@ class Autopick(QTabWidget):
         self.label_margin.setObjectName("label_margin")
         self.horizontalLayout_8.addWidget(self.label_margin)
 
-
         self.lineEdit_margin = QtWidgets.QLineEdit(self.tab_2)
         self.lineEdit_margin.setInputMask("")
         self.lineEdit_margin.setObjectName("lineEdit_margin")
 
         self.horizontalLayout_8.addWidget(self.lineEdit_margin)
 
+        self.label_save_seg_map = QtWidgets.QLabel(self.tab_2)
+        self.label_save_seg_map.setSizePolicy(sizePolicy)
+        self.label_save_seg_map.setMinimumSize(QtCore.QSize(120, 0))
+        self.label_save_seg_map.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_save_seg_map.setObjectName("label_save_seg_map")
+        self.horizontalLayout_8.addWidget(self.label_save_seg_map)
+
+        self.comboBox_save_seg_map = QtWidgets.QComboBox(self.tab_2)
+        self.comboBox_save_seg_map.setObjectName("comboBox_save_seg_map")
+        self.comboBox_save_seg_map.addItem("")
+        self.comboBox_save_seg_map.addItem("")
+        self.horizontalLayout_8.addWidget(self.comboBox_save_seg_map)
 
         self.verticalLayout_1.addLayout(self.horizontalLayout_8)
+        
         self.groupBox_1.setLayout(self.verticalLayout_1)
-
 
         self.horizontalLayout_last_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_last_2.setObjectName("horizontalLayout_last")
@@ -779,6 +792,20 @@ class Autopick(QTabWidget):
             font-size:9pt;\">This value normally. default:16\
             </span></p></body></html>"))
         
+        self.label_save_seg_map.setText(_translate("Form", "save seg map?"))
+        self.label_save_seg_map.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            font-size:9pt;\"> If set Yes, a global segmentation map will be save after prediction for each tomogram. Sometime it helps with optimazing hyper-parameters.\
+                But the map's size is the same as the input map which takes disk spaces. default: No\
+            </span></p></body></html>"))
+
+        self.comboBox_save_seg_map.setItemText(0, _translate("Form", "No"))
+        self.comboBox_save_seg_map.setItemText(1, _translate("Form", "Yes"))
+        self.comboBox_save_seg_map.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" font-size:9pt;\">\
+            If set Yes, a global segmentation map will be save after prediction for each tomogram. Sometime it helps with optimazing hyper-parameters.\
+                But the map's size is the same as the input map which takes disk spaces. default: No\
+            </span></p></body></html>"))
         
         self.pushButton_predict_network.setText(_translate("Form", "Predict"))
                    
@@ -839,6 +866,7 @@ class Autopick(QTabWidget):
         data['y_label_size_predict'] = ""
         data['tolerance'] = ""
         data['margin'] = ""
+        data['save_seg_map'] = "No"
 
         data['checkBox_print_only_predict_network'] = False
 
@@ -878,6 +906,8 @@ class Autopick(QTabWidget):
         self.lineEdit_y_label_size_predict.setText(data['y_label_size_predict'])
         self.lineEdit_tolerance.setText(data['tolerance'])
         self.lineEdit_margin.setText(data['margin'])
+        self.comboBox_save_seg_map.setCurrentText(data['save_seg_map'])
+
         self.checkBox_print_only_predict_network.setChecked(data['checkBox_print_only_predict_network'])
     
     def save_setting(self):
@@ -900,6 +930,7 @@ class Autopick(QTabWidget):
         param['y_label_size_predict'] = self.lineEdit_y_label_size_predict.text()
         param['tolerance'] = self.lineEdit_tolerance.text()
         param['margin'] = self.lineEdit_margin.text()
+        param['save_seg_map'] = self.comboBox_save_seg_map.currentText()
 
         param['lr'] = self.lineEdit_lr.text()
         param['batch_size'] = self.lineEdit_batch_size.text()
@@ -1130,6 +1161,8 @@ class Autopick(QTabWidget):
                 return "Please use the valid format (positive integer) for the margin"
             else:
                 margin = string2int(margin)
+        
+        save_seg_map = 1 if self.comboBox_save_seg_map.currentText()=="Yes" else 0
 
         params = {}
         params['input_folder_predict'] = input_folder_predict
@@ -1140,6 +1173,7 @@ class Autopick(QTabWidget):
         params['y_label_size_predict'] = y_label_size_predict
         params['tolerance'] = tolerance
         params['margin'] = margin
+        params['save_seg_map'] = save_seg_map
         params['checkBox_print_only_predict_network'] = self.checkBox_print_only_predict_network.isChecked()
         
         return params
