@@ -1,116 +1,100 @@
 #!/usr/bin/env python3
 import os 
 import sys
-import sys
 import mrcfile
-from TomoNet.preprocessing.cubes import create_cube_seeds_new, crop_cubes, normalize
-import numpy as np
-from TomoNet.util.utils import mkfolder
 import imodmodel
 import logging
-from TomoNet.util.io import log
 import subprocess
 
+import numpy as np
+
+from TomoNet.util.io import log
+from TomoNet.util.utils import mkfolder
+from TomoNet.preprocessing.cubes import create_cube_seeds_new, crop_cubes, normalize
+
+# check if coord d is inside the cube with center c
 def inZone(c, d, crop_size):
-    #print(c, d)
     if abs(c[0] - d[0]) <= crop_size//2 and abs(c[1] - d[1]) <= crop_size//2 and abs(c[2] - d[2]) <= crop_size//2 :
         return True
     else:
         return False
 
+# check if the new coords is valid
 def getNewCoords(new_centers, old_coords, crop_size):
     new_coords = []
     for coord in old_coords:
         if inZone(new_centers, coord, crop_size):
             new_coords.append([coord[x] - new_centers[x] + (crop_size//2)  for x in range(0,3)])
-    #print(new_coords)
     return new_coords
 
+# subtomogram extraction for one tomogram
 def extract_subtomos_one(tomoName, maskName, coordsFile, data_dir, label_size, numberSubtomo, crop_size, bin, check_folder=True, logger=None):
-    '''
-    extract subtomo from whole tomogram based on mask
-    and feed to generate_first_iter_mrc to generate xx_iter00.xx
-    '''
-   
+
     log(logger, "######## Extracting subtomograms from {} ########".format(tomoName))
+    
+    # read 3D volume
     baseName = os.path.basename(tomoName.split(".")[0])
     with mrcfile.open(tomoName) as mrcData:
         orig_data = mrcData.data.astype(np.float32)
     
+    # centers of subtomograms
     centers = []
-    #print("break0")
 
+    # read coordinates info
     if coordsFile.endswith((".pts", ".coords")):
         with open(coordsFile) as file:
             for line in file:
-                #print(line)
-                #print(line.split())
                 x, y, z = [int(float(i)) for i in line.split()]
                 centers.append([x, y, z])
     else:
         df_mod = imodmodel.read(coordsFile)
         centers = np.vstack((df_mod.x, df_mod.y, df_mod.z)).transpose().astype(int)
 
-    #centers = (np.array(centers)/bin).astype(int)
-    #print("bin:", bin)
+    # scale coords
     centers = (np.array(centers)*bin).astype(int)
-    #print(centers[0:10])
+    
+    # handling mask
     if maskName in [None, "None"]:
         sp = orig_data.shape
-        #print(sp)
         mask_data = np.zeros(sp)
-        #with open(coordsFile) as file:
+
+        # generating mask near density with particles
         for c in centers:
-            #print(line)
-            #print(line.split())
-            #x, y, z = [int(float(i)) for i in line.split()]
-            #print(c)
             x, y, z = c
+
             low_x = x-crop_size//2 if x > crop_size//2 else 1
             low_y = y-crop_size//2 if y > crop_size//2 else 1
             low_z = z-crop_size//2 if z > crop_size//2 else 1
             high_x = x+crop_size//2 if x < (sp[2] - crop_size//2)  else sp[2]
             high_y = y+crop_size//2 if y < (sp[1] - crop_size//2)  else sp[1]
             high_z = z+crop_size//2 if z < (sp[0] - crop_size//2)  else sp[0]
-
-            # low_x = x-int(crop_size/1.5) if x > int(crop_size/1.5) else 1
-            # low_y = y-int(crop_size/1.5) if y > int(crop_size/1.5) else 1
-            # low_z = z-int(crop_size/1.5) if z > int(crop_size/1.5) else 1
-            # high_x = x+int(crop_size/1.5) if x < (sp[2] - int(crop_size/1.5))  else sp[2]
-            # high_y = y+int(crop_size/1.5) if y < (sp[1] - int(crop_size/1.5))  else sp[1]
-            # high_z = z+int(crop_size/1.5) if z < (sp[0] - int(crop_size/1.5))  else sp[0]
             
             mask_data[low_z:high_z, low_y:high_y, low_x:high_x] = 1
 
+        #check mask using density map
         #with mrcfile.new("mask.mrc", overwrite=True) as output_mrc:
         #    output_mrc.set_data(mask_data.astype(np.float32))
     else:
         with mrcfile.open(maskName) as m:
             mask_data = m.data
 
-    
-    #print(orig_data)
+    # generating seeds(centers) locations for subtomograms
     seeds = create_cube_seeds_new(orig_data, numberSubtomo, crop_size, centers, mask=mask_data, logger=logger)
     
-
+    # check if all seeds locations are valid and they will be used for labeling volume generation
     label_coords = []
     for i in range(0, len(seeds[0])):
         newCoords_i = getNewCoords([seeds[2][i], seeds[1][i], seeds[0][i]], centers, crop_size)
         label_coords.append(newCoords_i)
     
+    # crop from the global volume and save to individual subtomogram on disk
     subtomos = crop_cubes(orig_data, seeds, crop_size)
 
-    # save sampled subtomo to {results_dir}/subtomos instead of subtomo_dir (as previously does)
+    # if the extraction folder was not generated, then make one, all subtomograms will be saved to train and test subsets
     base_name = os.path.splitext(os.path.basename(tomoName))[0]
-    
     dirs_tomake = ['train_x','train_y', 'test_x', 'test_y']
-    
-    
-    if check_folder:
-        
-        #data_dir = "data"
+    if check_folder:        
         mkfolder(data_dir)
-        #get_cubes_list(args)
         dirs_tomake = ['train_x','train_y', 'test_x', 'test_y']
         if not os.path.exists(data_dir):
             os.makedirs(data_dir)
@@ -118,43 +102,36 @@ def extract_subtomos_one(tomoName, maskName, coordsFile, data_dir, label_size, n
             folder = '{}/{}'.format(data_dir, d)
             if not os.path.exists(folder):
                 os.makedirs(folder)
-    #print(label_coords[:100])
-
 
     shape = subtomos[0].shape
     for j, s in enumerate(subtomos):
-        #im_name = '{}/{}_{:0>6d}.mrc'.format(subtomo_dir, base_name, j)
         x_name = '{}/{}/{}_x_{}.mrc'.format(data_dir, dirs_tomake[0], baseName, j)
-        label_name = '{}/{}_{:0>6d}.txt'.format("coords", base_name, j)
         y_name = '{}/{}/{}_y_{}.mrc'.format( data_dir, dirs_tomake[1], baseName, j)
-        #print(j)
 
-        #label_size = int(label_size)
         if len(label_coords[j]) > 0:
-            #print(shape)
             y_temp = np.zeros(shape, dtype=np.float32)
-            #with open(label_name, "w") as outfile:
             for coords in label_coords[j]:
                 #mrcfile store image in zyx order
                 x = coords[0]-1 if coords[0]>0 else 0
                 y = coords[1]-1 if coords[1]>0 else 0
                 z = coords[2]-1 if coords[2]>0 else 0
-                #Gradient Probability distribution
                 
-                '''
-                p_step = 1/label_size
-                for i in range(label_size):
-                    j=i+1
-                    xmin = x - i if x >= j else 0
-                    xmax = x + j if x <= shape[2] -j else shape[2] -1
-                    ymin = y - i if y >= j else 0
-                    ymax = y + j if y <= shape[1] -j else shape[1] -1
-                    zmin = z - i if z >= j else 0
-                    zmax = z + j if z <= shape[0] -j else shape[0] -1
-                    y_temp[zmin:zmax,ymin:ymax,xmin:xmax] += p_step
-                    #y_temp[zmin:zmax,ymin:ymax,xmin:xmax] = 1
-                #y_temp[z,y,x] = 1
-                '''
+                
+                #Gradient Probability distribution (Option 1)
+                # p_step = 1/label_size
+                # for i in range(label_size):
+                #     j=i+1
+                #     xmin = x - i if x >= j else 0
+                #     xmax = x + j if x <= shape[2] -j else shape[2] -1
+                #     ymin = y - i if y >= j else 0
+                #     ymax = y + j if y <= shape[1] -j else shape[1] -1
+                #     zmin = z - i if z >= j else 0
+                #     zmax = z + j if z <= shape[0] -j else shape[0] -1
+                #     y_temp[zmin:zmax,ymin:ymax,xmin:xmax] += p_step
+                #     #y_temp[zmin:zmax,ymin:ymax,xmin:xmax] = 1
+                # #y_temp[z,y,x] = 1
+                
+                # defining boundary for the current subtomogram
                 xmin = x - label_size if x >= label_size else 0
                 xmax = x + label_size + 1 if x < shape[2] - label_size else shape[2]
                 ymin = y - label_size if y >= label_size else 0
@@ -162,65 +139,63 @@ def extract_subtomos_one(tomoName, maskName, coordsFile, data_dir, label_size, n
                 zmin = z - label_size if z >= label_size else 0
                 zmax = z + label_size + 1 if z < shape[0] - label_size else shape[0]
                 
-                #labeling (cubic)
+                #Option 2 (cubic labeling)
                 #y_temp[zmin:zmax,ymin:ymax,xmin:xmax] = 1
-                
                 #labeling (psedo sphere)
                 #radius_label = label_size
                 #tuple_x, tuple_y, tuple_z = np.mgrid[0:xmax-xmin:1, 0:ymax-ymin:1, 0:zmax-zmin:1]
                 #distance_label = np.sqrt((tuple_x - x)**2 + (tuple_y - y)**2 + (tuple_z - z)**2)
                 #distance_label[distance_label > radius_label] = -1
                 #distance_label[distance_label >=0] = 1
+                
 
-                #sphere labeling
+                #Option 3 (sphere labeling-- dimond shape labeling)
                 for z_i in range(zmin,zmax):
                     for y_i in range(ymin,ymax):
                         for x_i in range(xmin,xmax):
                             if abs(z-z_i) + abs(y-y_i) + abs(x-x_i) <= label_size:
                                 y_temp[z_i,y_i,x_i] = 1
-                
 
+            #data Augmentation (rotate volume but keep the missing wedge shape the same, so limited to 4 rotations)    
             for l in range(4):
                 x_name = '{}/{}/{}_x_{}_{}.mrc'.format(data_dir, dirs_tomake[0], baseName, j, l)
                 y_name = '{}/{}/{}_y_{}_{}.mrc'.format( data_dir, dirs_tomake[1], baseName, j, l)
-
+                # original
                 if l == 0:
                     rotated_x = s
                     rotated_y = y_temp
+                # 180 degree on X-axis
                 elif l ==1:
                     rotated_x = np.rot90(s, k=2, axes=(0,1))
                     rotated_y = np.rot90(y_temp, k=2, axes=(0,1))
+                # 180 degree on Z-axis
                 elif l ==2:
                     rotated_x = np.rot90(s, k=2, axes=(1,2))
                     rotated_y = np.rot90(y_temp, k=2, axes=(1,2))
+                # 180 degree on Y-axis
                 elif l ==3:
-                    #rotated_x1 = np.rot90(s, k=2, axes=(0,1))
                     rotated_x = np.rot90(s, k=2, axes=(0,2))
-                    #rotated_y1 = np.rot90(y_temp, k=2, axes=(0,1))
                     rotated_y = np.rot90(y_temp, k=2, axes=(0,2))
 
-                #print(label_coords[j])
+                # save on disk
                 with mrcfile.new(x_name, overwrite=True) as output_mrc:
-                    #output_mrc.set_data(normalize(s*-1))
-                    #output_mrc.set_data(normalize(s))
                     output_mrc.set_data(normalize(rotated_x))
                 with mrcfile.new(y_name, overwrite=True) as output_mrc:
-                    #output_mrc.set_data(y_temp)
                     output_mrc.set_data(rotated_y)
-                    #output_mrc.set_data(normalize(y_temp))
-            
 
-
+# split traning dataset into train and test            
 def split_data(data_dir):    
+    # hyper-parameters
     batch_size = 4
     ratio = 0.1
+    
+    #assigning classes
     all_path_x = os.listdir(data_dir+'/train_x')
     num_test = int(len(all_path_x) * ratio) 
     num_test = num_test - num_test%batch_size + batch_size
-    
-    #all_path_y = ['y_'+i.split('_y_')[1] for i in all_path_x ]
     all_path_y = [i.split('_x_')[0]+'_y_'+i.split('_x_')[1] for i in all_path_x ]
 
+    #organizing based on distribution
     ind = np.random.permutation(len(all_path_x))[0:num_test]
     for i in ind:
         os.rename('{}/train_x/{}'.format(data_dir, all_path_x[i]), '{}/test_x/{}'.format(data_dir, all_path_x[i]) )
@@ -230,6 +205,8 @@ if __name__ == "__main__":
 
     import time
     start_time = time.time()
+    
+    # read params #
     params = sys.argv    
     input_folder = params[1]
     tomoNameList = params[2].split(",")
@@ -240,11 +217,10 @@ if __name__ == "__main__":
     cube_size = int(params[7])
     coords_scale = float(params[8])
     
-    ############
+    # a binning factor to match coordinates with input tomograms (default 1)#
     bin = coords_scale
-    ############
-
     
+    # logger variable for GUI #
     if len(params) == 10:
         log_file = params[9]
         logger = logging.getLogger(__name__)
@@ -256,18 +232,19 @@ if __name__ == "__main__":
         logger.setLevel(logging.INFO)
     else:
         logger = None
+    ###########################
 
+    # set up folder for subtomograms #
     try:
         os.makedirs(result_dir)
     except:
         pass
     data_dir = "{}/data".format(result_dir)
     
-    #log(logger, "bin:{}".format(bin))
-
+    # read number of tomograms #
     num_tomo = len(tomoNameList)
 
-
+    # if user used previous trained model file, then do not need to extract subtomograms #
     if not continue_from_model == "None":
         logger.warning("using pretrained model, skip subtomogram extraction")
         data_old = "{}/data".format(os.path.dirname(continue_from_model))
@@ -284,23 +261,29 @@ if __name__ == "__main__":
         
         sys.exit()
 
-    #mkfolder(data_dir)
+    # handling tomograms, coordinates, and masks #
     tomoList = []
     coordsList = []
     maskList = []
+
+    #for each tomo do
     for tomo in tomoNameList:
+        # read tomogram volume file
         f = "{}/{}.mrc".format(input_folder,tomo)
-        #mask_file = None
         if os.path.exists(f):
             tomoList.append(f)
             mask_file = "{}/{}_mask{}".format(input_folder, tomo, ".mrc")
         else:
             tomoList.append("{}/{}.rec".format(input_folder,tomo))
             mask_file = "{}/{}_mask{}".format(input_folder, tomo, ".rec")
+        
+        # read mask file if any
         if os.path.exists(mask_file):
             maskList.append(mask_file)
         else:
             maskList.append(None)
+        
+        #check for 3 types of coordinates file
         fc1 = "{}/{}.mod".format(input_folder,tomo)
         fc2 = "{}/{}.pts".format(input_folder,tomo)
         fc3 = "{}/{}.coords".format(input_folder,tomo)
@@ -310,12 +293,16 @@ if __name__ == "__main__":
             coordsList.append(fc2)
         else:
             coordsList.append(fc3)
-    #coordsList = params[3].split(",")
+
+    # extraction
     log(logger, "Start subtomograms Extraction!")
     extract_subtomos_one(tomoList[0], maskList[0], coordsList[0], data_dir, label_size, subtomo_num, cube_size, logger=logger, bin=bin)
+    
     for i, tomo in enumerate(tomoList[1:]):
         extract_subtomos_one(tomo, maskList[i+1], coordsList[i+1], data_dir, label_size, subtomo_num, cube_size, bin=bin, check_folder=False, logger=logger)
     
+    # split data into train and test
     split_data(data_dir)
 
+    # extraction done
     log(logger, "Extraction Done --- {} mins ---".format(round((time.time() - start_time)/60, 2)))

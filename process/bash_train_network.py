@@ -26,6 +26,9 @@ class Train_network(QThread):
 
     def run(self):
         tomo_list = self.get_tomo_list(self.d['input_folder_train'])
+        if len(tomo_list) == 0:
+            self.logger.error("########No tomogram was detected in folder {}########".format(self.d['input_folder_train']))
+            return 
         cmd = "extraction_ts.py {} {} {} {} {} {} {} {} {}".format(\
             self.d['input_folder_train'], ",".join(tomo_list), \
             self.d['result_folder_train'], self.d['continue_from_model'], \
