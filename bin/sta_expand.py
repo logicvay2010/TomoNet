@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 
-from TomoNet.bin.sta_peet import sta_peet_one
-from TomoNet.objects.expand import Expand
 import sys,os
 import subprocess
-import imodmodel
 import logging
+import imodmodel
 import numpy as np
-from TomoNet.util.star_metadata import MetaData
+
+from TomoNet.bin.sta_peet import sta_peet_one
 from TomoNet.objects.tomogram import Tomogram
+from TomoNet.objects.expand import Expand
+from TomoNet.util.star_metadata import MetaData
 from TomoNet.util.utils import mkfolder
 from TomoNet.util.searchParam import SearchParam
 
+# read input parameters
 star_file = sys.argv[1]
 param_file = sys.argv[2]
 tomoName = sys.argv[3]
@@ -19,13 +21,11 @@ max_exp_num = int(sys.argv[4])
 min_patch_size = int(sys.argv[5])
 cpus = int(sys.argv[6])
 
-
-#max_exp_num = 6
-
+# handling star file
 md = MetaData()
 md.read(star_file)
-#md.printStar()
 item = None
+# read info for the input tomogram
 for i in md:
     if i.rlnTomoName == tomoName:
         item = i
@@ -36,6 +36,7 @@ if item != None:
     reconstructionPath=item.rlnReconstructionPath, pickingPath=item.rlnPickingPath)
 else:
     sys.exit()
+
 if max_exp_num == 0:
     cache_folder_path = "{}_cache".format(tomo.staPath)
     latest_round = -1
@@ -55,7 +56,6 @@ if max_exp_num == 0:
         subprocess.check_output(cmd, shell=True)
         latest_round = -1
         tomo.setInitialParams()
-        
       else:
         tomo.updateAlignmentFile(latest_round, latest_cache_folder_path)
     else:
@@ -95,31 +95,21 @@ logger.setLevel(logging.INFO)
 #search_param = SearchParam(param_file)
 
 for i in range(max_exp_num):
-    first_round = i==0
-    #print("Here it is")
-    
-    
+    first_round = i==0  
     tomo, search_param, target_cache_folder, peet_iter, end_signal_c = sta_peet_one(star_file, param_file, tomoName, cpus, first_round)
-    #print(tomo, target_cache_folder, search_param, peet_iter, end_signal)
-    
     # minimum number of particles to continue
-    
     min_count_to_continue = search_param.min_count_to_continue
-
     if end_signal_c <= min_count_to_continue:
         logger.info("no more/too few particles need to be added based on CCC threashold")
         break
     else:
         exp = Expand(tomo=tomo, search_param=search_param, target_cache_folder=target_cache_folder, peet_iter=peet_iter)
-        #exp = Expand(tomo, search_param, target_cache_folder="/amber/electron/logicvay2010/003-2019DEC-Archaea/02-M.Hungatei/slayer/relion4/pick/sta/MH_253_cache/round_0", \
-        #    peet_iter = 4, threashold_CCC=0.1)
         exp.migrate()
         exp.prepare_exp()
         exp.expand_one()
         if exp.stop_signal:
             logger.info("no more particles need to be added!")
             break
-    
     logger.info("Expand for {} at round {}, particle numbers: {}, accepted {}".format(tomo.tomoName, latest_round+i+1, tomo.numberParticles, end_signal_c))
 
 #prepare for the final result
@@ -128,7 +118,6 @@ final_result_folder = "{}_final".format(tomo.staPath)
 mkfolder(final_result_folder)
 
 cache_folder_path = "{}_cache".format(tomo.staPath)
-#latest_round = -1
 points = np.array([])
 peet_motl_header = "CCC,reserved,reserved,pIndex,wedgeWT,NA,NA,NA,NA,NA,xOffset,yOffset,zOffset,NA,NA,reserved,EulerZ(1),EulerZ(3),EulerX(2),reserved,CREATED WITH PEET Version 1.15.0 10-January-2021\n"
 motls = np.array([])
@@ -145,7 +134,6 @@ if os.path.exists(cache_folder_path):
                 points = a.transpose()
             else:
                 points = np.vstack((points, a.transpose()))
-
             motlfile_one = open("{}/{}_MOTL.csv".format(exp_path, tomo.tomoName))
             motl_data = np.array(motlfile_one.readlines())
             motlfile_one.close()
@@ -158,13 +146,9 @@ if os.path.exists(cache_folder_path):
 
 
 import scipy.cluster.hierarchy as hcluster
-#repeat_unit = 12
 tomo.readTomo()
 search_param = SearchParam(param_file)
-#logger.info(search_param.repeating_unit)
-#logger.info(tomo.apix)
 repeat_unit = round(search_param.repeating_unit/tomo.apix, 1)
-#logger.info("repeat_unit: {}".format(repeat_unit))
 particle_dup_ratio = 0.8
 patch_dis_ratio = 1.5
 clusters = hcluster.fclusterdata(points, repeat_unit*particle_dup_ratio, criterion="distance")
@@ -172,21 +156,15 @@ points_rmdup = []
 motls_rmdup = []
 rots_rmdup = []
 for i in range(len(set(clusters))):
-    #x,y,z = np.mean(points[np.argwhere(clusters == i+1)], axis=0)[0]
     neighbors = np.squeeze(points[np.argwhere(clusters == i+1)], axis=1)
     if len(neighbors) > 1:
-        #logger.info(motls[np.argwhere(clusters == i+1)])
         temp_motl = motls[np.argwhere(clusters == i+1)]
-        #logger.info(temp_motl_2)
         temp_motl = [motl_line[0].strip().split(',') for motl_line in temp_motl]
-        #logger.info(temp_motl)
         temp_motl = np.array([[float(it) for it in item] for item in temp_motl])
         
         ind = np.argwhere(temp_motl[:,0]==temp_motl.max(axis=0)[0])[0,0]
-        #logger.info(ind)
         
         x,y,z = points[np.argwhere(clusters == i+1)[ind][0]]
-        #logger.info(points[np.argwhere(clusters == i+1)[ind][0]])
         points_rmdup.append([x,y,z])
         if len(motls_rmdup) == 0:
             motls_rmdup = motls[np.argwhere(clusters == i+1)[ind][0]]
@@ -195,7 +173,6 @@ for i in range(len(set(clusters))):
             motls_rmdup = np.hstack((motls_rmdup, motls[np.argwhere(clusters == i+1)[ind][0]]))
             rots_rmdup = np.hstack((rots_rmdup, rots[np.argwhere(clusters == i+1)[ind][0]]))
     else:
-        #logger.info(points[np.argwhere(clusters == i+1)])
         x,y,z = points[np.argwhere(clusters == i+1)][0,0]
         points_rmdup.append([x,y,z])
         if len(motls_rmdup) == 0:
@@ -210,14 +187,11 @@ clusters_2 = hcluster.fclusterdata(points_rmdup, repeat_unit*patch_dis_ratio, cr
 points_patch = []
 motls_patch = []
 rots_patch = []
-#min_patch_size = 12
 patch_count = 0
 for i in range(len(set(clusters_2))):
     neighbors = np.squeeze(points_rmdup[np.argwhere(clusters_2 == i+1)], axis=1)
     if len(neighbors) >= min_patch_size:
         patch_count+=1
-        #x,y,z = np.mean(points_rmdup[np.argwhere(clusters_2 == i+1)], axis=0)[0]
-        #logger.info(points_rmdup[np.argwhere(clusters_2 == i+1)])
         [points_patch.append([patch_count, p[0][0],p[0][1],p[0][2]]) for p in points_rmdup[np.argwhere(clusters_2 == i+1)]]
         if patch_count==1:
             motls_patch = motls_rmdup[np.argwhere(clusters_2 == i+1)]
@@ -225,8 +199,7 @@ for i in range(len(set(clusters_2))):
         else:
             motls_patch = np.vstack((motls_patch, motls_rmdup[np.argwhere(clusters_2 == i+1)]))
             rots_patch = np.vstack((rots_patch, rots_rmdup[np.argwhere(clusters_2 == i+1)]))
-
-        
+       
 clean_pts_file = "{}/{}.pts".format(final_result_folder, tomo.tomoName)
 clean_mod_file = "{}/{}.mod".format(final_result_folder, tomo.tomoName)
 clean_motlfile = "{}/{}_MOTL.csv".format(final_result_folder,tomo.tomoName)
@@ -237,23 +210,17 @@ with open(clean_pts_file,"w") as clean_pts_file_w:
         with open(clean_rotfile,"w") as frot:
             real_i = 0
             for i, coord in enumerate(points_patch):
-
                 motl_list = motls_patch[i][0].split(",")
                 try:
                     ccc = float(motl_list[0])
                 except:
                     ccc = 0
-                
                 if ccc >= search_param.threshold_CCC:
                     real_i +=1
-                    
                     clean_pts_file_w.write(" ".join([str(int(x)) for x in coord])+"\n")
-                    
                     motl_list[3] = str(real_i)
                     motl_line = ",".join(motl_list)
-                    
                     rot_list = rots_patch[i][0]
-                    
                     fmotl.write(motl_line)
                     frot.write(rot_list)
 
@@ -283,11 +250,9 @@ if len(motls) > 0:
                     fcoord.write(" ".join([str(int(x)) for x in coord])+"\n")
                     frot.write(rot_list)
     cmd = "cd {}; point2model {} {} -scat -sphere 5 ".format(final_result_folder, coordfile, modfile)
-    #cmd = "cd {}; point2model {} {}; rm {}".format(final_result_folder, coordfile, modfile, coordfile)
     subprocess.run(cmd,shell=True, stdout=subprocess.PIPE)
 
     cmd = "cd {}; ln -s {} ./{}.mrc".format(final_result_folder, tomo.tomogramPickPath, tomo.tomoName)
     subprocess.run(cmd,shell=True, stdout=subprocess.PIPE)
 logger.info("Particle numbers {}. After clean {}! with {} patches".format(len(points), real_i, patch_count))
 logger.info("The final coords and rotation are saved in the final folder!")
-

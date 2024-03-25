@@ -4,15 +4,17 @@
 import sys,os
 import numpy as np
 import math
+import subprocess
+from multiprocessing import Pool
+import glob
+
 from TomoNet.objects.tomogram import Tomogram
 from TomoNet.objects.prmFile import PRMFile
 from TomoNet.util.star_metadata import MetaData
-import subprocess
-from multiprocessing import Pool
 from TomoNet.objects.expand import Expand
-import glob
 
-
+'''
+# testing using mpram
 def read_mpram(fileName):
   host = []
   try:
@@ -23,7 +25,9 @@ def read_mpram(fileName):
   except:
     pass
   return host
-  
+'''  
+'''
+# testing run_parallel with host name
 def run_parallel(host, cmd_file, cpu_used):
   cmds = []
   params = []
@@ -38,13 +42,8 @@ def run_parallel(host, cmd_file, cpu_used):
             params.append(param)
   except:
     pass
-
-  print(params)
   if len(host) > 0:
-    
     host_p = [[x[0],int(x[1]),x[2],x[3],x[4]] for x in host]
-    #print(host_p)
-    #print(params)
     host_num = len(host)
     for i, p in enumerate(params):
       which_host = i % host_num
@@ -57,13 +56,13 @@ def run_parallel(host, cmd_file, cpu_used):
       p['hostname'] = host_p[which_host][3]
     
     pool = Pool(cpu_used)
-    #print(params)
     pool.map(alignNT_host, params)
   else:
     pool = Pool(cpu_used)
     pool.map(alignNT, params)
+'''
 
-def run_parallel( cmd_file, cpu_used):
+def run_parallel(cmd_file, cpu_used):
   cmds = []
   params = []
   try:
@@ -77,9 +76,6 @@ def run_parallel( cmd_file, cpu_used):
             params.append(param)
   except:
     pass
-
-  #print(params)
-
   pool = Pool(cpu_used)
   pool.map(alignNT, params)
 
@@ -89,9 +85,9 @@ def alignNT(p):
   
   cmd = "cd {}; python {}".format(path, pyfile)
   result = subprocess.run(cmd, shell=True)
-  #print(pyfile)
   return result
 
+'''
 def alignNT_host(p):
   path = p["staPath"]
   pyfile = p["pyfile"]
@@ -102,38 +98,30 @@ def alignNT_host(p):
   result = ssh.stdout.readlines()
   
   return result
-
+'''
 def sta_peet_one(star_file, param_file, tomoName, cpus, first_round):
   ###################### load system params  ######################################
   #star_file = sys.argv[1]
   #param_file = sys.argv[2]
   #tomoName = sys.argv[3]
   #cpus = int(sys.argv[4])
-
   ################ Prepare files  ###################################
 
   md = MetaData()
   md.read(star_file)
-  #md.printStar()
   item = None
   for i in md:
     if i.rlnTomoName == tomoName:
       item = i
       break
-
   #######  create Folder, prepare *prm* file, mrc/rec , mod, rotaxes.csv , motl.csv  ###########
-
   if item != None:
-
     ###################### define the search parameters ##################################################
-
     from TomoNet.util.searchParam import SearchParam
     search_param = SearchParam(param_file)
-    
     ###################### build current tomogram ##################################################
     tomo = Tomogram(item.rlnTomoName, initialParamFolder=item.rlnInitialParamFolder, \
       reconstructionPath=item.rlnReconstructionPath, pickingPath=item.rlnPickingPath, max_seed_num = search_param.max_seed_num)
-      
     ########################  detect which round is going on ########################################
     cache_folder_path = "{}_cache".format(tomo.staPath)
     latest_round = -1
@@ -158,7 +146,6 @@ def sta_peet_one(star_file, param_file, tomoName, cpus, first_round):
       elif first_round or (not os.path.exists("{}/exp/{}_exp.mod".format(latest_cache_folder_path, tomo.tomoName))):
         tomo.setInitialParams(less=False)
         target_cache_folder = "{}_cache/round_{}".format(tomo.staPath,latest_round)
-        #peet_iter = 1
         
         files_unmasked_mrc = [os.path.basename(x) for x in glob.glob("{}/unMasked*.mrc".format(target_cache_folder, tomoName))]
         files_unmasked_mrc_2 = []
@@ -168,7 +155,6 @@ def sta_peet_one(star_file, param_file, tomoName, cpus, first_round):
         files_unmasked_mrc = files_unmasked_mrc_2
         nums = [int(x.split(".")[0].split("Ref")[1]) for x in files_unmasked_mrc]
         peet_iter = max(nums) - 1
-        #print(peet_iter)
 
         exp = Expand(tomo=tomo, search_param=search_param, target_cache_folder=target_cache_folder, peet_iter=peet_iter)
         exp.prepare_exp()
@@ -178,7 +164,6 @@ def sta_peet_one(star_file, param_file, tomoName, cpus, first_round):
         tomo.updateAlignmentFile(latest_round, latest_cache_folder_path)
       else:
         tomo.updateAlignmentFile(latest_round, latest_cache_folder_path)
-        
     else:
       tomo.setInitialParams()
     
@@ -187,16 +172,13 @@ def sta_peet_one(star_file, param_file, tomoName, cpus, first_round):
     tomo.setTilt()
 
     prm= PRMFile(tomo)
-    #print(search_param)
     if latest_round >= 0:
       search_param.yaxisType = 3
       prm.setSearchParam(rotRanges=np.array(search_param.fineRotRanges),rot_steps=np.array(search_param.fineRot_steps), transRanges=np.array(search_param.fineTransRanges))
-      # prm.setSearchParam(rotSteps=np.array(search_param.rotSteps_fine), transRange=np.array(search_param.transRange_fine))
     else:
       if not tomo.rotaxesPath:
         search_param.yaxisType = 1
       prm.setSearchParam(rotRanges=np.array(search_param.rotRanges),rot_steps=np.array(search_param.rot_steps), transRanges=np.array(search_param.transRanges))
-      #prm.setSearchParam(rotSteps=np.array(search_param.rotSteps), transRange=np.array(search_param.transRange))
     #prm.setOtherParam(cpus=cpus, szVol=search_param.szVol, refPath=search_param.refPath, maskType=search_param.maskType, \
     #  yaxisType = search_param.yaxisType, flgNoReferenceRefinement=search_param.flgNoReferenceRefinement, flgAbsValue=search_param.flgAbsValue)
     if not search_param.reference:
@@ -212,32 +194,16 @@ def sta_peet_one(star_file, param_file, tomoName, cpus, first_round):
 
     ######### prepare material into this tomogram folder ######################## + ########## generate job files ####################
 
-    #if os.path.exists(".mparm"):
-    #  cmd = "mv .mparm {}".format(tomo.staPath)
-    #  subprocess.run(cmd,shell=True)
-    
-    #mparm_file = "{}/.mparm".format(tomo.staPath)
-
-    # putput log into log file
-    
-    #print("{}/{}-exp.log".format(tomo.staPath, tomo.tomoName))
     cmd = "cd {}; PEETCleanup *prm 1 ; prepareRef *prm ; prepareEM *prm; prmParser *prm".format(tomo.staPath)
-    #print(cmd)
     result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
     
     log_file_writer = open("{}/{}-exp.log".format(tomo.staPath, tomo.tomoName),"w")
-    #log_file_writer.write("what-top!?")
-    #print("what!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n",result.stdout.decode(),"what!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
-    #log_file_writer.write("what!?")
     log_file_writer.write(result.stdout.decode()+"\n")
 
     cpu_used = int(math.ceil(tomo.numberParticles/prm.particlePerCPU))
 
     fill_degree = max(3,len(str(cpu_used * prm.iterNum)))
 
-    #with open("{}/pid.txt".format(tomo.staPath, tomo.tomoName),"w") as w:
-    #  w.write(str(os.getpid()))
-    #print(os.getpid())
     ########### parellel run all the jobs #############################
     for k in range(prm.iterNum):
       if os.path.exists("Expand/STOP"):
@@ -252,15 +218,11 @@ def sta_peet_one(star_file, param_file, tomoName, cpus, first_round):
         com_file = "{}-{}.com".format(tomo.tomoName,filled_num)
         log_file = "{}-{}.log".format(tomo.tomoName,filled_num)
         py_file = "{}-{}.py".format(tomo.tomoName,filled_num)
-        ######### generate runpar execute command file ######################
-        #cmd = "cd {}; a=`head -n 1 {}`; echo \" cd {}; ${}a:1{} > {} \" >> {}".format(tomo.staPath, com_file,tomo.staPath, "{","}", log_file,out_file)
         
         #generate py command file
         com_read = open("{}/{}".format(tomo.staPath,com_file),"r")
         alignsub_cmd = com_read.readlines()[0][1:-1]
         com_read.close()
-        #print(alignsub_cmd)
-        #print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         py_code = 'import subprocess\
           \ni=0\
           \nf=open(\"{}\",\"w\")\
@@ -278,15 +240,11 @@ def sta_peet_one(star_file, param_file, tomoName, cpus, first_round):
           \n  except:\
           \n    print(\"failed: {}{} times!\".format(i))\
           \nf.close()'.format(log_file, alignsub_cmd, "{", "}")
-        
-        #print("###############################")
-        
+                
         f=open("{}/{}".format(tomo.staPath, py_file),"w")
         f.write(py_code)
         f.close()
-        #cmd = 'cd {}; echo \"{}\" > {}'.format(tomo.staPath, py_code, py_file)
-        #subprocess.run(cmd,shell=True)
-        #print("----------------------------------------")
+
         cmd = 'cd {}; echo \"cd {}; python {}\" >> {}'.format(tomo.staPath, tomo.staPath, py_file, out_file)
 
         subprocess.run(cmd,shell=True)
@@ -294,17 +252,7 @@ def sta_peet_one(star_file, param_file, tomoName, cpus, first_round):
         cmd = "cd {}; rm -rf {}".format(tomo.staPath, com_file)
         subprocess.run(cmd,shell=True)
 
-      #replace runpar
-      #host = read_mpram(mparm_file)
-      #print(host)
-      #print(host, "{}/{}".format(tomo.staPath, out_file), cpu_used)
-      #exit(100)
-      run_parallel("{}/{}".format(tomo.staPath, out_file), cpu_used)
-
-      #cmd = "cd {}; runpar proc={} file={}".format(tomo.staPath,cpus,out_file)
-
-      #subprocess.run(cmd,shell=True, stdout=subprocess.PIPE)
-      
+      run_parallel("{}/{}".format(tomo.staPath, out_file), cpu_used)      
       cmd = "cd {}; rm -rf *.py".format(tomo.staPath)
       subprocess.run(cmd,shell=True)
 
@@ -327,7 +275,6 @@ def sta_peet_one(star_file, param_file, tomoName, cpus, first_round):
           .format(tomo.staPath, start_num, end_num, sync_log_file, k+1,tomo.tomoName, \
           k+1,tomo.tomoName,k+2, tomo.tomoName, k+1,tomo.tomoName,k+2, k+1, sync_com_file)
       
-      #print(cmd)
       result = subprocess.run(cmd,shell=True, stdout=subprocess.PIPE)
     log_file_writer.write(result.stdout.decode())
     end_signal = True
@@ -341,13 +288,7 @@ def sta_peet_one(star_file, param_file, tomoName, cpus, first_round):
       ccc = float(i.split(",")[0])
       if ccc >= search_param.threshold_CCC:
         c+=1
-        #if c >=min_count_to_continue:
-        #  end_signal = False
-        #  break
     target_cache_folder = "{}_cache/round_{}".format(tomo.staPath,latest_round+1)
     return [tomo, search_param, target_cache_folder, prm.iterNum, c]
-
   else:
     print("{} does not exist".format(tomoName))
-
-

@@ -56,7 +56,6 @@ class Ui_TomoNet(object):
         self.statusbar.setObjectName("statusbar")
         TomoNet.setStatusBar(self.statusbar)
 
-        
         self.retranslateUi(TomoNet)
         
         self.initUi()
@@ -103,7 +102,6 @@ class Ui_TomoNet(object):
         otherUtils = OtherUtils()
         self.stackedWidget.addWidget(otherUtils)
 
-        
         self.log_file = ["MotionCorrection/motion.log", "Recon/recon.log", "Ctffind/ctffind.log",\
             "ManualPick/manual.log", "Expand/expand.log", "Autopick/autopick.log", "OtherUtils/otherUtils.log"]
         self.log_window.setText(self.getLogContent(self.log_file[0]))
@@ -118,13 +116,7 @@ class Ui_TomoNet(object):
             icon.addPixmap(QtGui.QPixmap("{}/../gui/icons/web.svg".format(scriptDir)), QtGui.QIcon.Normal, QtGui.QIcon.Off)
             TomoNet.setWindowIcon(icon)
         except:
-            TomoNet.setWindowTitle(_translate("TomoNet", "TomoNet"))
-        #self.log_window.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-        #    "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-        #    "p, li { white-space: pre-wrap; }\n"
-        #    "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:16pt; font-weight:400; font-style:normal;\">\n"
-        #   "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>"))
-    
+            TomoNet.setWindowTitle(_translate("TomoNet", "TomoNet"))    
 
     def isValid(self, fileName):
         '''
@@ -151,7 +143,6 @@ class Ui_TomoNet(object):
         else:
             return None
     
-
     def loadLogs(self, row):
         try:
             self.log_window.setText(self.getLogContent(self.log_file[row]))
@@ -165,12 +156,10 @@ class Ui_TomoNet(object):
             #highlight(self.log_window, "#CC2936", "ERROR")
             #highlight(self.log_window, "#408AF1", "INFO")
             #highlight(self.log_window, "#FC8955", "WARNING")
-            
         except:
             pass
 
 stylesheet = """
-
 QPushButton#run {
     background: rgb(239,221,241);
     font: 14px;
@@ -202,7 +191,6 @@ QLabel{
     font: 14px;
 }
 """
-
 class MyWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
@@ -222,9 +210,7 @@ class MyWindow(QtWidgets.QMainWindow):
         if result == QtWidgets.QMessageBox.No:
             pass
             #kill the old process
-
 def check_root():
-
     directory = os.getcwd()
     folders = os.listdir(directory)
     return "MotionCorrection" in folders and "Recon" in folders and "Ctffind" in folders and "Expand" in folders and "Autopick" in folders and "OtherUtils" in folders

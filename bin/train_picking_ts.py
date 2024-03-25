@@ -11,10 +11,9 @@ import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
     import time
+    from TomoNet.models.network_picking import Net
     start_time = time.time()
 
-    from TomoNet.models.network_picking import Net
-    
     network = Net(filter_base = 64, out_channels=1)
 
     params = sys.argv
@@ -33,8 +32,6 @@ if __name__ == "__main__":
     #############
     ncpus = 12
     acc_batches = batch_size//2
-
-    #conti = int(sys.argv[4])
 
     if len(params) == 9:
         log_file = params[8]
@@ -61,7 +58,6 @@ if __name__ == "__main__":
     star_iter = 0
     
     if not continue_from_model == "None":
-        #model_file = "{}/model_iter_{:0>2d}.h5".format(result_dir, iter_count-1)
         try:
             tmp_int = string2int(continue_from_model.split(".h5")[0].split("_")[-1])
             if tmp_int == None:
@@ -78,11 +74,12 @@ if __name__ == "__main__":
     log(logger, "######## Start Training! Total epoch # is {} ########".format(epoch_num))
     for i in range(iter):
         tmp_time = time.time()
+        #train based on init model and save new one as model_iter{num_iter}.h5
         metrics = network.train(data_dir, gpuID, 
-                                learning_rate=lr, batch_size=batch_size,
-                                epochs = iter_epoch_num, steps_per_epoch=steps_per_epoch, acc_batches=acc_batches, ncpus=ncpus, enable_progress_bar=True, precision=16) #train based on init model and save new one as model_iter{num_iter}.h5
-                # except KeyboardInterrupt as exception: 
-                #     sys.exit("Keyboard interrupt")
+                    learning_rate=lr, batch_size=batch_size,
+                    epochs = iter_epoch_num, steps_per_epoch=steps_per_epoch, 
+                    acc_batches=acc_batches, ncpus=ncpus, enable_progress_bar=True, precision=16) 
+        
         metrics = metrics
         network.save('{}/model_iter_{:0>2d}.h5'.format(result_dir, star_iter + iter_epoch_num*(i+1)))
         try:
