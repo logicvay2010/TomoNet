@@ -1,8 +1,8 @@
-from PyQt5.QtCore import QThread
 import os, glob
 import logging
 import subprocess
 import json
+from PyQt5.QtCore import QThread
 
 class Predict_network(QThread):
 
@@ -22,15 +22,14 @@ class Predict_network(QThread):
 
     def run(self):
         tomo_list = self.get_tomo_list(self.d['input_folder_predict'])
-        #print(tomo_list)
         mask_list = []
         for tomo in tomo_list:
             if tomo.endswith(".mrc"):
                 prefix = tomo.split(".mrc")[0]
-                suffix = ".mrc"
+                #suffix = ".mrc"
             else:
                 prefix = tomo.split(".rec")[0]
-                suffix = ".rec"
+                #suffix = ".rec"
 
             mask_file_mrc = "{}_mask{}".format(prefix, ".mrc")
             mask_file_rec = "{}_mask{}".format(prefix, ".rec")
@@ -44,7 +43,6 @@ class Predict_network(QThread):
         result_path = os.path.dirname(input_model)
         if result_path == "":
             result_path = os.getcwd()
-        #predict_result_path = "{}/predict_result-{date:%Y-%m-%d_%H-%M}".format(result_path, date=datetime.datetime.now())
         predict_result_path = "{}/predict_result_box@{}_unitSize@{}_minPatch@{}_labelSize@{}_tol@{}_olSize@{}".format(result_path, \
             self.d['box_size_predict'], self.d['unit_size_predict'], self.d['min_patch_size_predict'],self.d['y_label_size_predict'],self.d['tolerance'],self.d['margin'])
 
@@ -66,7 +64,6 @@ class Predict_network(QThread):
                     json.dump(self.d, fp, indent=2, default=int)        
         
     def get_tomo_list(self, folder):
-
         rec_files = set(glob.glob("{}/*.rec".format(folder)))
         tomo_files = set(glob.glob("{}/*.mrc".format(folder)))
         tomo_files.update(rec_files)
@@ -78,17 +75,6 @@ class Predict_network(QThread):
         return sorted(tomo_files_filtered)
 
     def stop_process(self):
-
-        import psutil, time
         self.terminate()
         self.quit()
         self.wait()
-        
-        # while True:
-        #     a = [p.info['pid'] for p in psutil.process_iter(attrs=['pid', 'name']) if ('python' == p.info['name'] or 'python3' == p.info['name'])]
-        #     print(a)
-        #     if len(a) > 0:
-        #         [p.kill() for p in psutil.process_iter(attrs=['pid', 'name']) if ('python' == p.info['name'] or 'python3' == p.info['name'])]
-        #     else:
-        #         break
-        #     time.sleep(3)

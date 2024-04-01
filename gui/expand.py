@@ -1,22 +1,21 @@
 import logging
 import os.path
+import json
+import os, glob, subprocess
+import numpy as np
+from ast import literal_eval
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QTabWidget, QHeaderView, QMessageBox, QTableWidgetItem
+
 from TomoNet.util import metadata
 from TomoNet.util.metadata import MetaData, Item, Label
 from TomoNet.util import browse
-import os, glob, subprocess
 from TomoNet.util.utils import natural_keys, check_log_file, getLogContent, string2float, string2int, idx2list
-from TomoNet.process.bash_expand import Expand_CMDS
 from TomoNet.util.utils import mkfolder
-
-import numpy as np
-import json
-from ast import literal_eval
-
 from TomoNet.util.searchParam import SearchParam
+from TomoNet.process.bash_expand import Expand_CMDS
 
 class Expand(QTabWidget):
     def __init__(self):
@@ -29,8 +28,6 @@ class Expand(QTabWidget):
         self.expand_folder = "Expand"
         
         check_log_file(self.log_file, "Expand")
-
-        #self.thread_ctffind = None
         
         self.logger = logging.getLogger(__name__)
         handler = logging.FileHandler(filename=self.log_file, mode='a')
@@ -51,7 +48,6 @@ class Expand(QTabWidget):
 
         self.icon = QtGui.QIcon()
         self.icon.addPixmap(QtGui.QPixmap("{}/icons/icon_folder.png".format(scriptDir)), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-
 
         self.setUI_tab1()
 
@@ -108,10 +104,8 @@ class Expand(QTabWidget):
         self.lineEdit_expand_folder_to_use.textChanged.connect(self.reload_table)
         self.currentChanged.connect(self.tab_changed)
 
-        #self.tableView.clicked.connect(self.table_click)
         self.tableView.doubleClicked.connect(self.table_click)
 
-        #self.read_settting()
         self.setTabShape(QtWidgets.QTabWidget.Triangular)
         self.retranslateUi_tab1()
         self.retranslateUi_tab2()
@@ -174,7 +168,6 @@ class Expand(QTabWidget):
 
     def retranslateUi_tab2(self):
         _translate = QtCore.QCoreApplication.translate
-        #self.setWindowTitle(_translate("Form", "Form"))
         
         self.label_load_params.setText(_translate("Form", "Load picking params:"))      
         self.lineEdit_load_params.setPlaceholderText(_translate("Form", ""))
@@ -471,7 +464,6 @@ class Expand(QTabWidget):
         self.label_initParam_folder.setObjectName("label_initParam_folder")
         self.horizontalLayout_1.addWidget(self.label_initParam_folder)
 
-
         self.lineEdit_initParam_folder = QtWidgets.QLineEdit(self.tab)
         self.lineEdit_initParam_folder.setInputMask("")
         self.lineEdit_initParam_folder.setObjectName("lineEdit_initParam_folder")
@@ -500,7 +492,6 @@ class Expand(QTabWidget):
         self.label_recon_folder.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_recon_folder.setObjectName("label_recon_folder")
         self.horizontalLayout_2.addWidget(self.label_recon_folder)
-
 
         self.lineEdit_recon_folder = QtWidgets.QLineEdit(self.tab)
         self.lineEdit_recon_folder.setInputMask("")
@@ -531,7 +522,6 @@ class Expand(QTabWidget):
         self.label_tomo_star_file_name.setObjectName("label_tomo_star_file_name")
         self.horizontalLayout_3.addWidget(self.label_tomo_star_file_name)
 
-
         self.lineEdit_tomo_star_file_name = QtWidgets.QLineEdit(self.tab)
         self.lineEdit_tomo_star_file_name.setInputMask("")
         self.lineEdit_tomo_star_file_name.setObjectName("lineEdit_tomo_star_file_name")
@@ -551,7 +541,6 @@ class Expand(QTabWidget):
         self.label_expand_folder.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_expand_folder.setObjectName("label_expand_folder")
         self.horizontalLayout_4.addWidget(self.label_expand_folder)
-
 
         self.lineEdit_expand_folder = QtWidgets.QLineEdit(self.tab)
         self.lineEdit_expand_folder.setInputMask("")
@@ -603,7 +592,6 @@ class Expand(QTabWidget):
 
         self.horizontalLayout_2_0 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2_0.setContentsMargins(10, 5, 10, 5)
-
         
         self.label_load_params = QtWidgets.QLabel(self.tab2)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
@@ -631,7 +619,6 @@ class Expand(QTabWidget):
         self.pushButton_load_params.setObjectName("pushButton_load_params")
         self.horizontalLayout_2_0.addWidget(self.pushButton_load_params)
 
-
         self.groupBox_1 = QtWidgets.QGroupBox()
 
         self.verticalLayout_2_1 = QtWidgets.QVBoxLayout()
@@ -651,7 +638,6 @@ class Expand(QTabWidget):
         self.label_rotRange.setObjectName("label_rotRange")
         self.horizontalLayout_2_1.addWidget(self.label_rotRange)
 
-
         self.lineEdit_rotRange = QtWidgets.QLineEdit(self.tab2)
         self.lineEdit_rotRange.setInputMask("")
         self.lineEdit_rotRange.setObjectName("lineEdit_rotRange")
@@ -665,13 +651,11 @@ class Expand(QTabWidget):
         self.label_rot_steps.setObjectName("label_rot_steps")
         self.horizontalLayout_2_1.addWidget(self.label_rot_steps)
 
-
         self.lineEdit_rot_steps = QtWidgets.QLineEdit(self.tab2)
         self.lineEdit_rot_steps.setInputMask("")
         self.lineEdit_rot_steps.setObjectName("lineEdit_rot_steps")
 
         self.horizontalLayout_2_1.addWidget(self.lineEdit_rot_steps)
-
 
         self.horizontalLayout_2_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2_2.setContentsMargins(10, 5, 10, 5)
@@ -687,7 +671,6 @@ class Expand(QTabWidget):
         self.label_fineRotRange.setObjectName("label_fineRotRange")
         self.horizontalLayout_2_2.addWidget(self.label_fineRotRange)
 
-
         self.lineEdit_fineRotRange = QtWidgets.QLineEdit(self.tab2)
         self.lineEdit_fineRotRange.setInputMask("")
         self.lineEdit_fineRotRange.setObjectName("lineEdit_fineRotRange")
@@ -700,7 +683,6 @@ class Expand(QTabWidget):
         self.label_fineRot_steps.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_fineRot_steps.setObjectName("label_fineRot_steps")
         self.horizontalLayout_2_2.addWidget(self.label_fineRot_steps)
-
 
         self.lineEdit_fineRot_steps = QtWidgets.QLineEdit(self.tab2)
         self.lineEdit_fineRot_steps.setInputMask("")
@@ -728,7 +710,6 @@ class Expand(QTabWidget):
         self.label_transRange.setObjectName("label_transRange")
         self.horizontalLayout_2_3.addWidget(self.label_transRange)
 
-
         self.lineEdit_transRange = QtWidgets.QLineEdit(self.tab2)
         self.lineEdit_transRange.setInputMask("")
         self.lineEdit_transRange.setObjectName("lineEdit_transRange")
@@ -741,7 +722,6 @@ class Expand(QTabWidget):
         self.label_fineTransRange.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_fineTransRange.setObjectName("label_fineTransRange")
         self.horizontalLayout_2_3.addWidget(self.label_fineTransRange)
-
 
         self.lineEdit_fineTransRange = QtWidgets.QLineEdit(self.tab2)
         self.lineEdit_fineTransRange.setInputMask("")
@@ -759,7 +739,6 @@ class Expand(QTabWidget):
         self.label_transition_list.setObjectName("label_transition_list")
         self.horizontalLayout_2_4.addWidget(self.label_transition_list)
 
-
         self.lineEdit_transition_list = QtWidgets.QLineEdit(self.tab2)
         self.lineEdit_transition_list.setInputMask("")
         self.lineEdit_transition_list.setObjectName("lineEdit_transition_list")
@@ -769,7 +748,6 @@ class Expand(QTabWidget):
         self.verticalLayout_2_2.addLayout(self.horizontalLayout_2_3)
         self.verticalLayout_2_2.addLayout(self.horizontalLayout_2_4)
         self.groupBox_2.setLayout(self.verticalLayout_2_2)
-
 
         #groupBox 3
         self.groupBox_3 = QtWidgets.QGroupBox()
@@ -890,7 +868,6 @@ class Expand(QTabWidget):
         self.horizontalLayout_2_8 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2_8.setContentsMargins(10, 5, 10, 5)
 
-
         self.label_refine_reference = QtWidgets.QLabel(self.tab2)
         self.label_refine_reference.setSizePolicy(sizePolicy)
         self.label_refine_reference.setMinimumSize(QtCore.QSize(60, 0))
@@ -929,13 +906,11 @@ class Expand(QTabWidget):
         self.lineEdit_pick_param_filename.setObjectName("lineEdit_pick_param_filename")
         self.horizontalLayout_2_8.addWidget(self.lineEdit_pick_param_filename)
 
-
         self.verticalLayout_2_3.addLayout(self.horizontalLayout_2_5)
         self.verticalLayout_2_3.addLayout(self.horizontalLayout_2_6)
         self.verticalLayout_2_3.addLayout(self.horizontalLayout_2_7)
         self.verticalLayout_2_3.addLayout(self.horizontalLayout_2_8)
         self.groupBox_3.setLayout(self.verticalLayout_2_3)
-
 
         # the last H layout
         self.horizontalLayout_last_2 = QtWidgets.QHBoxLayout()
@@ -969,7 +944,7 @@ class Expand(QTabWidget):
         self.gridLayout_pick_params.addLayout(self.horizontalLayout_last_2, 5, 0, 1, 1)
 
     def setUI_tab3(self):
-        #tab 1
+        #tab 3
         self.tab3 = QtWidgets.QWidget()
         self.tab3.setObjectName("tab")
 
@@ -985,7 +960,6 @@ class Expand(QTabWidget):
         self.label_star_file_to_use.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_star_file_to_use.setObjectName("label_star_file_to_use")
         self.horizontalLayout_3_1.addWidget(self.label_star_file_to_use)
-
 
         self.lineEdit_star_file_to_use = QtWidgets.QLineEdit(self.tab3)
         self.lineEdit_star_file_to_use.setInputMask("")
@@ -1012,7 +986,6 @@ class Expand(QTabWidget):
         self.label_pick_param_file_to_use.setObjectName("label_pick_param_file_to_use")
         self.horizontalLayout_3_2.addWidget(self.label_pick_param_file_to_use)
 
-
         self.lineEdit_pick_param_file_to_use = QtWidgets.QLineEdit(self.tab3)
         self.lineEdit_pick_param_file_to_use.setInputMask("")
         self.lineEdit_pick_param_file_to_use.setObjectName("lineEdit_pick_param_file_to_use")
@@ -1038,7 +1011,6 @@ class Expand(QTabWidget):
         self.label_expand_folder_to_use.setObjectName("label_expand_folder_to_use")
         self.horizontalLayout_3_3.addWidget(self.label_expand_folder_to_use)
 
-
         self.lineEdit_expand_folder_to_use = QtWidgets.QLineEdit(self.tab3)
         self.lineEdit_expand_folder_to_use.setInputMask("")
         self.lineEdit_expand_folder_to_use.setObjectName("lineEdit_expand_folder_to_use")
@@ -1054,7 +1026,6 @@ class Expand(QTabWidget):
         self.pushButton_expand_folder_to_use.setObjectName("pushButton_expand_folder_to_use")
         self.horizontalLayout_3_3.addWidget(self.pushButton_expand_folder_to_use)
 
-
         self.tableView = QtWidgets.QTableWidget(self)
 
         header_labels = metadata.header_labels_expand
@@ -1065,7 +1036,6 @@ class Expand(QTabWidget):
         header.setSectionResizeMode(QHeaderView.ResizeToContents)
 
         self.tableView.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
-
 
         self.gridLayout_run = QtWidgets.QGridLayout(self.tab3)
 
@@ -1085,7 +1055,6 @@ class Expand(QTabWidget):
         self.label_tomo_index.setObjectName("label_tomo_index")
         self.horizontalLayout_3_4.addWidget(self.label_tomo_index)
 
-
         self.lineEdit_tomo_index = QtWidgets.QLineEdit(self.tab3)
         self.lineEdit_tomo_index.setInputMask("")
         self.lineEdit_tomo_index.setObjectName("lineEdit_tomo_index")
@@ -1097,7 +1066,6 @@ class Expand(QTabWidget):
         self.label_iterations.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_iterations.setObjectName("label_iterations")
         self.horizontalLayout_3_4.addWidget(self.label_iterations)
-
 
         self.lineEdit_iterations = QtWidgets.QLineEdit(self.tab3)
         self.lineEdit_iterations.setInputMask("")
@@ -1111,7 +1079,6 @@ class Expand(QTabWidget):
         self.label_min_patch_size.setObjectName("label_min_patch_size")
         self.horizontalLayout_3_4.addWidget(self.label_min_patch_size)
 
-
         self.lineEdit_min_patch_size = QtWidgets.QLineEdit(self.tab3)
         self.lineEdit_min_patch_size.setInputMask("")
         self.lineEdit_min_patch_size.setObjectName("lineEdit_min_patch_size")
@@ -1123,7 +1090,6 @@ class Expand(QTabWidget):
         self.label_cpu_num.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_cpu_num.setObjectName("label_cpu_num")
         self.horizontalLayout_3_4.addWidget(self.label_cpu_num)
-
 
         self.lineEdit_cpu_num = QtWidgets.QLineEdit(self.tab3)
         self.lineEdit_cpu_num.setInputMask("")
@@ -1149,7 +1115,6 @@ class Expand(QTabWidget):
         self.checkBox_print_only_expand_select.setObjectName("checkBox_print_only_expand_select")
         self.horizontalLayout_3_5.addWidget(self.checkBox_print_only_expand_select)
 
-        
         self.pushButton_expand_select = QtWidgets.QPushButton(self.tab3)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -1183,14 +1148,6 @@ class Expand(QTabWidget):
                     custom_font = QtGui.QFont()
                     custom_font.setPointSize(11)
                     self.log_window.setCurrentFont(custom_font)
-
-        # self.log_window = self.parentWidget().parentWidget().children()[3] 
-        # self.log_window.setText(getLogContent(txt))
-        # self.log_window.moveCursor(QtGui.QTextCursor.End)
-
-        # custom_font = QtGui.QFont()
-        # custom_font.setPointSize(11)
-        # self.log_window.setCurrentFont(custom_font)
 
     def read_settting(self):
         if not os.path.exists(self.setting_file):
@@ -1424,18 +1381,12 @@ class Expand(QTabWidget):
         i = item.row()
         j = item.column()
         tomoName = self.tableView.item(i, 0).text()
-        #tomoName = self.ctf_results['tomoNames'][i]
         if j == 3:
-            #searchPath = self.ctffind4_path
-            #ctf_mrc_file = "{}/{}/{}_ctf.mrc".format(searchPath, tomoName, tomoName)
-            #cmd = "3dmod {}".format(ctf_mrc_file)
-            #subprocess.check_output(cmd, shell=True)
             exp_folder = self.lineEdit_expand_folder_to_use.text().strip() if self.lineEdit_expand_folder_to_use.text() else "Expand"
             path = "{}/{}_final".format(exp_folder, tomoName)
             self.final_result_3dmod(path, tomoName)
         elif j == 4:
             path = self.lineEdit_expand_folder_to_use.text().strip() if self.lineEdit_expand_folder_to_use.text() else "Expand"
-            #path = self.lineEdit_expand_folder_to_use.text().strip()
             self.clean_up(path, tomoName)
             self.reload_table()
         else:
@@ -1528,11 +1479,8 @@ class Expand(QTabWidget):
                     return "Please use the valid format for the transition list!" 
             except:
                 return "Please use the valid format for the transition list!"
-            #transition_list_text = self.lineEdit_transition_list.text().strip()
         else:
             transition_list = np.array(literal_eval("[0,0,0]"))
-            #return "Please specify the transition list!"
-
         
         if len(self.lineEdit_boxSize.text()) > 0:
             if not string2float(self.lineEdit_boxSize.text()) == None:
@@ -1653,9 +1601,6 @@ class Expand(QTabWidget):
                     json.dump(params, fp, indent=2, default=int)
 
                 self.logger.info("Done generating {}/{}".format(self.expand_folder, output))
-                #r = json.dumps(params, indent=2, default=float)
-                #res = json.loads(r)
-                #print(res)
 
                 self.cmd_finished(self.pushButton_generate_pick_params, "Generate")
 
@@ -1672,7 +1617,6 @@ class Expand(QTabWidget):
             if "Number of columns" in line:
                 sections = line.strip().split()[-3:]
                 d['dimensions'] = [int(x) for x in sections]
-            
         return d            
     
     def read_tomogram_star(self, tomogram_star):
@@ -1703,7 +1647,6 @@ class Expand(QTabWidget):
                 fineTransRange = ",".join([str(x) for x in search_param.fineTransRanges])
                 self.lineEdit_fineTransRange.setText(fineTransRange)
  
-
                 try:
                     transition_list = np.array(search_param.transition_list).reshape(-1,3)
                     transition_list_text = ','.join(['[{}]'.format(",".join(str(x) for x in y)) for y in transition_list])
@@ -1737,7 +1680,6 @@ class Expand(QTabWidget):
                 
                 refine_reference = "Yes" if search_param.flgNoReferenceRefinement==0 else "No"
                 self.comboBox_refine_reference.setCurrentText(str(refine_reference))
-                #self.lineEdit_pick_param_filename.setText(str(search_param.pick_param_filename))
                 self.logger.info("loaded {}!".format(param_file))   
             except Exception as error:
                 self.logger.error(error)  
@@ -1749,15 +1691,13 @@ class Expand(QTabWidget):
                 tomoNames = self.read_tomogram_star(self.lineEdit_star_file_to_use.text())
             except:
                 tomoNames=[]
-            #print(tomoNames)
             self.tableView.setRowCount(0)
             self.tableView.setRowCount(len(tomoNames))
             if len(tomoNames) > 0:
                 expand_folder = self.lineEdit_expand_folder_to_use.text()
                 for i, tomo in enumerate(tomoNames):
                     self.tableView.setItem(i, 0, QTableWidgetItem(tomo))
-                    #button = QtWidgets.QPushButton('Continue', self)
-                    
+
                     rounds_num, particles_num = self.read_progress(tomo, expand_folder)
                     item_rounds_num = QTableWidgetItem(str(rounds_num))
                     item_rounds_num.setBackground(QtGui.QColor("#4CAF50"))
@@ -1793,7 +1733,6 @@ class Expand(QTabWidget):
         if os.path.exists("{}/{}_final".format(expand_folder, tomoName)):
             files_final = glob.glob("{}/{}_final/*".format(expand_folder, tomoName))
             for f in files_final:
-                #if f.endswith(".pts"):
                 if os.path.basename(f) == "{}.pts".format(tomoName):
                     with open(f) as file:
                         lines = file.readlines()
@@ -1802,7 +1741,6 @@ class Expand(QTabWidget):
 
     def get_expand_select_params(self):
         params = {}
-        
         tomo_index = []
         if len(self.lineEdit_tomo_index.text()) > 0:
             try:
@@ -1857,7 +1795,6 @@ class Expand(QTabWidget):
         return params
 
     def expand_select(self):
-        
         if self.pushButton_expand_select.text() == "RUN":
             params = self.get_expand_select_params()
             if type(params) is str:
@@ -1879,7 +1816,6 @@ class Expand(QTabWidget):
                             cmd = "sta_expand.py {} {} {} {} {} {}".format(params['star_file_to_use'],params['pick_param_file_to_use'],\
                                 self.current_tomoNames[ind-1],params['iterations'], params['min_patch_size'], params['cpu_num'])
                             cmds.append(cmd)
-                            #subprocess.check_output(cmd, shell=True)
 
                     if self.checkBox_print_only_expand_select.isChecked():
                         for c in cmds:
@@ -1938,5 +1874,3 @@ class Expand(QTabWidget):
     def checkbox_mask_changed(self):
         if self.checkBox_mask.checkState():
             self.lineEdit_mask
-
-    

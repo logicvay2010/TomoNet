@@ -19,7 +19,6 @@ def get_rot_matrix_PEET(rot, tilt, psi):
   rm3 = np.array([[cosc,-sinc,0],[sinc,cosc,0],[0,0,1]])
   return rm3 @ (rm2 @ rm1)
 
-
 def in_boundary(target, boundary, margin_dis):
   if (target[0] > margin_dis and target[0]<boundary[0]-margin_dis) and (target[1]>margin_dis and target[1]<boundary[1]-margin_dis) and (target[2]> margin_dis and target[2]<boundary[2]-margin_dis):
     return True
@@ -27,13 +26,11 @@ def in_boundary(target, boundary, margin_dis):
     return False
 
 def closest_distance(node, nodes):
-    #node = np.asarray(node)
     deltas = nodes - node
     dist = np.einsum('ij,ij->i', deltas, deltas)
     return math.sqrt(min(dist))
 
 def get_raw_shifts_PEET(zxz_euler, shifts):
-  #input_eulers_1 = np.array([138.435, 53.922, -125.874])
   output_matrix = euler2matrix(zxz_euler,
       axes='zxz',
       intrinsic=True,
@@ -86,7 +83,6 @@ def Relion2ChimeraX(zxz_euler):
 
   output_vector = np.matmul([0,0,1], np.linalg.inv(output_matrix))
   return [np.round(output_eulers,3), output_vector]
-
 
 def getNeighbors(v, i, threashold_dis):
 	neibors_index = []

@@ -1,10 +1,10 @@
-from PyQt5.QtCore import QThread
 import os
-from multiprocessing import Pool
 import subprocess
 import logging
 import mrcfile
 import numpy as np
+from multiprocessing import Pool
+from PyQt5.QtCore import QThread
 
 def newstack(param):
         
@@ -91,7 +91,6 @@ class Generate_TS(QThread):
         self.delimiter = delimiter
         self.flip_axis = flip_axis
 
-
         self.log_file = "Recon/recon.log"
         self.logger = logging.getLogger(__name__)
         handler = logging.FileHandler(filename=self.log_file, mode='a')
@@ -154,22 +153,14 @@ class Generate_TS(QThread):
             self.params.append(current_param)
 
     def run(self):
-
         if not os.path.exists(self._ts_folder):
             os.makedirs(self._ts_folder)
+            
         self.pool =  Pool(self.cpus)
         self.pool.map(newstack, self.params)
 
     def stop_process(self):
-        
         self.pool.terminate()
-        
-        '''
-        for child in active:
-            skill_cmd = "skill -9 {}".format(child.pid)
-            os.system(skill_cmd)
-        # block until all children have closed
-        '''
         self.terminate()
         self.quit()
         self.wait()

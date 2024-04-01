@@ -1,7 +1,8 @@
-from PyQt5.QtCore import QThread
 import time
 import subprocess
 import logging
+import psutil
+from PyQt5.QtCore import QThread
 
 class Expand_CMDS(QThread):
 
@@ -19,9 +20,7 @@ class Expand_CMDS(QThread):
         self.logger.handlers = [handler]
         self.logger.setLevel(logging.INFO)
 
-    def run(self):
-        #print(self.cmds)
-        
+    def run(self):        
         for cmd in self.cmds:
             if cmd.split()[4] == '0':
                     self.logger.info("Start generating a new final folder for {}".format(cmd.split()[3]))
@@ -37,8 +36,6 @@ class Expand_CMDS(QThread):
                 pass
 
     def stop_process(self):
-
-        import psutil
         self.terminate()
         self.quit()
         self.wait()

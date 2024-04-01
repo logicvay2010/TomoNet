@@ -15,7 +15,6 @@ class PRMFile():
       step_list.append(step_i)
       step_i = step_i*2
 
-    
     if len(step_list) == 0 or range < step*3:
       return [0], [1]
 
@@ -37,8 +36,6 @@ class PRMFile():
     return ranges, steps
 
   def setSearchParam(self, rotRanges, rot_steps, transRanges):
-    
-    print(rotRanges, rot_steps, transRanges)
     rangexyz_list = []
     stepxyz_list = []
     max_iter = 1
@@ -62,20 +59,7 @@ class PRMFile():
         for j in range(max_iter - len(rangexyz_list)):
           rangexyz_list[i].append(rangexyz_list[i][-1])
           stepxyz_list[i].append(stepxyz_list[i][-1])
-    
-    '''
-    self.dTheta = "{}-{}:{}:{}{}".format('{',rotRanges[0],rot_steps[0],rotRanges[0],'}')        
-    self.dPhi = "{}-{}:{}:{}{}".format('{',rotRanges[1],rot_steps[1],rotRanges[1],'}')
-    self.dPsi = "{}-{}:{}:{}{}".format('{',rotRanges[2],rot_steps[2],rotRanges[2],'}')
 
-    self.searchRadius = "{}[{} {} {}]{}".format('{',transRanges[0], transRanges[1], transRanges[2],'}')
-
-    self.lowCutoff = "{}[0, 0.05]{}".format('{',"}")
-    self.hiCutoff = "{}[0.15, 0.05]{}".format('{',"}")
-    refThreshold = int(self.tomo.numberParticles*0.75)
-
-    self.refThreshold = "{}{}{}".format('{',refThreshold,"}")
-    '''
     print(rangexyz_list, stepxyz_list)
     dPhi = dTheta = dPsi = searchRadius = lowCutoff = hiCutoff = refThreshold = "{}".format("{")
     
@@ -107,9 +91,6 @@ class PRMFile():
 
       tmp_search = "[{} {} {}]".format(trans_list[i][0], trans_list[i][1], trans_list[i][2])
 
-
-      #cmd = "echo tmp_search={}; ".format(tmp_search)
-      #subprocess.run(cmd,shell=True)
       tmp_lowCutoff = "[0, 0.05]"
       tmp_hiCutoff = "[0.15, 0.05]"
       tmp_refThreshold = int(self.tomo.numberParticles*0.75)
@@ -140,12 +121,7 @@ class PRMFile():
     self.iterNum = max_iter
 
   def setSearchParam_old(self, rotSteps=np.array([[4,4,4],[2,2,2],[1,1,1]]), transRange=np.array([[3,3,3], [2,2,2], [1,1,1]])):
-    #if rotRange == None:
-    #  rotRange = np.array([[[15,5],[30,10],[15,5]]])
-    #if transRange == None:
-    #  transRange = np.array([[6]])
-    #if len(rotRange.shape) == 2:
-    #  rotRange = np.reshape(rotRange, (1,rotRange.shape[0],rotRange.shape[1]))
+
     iterNum1 = rotSteps.shape[0]
     iterNum2 = transRange.shape[0]
     searchIter = 3
@@ -168,8 +144,6 @@ class PRMFile():
         else:
           print("setSearchParam: please input correct transpaltion format!")
 
-        #cmd = "echo tmp_search={}; ".format(tmp_search)
-        #subprocess.run(cmd,shell=True)
         tmp_lowCutoff = "[0, 0.05]"
         tmp_hiCutoff = "[0.15, 0.05]"
         tmp_refThreshold = int(self.tomo.numberParticles*0.75)
@@ -231,7 +205,6 @@ class PRMFile():
       
       line = "### This prm file is create by Hui Wang (UCLA) with the format defined by eTomo###\n\n"
       f.write(line)
-      #print(self.tomo)
       line = "fnVolume = {}'{}'{}\n\n".format("{",self.tomo.tomogramPickPath,"}")
       f.write(line)
       line = "fnModParticle = {}'{}'{}\n\n".format("{",self.tomo.modPath,"}")

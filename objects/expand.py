@@ -1,8 +1,9 @@
-import numpy as np
 import os
 import subprocess
-from TomoNet.util.geometry import get_rot_matrix_PEET, in_boundary, closest_distance
 import imodmodel
+import numpy as np
+
+from TomoNet.util.geometry import get_rot_matrix_PEET, in_boundary, closest_distance
 from TomoNet.util.utils import mkfolder
 
 class Expand:
@@ -23,7 +24,6 @@ class Expand:
             cmd = "mv {}/* {}".format(self.current_folder, self.target_cache_folder)
             subprocess.run(cmd,shell=True)
         
-
     def prepare_exp(self):
         cmd = "cd {}; createAlignedModel *prm {} {}".format(self.target_cache_folder, self.peet_iter, self.threshold_CCC)
         subprocess.run(cmd,shell=True, stdout=subprocess.PIPE)
@@ -41,7 +41,6 @@ class Expand:
                 self.peet_iter, self.tomo.tomoName, self.tomo.originTomogramPickPath, self.tomo.tomoName)
         subprocess.run(cmd,shell=True)
         
-
     def expand_one(self):
         ########################### RotAxes files #########################
         motlfile=open('{}/exp/{}_MOTL.csv'.format(self.target_cache_folder,self.tomo.tomoName))
@@ -72,7 +71,7 @@ class Expand:
         threshold_dis_pixel = round(self.search_param.threshold_dis/self.tomo.apix,2)
         dis_to_bound_pixel = threshold_dis_pixel*2
         exist_particles = self.tomo.readModData()
-        #transition_list = self.search_param.transition_list
+        
         #get final coords for each of the tomograms
         transition_list = np.array(self.search_param.transition_list).reshape(-1,3)
         for i in range(0, len(data_motl)-1):
@@ -82,9 +81,6 @@ class Expand:
 
             alpha,gama,beta = [float(x) for x in pair_motl]
             rotX,rotY,rotZ = [float(x) for x in pair_rot]
-            #coords.append([X,Y,Z])
-            #eulers.append([alpha,gama,beta])
-            #rots.append([rotX,rotY,rotZ])
             
             for i,trans in enumerate(transition_list):
                 target_coords = [X,Y,Z] + get_rot_matrix_PEET(alpha,beta,gama) @ np.array(trans)
@@ -105,18 +101,13 @@ class Expand:
                         index = 0
                         for i,coord in enumerate(coords):
                             index+=1
-                            #ccc = float(data_motl[qualified[i]+1].split(",")[0])
                             motl_line = ",".join([str(x) for x in [1,0,0,index,1,0,0,0,0,0,0,0,0,0,0,0,eulers[i][0],eulers[i][1],eulers[i][2],0]]) + "\n"
                             fmotl.write(motl_line)
                             fcoord.write(" ".join([str(x) for x in coord])+"\n")
                             frot.write(",".join([str(x) for x in rots[i]])+"\n")
 
-            #cmd = "cd {}/exp; ln -s {}.mrc {}_exp.mrc; point2model {}_exp.pts {}_exp.mod; rm {}_exp.pts".format(self.target_cache_folder, \
-            #    self.tomo.tomoName, self.tomo.tomoName, self.tomo.tomoName, self.tomo.tomoName, self.tomo.tomoName)
             cmd = "cd {}/exp; ln -s {}.mrc {}_exp.mrc; point2model {}_exp.pts {}_exp.mod ; rm {}_exp.pts".format(self.target_cache_folder, \
                 self.tomo.tomoName, self.tomo.tomoName, self.tomo.tomoName, self.tomo.tomoName, self.tomo.tomoName)
             subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
         else:
             self.stop_signal=True
-
-

@@ -1,9 +1,10 @@
 import os
 import glob
-import numpy as np
 import imodmodel
-import scipy.cluster.hierarchy as hcluster
 import subprocess
+import numpy as np
+import scipy.cluster.hierarchy as hcluster
+
 from TomoNet.util.io import mkfolder
 
 class Tomogram:
@@ -28,12 +29,10 @@ class Tomogram:
         self.initialParamFolder = initialParamFolder
       listing = glob.glob("{}/{}[!0-9]*".format(self.initialParamFolder, self.tomoName))
       for filename in listing:
-        #if filename.endswith(".mod")
         if filename.endswith("{}.mod".format(self.tomoName)):
           self.modPath = filename
         elif filename.endswith("RotAxes.csv"):
           self.rotaxesPath = filename
-        #elif filename.endswith("InitMOTL.csv"):
         elif (filename.endswith("MOTL.csv") or filename.endswith("motl.csv")) and "less" not in filename:
           if not (self.motlPath == "{}_MOTL.csv".format(self.tomoName) or self.motlPath == "{}_InitMOTL.csv".format(self.tomoName)):
             self.motlPath = filename
@@ -60,8 +59,6 @@ class Tomogram:
     less_folder = "{}/less_{}".format(self.initialParamFolder, self.tomoName)
     mkfolder(less_folder)
     
-    #less_modPath = "{}_less.mod".format(self.modPath.split(".mod")[0])
-    #less_ptsPath = "{}_less.pts".format(self.modPath.split(".mod")[0])
     less_modPath = "{}/{}".format(less_folder, os.path.basename(self.modPath))
     less_ptsPath = "{}.pts".format(less_modPath.split(".mod")[0])
 
@@ -74,7 +71,6 @@ class Tomogram:
       for i in range(len(set(clusters))):
         new_particle_list.append(particle_list[np.argwhere(clusters == i+1)][0][0])
 
-    #new_particle_list = particle_list
     with open(less_ptsPath, "w") as f_pts:
       for p in new_particle_list:
         f_pts.write("{} {} {}\n".format(p[0],p[1],p[2]))
@@ -101,8 +97,7 @@ class Tomogram:
     
     if use_motl_info:
       f_motl = open(self.motlPath, "r")
-      #less_motlPath = "{}_less_MOTL.csv".format(self.motlPath.split("motl.csv")[0]) if self.motlPath.endswith("motl.csv") \
-      #    else "{}_less_MOTL.csv".format(self.motlPath.split("MOTL.csv")[0]) 
+
       less_motlPath = "{}/{}".format(less_folder, os.path.basename(self.motlPath))
 
       with open(less_motlPath, "w") as f_motl_less:
@@ -140,7 +135,7 @@ class Tomogram:
       tlt = []
       with open(self.tltPath) as file:
         for line in file: 
-          line = line.strip() #or some other preprocessing
+          line = line.strip() 
           tlt.append(float(line)) 
       self.tlt = tlt
     except:
@@ -185,7 +180,6 @@ class Tomogram:
 
   def readModData(self):
     cache_folder_path = "{}_cache".format(self.staPath)
-    #latest_round = -1
     points = np.array([])
     if os.path.exists(cache_folder_path):
       rounds = os.listdir(cache_folder_path)
@@ -200,5 +194,3 @@ class Tomogram:
           else:
             points = np.vstack((points, a.transpose()))
     return points
-
-

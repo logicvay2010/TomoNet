@@ -1,13 +1,13 @@
 import logging
 import os.path
+import os, glob, subprocess
+import imodmodel
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QTabWidget, QHeaderView, QMessageBox, QTableWidgetItem
 from TomoNet.util import metadata
 from TomoNet.util import browse
-import os, glob, subprocess
-import imodmodel
 
 class Manual(QTabWidget):
     def __init__(self):
@@ -36,7 +36,6 @@ class Manual(QTabWidget):
         self.logger.addHandler(handler)
         self.logger.setLevel(logging.INFO)
 
-
         self.fileSystemWatcher = QtCore.QFileSystemWatcher(self)
         self.fileSystemWatcher.addPath(self.log_file)
         self.fileSystemWatcher.fileChanged.connect(self.update_log_window)
@@ -49,8 +48,6 @@ class Manual(QTabWidget):
 
         icon =  QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("{}/icons/icon_folder.png".format(scriptDir)), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-
-
 
         self.tab = QtWidgets.QWidget()
         self.tab.setObjectName("tab")
@@ -72,7 +69,6 @@ class Manual(QTabWidget):
         self.label_map_for_pick.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_map_for_pick.setObjectName("label_map_for_pick")
         self.horizontalLayout_1.addWidget(self.label_map_for_pick)
-
 
         self.lineEdit_path_other_maps = QtWidgets.QLineEdit(self.tab)
         self.lineEdit_path_other_maps.setInputMask("")
@@ -101,18 +97,14 @@ class Manual(QTabWidget):
 
         self.tableView.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
 
-
         self.gridLayout_motioncor = QtWidgets.QGridLayout(self.tab)
-
 
         self.gridLayout_motioncor.addLayout(self.horizontalLayout_1, 0, 0, 1, 1)
         self.gridLayout_motioncor.addWidget(self.tableView, 1, 0)
 
-        
         self.addTab(self.tab, "Results")
 
         self.tableView.doubleClicked.connect(self.table_doubleClick)
-        #self.tableView.clicked.connect(self.table_click)
         self.tableView.doubleClicked.connect(self.table_click)
 
         self.lineEdit_path_other_maps.textChanged.connect(self.save_setting)
@@ -136,7 +128,6 @@ class Manual(QTabWidget):
                 contrast improved, for example SIRT reconstruction or IsoNet reconstruction.\
             </span></p></body></html>"))
 
-        
         self.lineEdit_path_other_maps.setPlaceholderText(_translate("Form", \
             "YourPath/toMaps/usedForInitPick/"))
         self.lineEdit_path_other_maps.setToolTip(_translate("MainWindow", \
@@ -162,20 +153,10 @@ class Manual(QTabWidget):
                     custom_font = QtGui.QFont()
                     custom_font.setPointSize(11)
                     self.log_window.setCurrentFont(custom_font)
-        
-        # self.log_window = self.parentWidget().parentWidget().children()[3] 
-        # self.log_window.setText(self.getLogContent(txt))
-        # self.log_window.moveCursor(QtGui.QTextCursor.End)
-
-        # custom_font = QtGui.QFont()
-        # custom_font.setPointSize(11)
-        # self.log_window.setCurrentFont(custom_font)
-
 
     def read_settting(self):
         if os.path.exists(self.setting_file):
             data = {}
-            #data['checkbox_use_other_map'] = False
             data['lineEdit_path_other_maps'] = ""
             try:
                 with open(self.setting_file) as f:
@@ -186,19 +167,14 @@ class Manual(QTabWidget):
                         elif v.strip() == "False":
                             data[k] = False
                         else:
-                            data[k] = v.strip()
-                        #print(data[k])
-                
-                #self.checkbox_use_other_map.setChecked(data['checkbox_use_other_map'])
+                            data[k] = v.strip()                
                 self.lineEdit_path_other_maps.setText(data['lineEdit_path_other_maps'])
             except:
                 print("error reading {}!".format(self.setting_file))
     
     def save_setting(self):
         param = {}
-        #param['checkbox_use_other_map'] = self.checkbox_use_other_map.isChecked()
         param['lineEdit_path_other_maps'] = self.lineEdit_path_other_maps.text()
-
         try:
             with open(self.setting_file, 'w') as f: 
                 for key, value in param.items(): 
@@ -207,11 +183,9 @@ class Manual(QTabWidget):
             print("error writing {}!".format(self.setting_file))
 
     def natural_keys(self, text):
-
         return int(text.split("_")[-1]) 
 
     def read_tomo(self):
-
         searchPath = "{}".format(self.lineEdit_path_other_maps.text())
 
         tomoNames_rec = [os.path.basename(x).split(".")[0] \
@@ -222,7 +196,6 @@ class Manual(QTabWidget):
         tomoNames = []
         tomoNames.extend(tomoNames_rec)
         tomoNames.extend(tomoNames_mrc)
-
         try:
             tomoNames.sort(key=self.natural_keys)
         except:
@@ -231,7 +204,6 @@ class Manual(QTabWidget):
         self.tomoPaths = ["{}/{}.mrc".format(searchPath,x) if x in tomoNames_mrc else \
                          "{}/{}.rec".format(searchPath,x) for x in tomoNames]
 
-        
         mod_counts = []
         for t in tomoNames:
             c = 0
@@ -293,10 +265,8 @@ class Manual(QTabWidget):
         j = item.column()
         tomoName = self.tableView.item(i, 0).text()
         tomoPath = self.tomoPaths[i]
-        #reconTomoPath = self.reconTomoPaths[i]
         tomoFullName = os.path.basename(tomoPath)
         self.link_file(tomoPath, self.stalkInit_folder)
-        #self.logger.info(tomoPath)
         
         #j == 1 top. norm towards larger Z
         if j == 1:
@@ -342,7 +312,6 @@ class Manual(QTabWidget):
         j = item.column()
         tomoName = self.tableView.item(i, 0).text()
         tomoPath = self.tomoPaths[i]
-        #reconTomoPath = self.reconTomoPaths[i]
         combined_mod = "{}.mod".format(tomoName)
         if j == 4:
             ret = QMessageBox.question(self, 'Combine!', \
@@ -404,7 +373,6 @@ class Manual(QTabWidget):
                 .format(self.initParams_folder, tomo_name, mod_name)
             os.system(cmd)
 
-
     def plot_rotAxes(self, tomoName):
         mod_name = "{}.mod".format(tomoName)
         rot_name = "{}_RotAxes.csv".format(tomoName)
@@ -418,7 +386,6 @@ class Manual(QTabWidget):
             cmd = "cd {}; plotRotAxes {} {}"\
                 .format(self.initParams_folder, mod_name, rot_name)
             os.system(cmd)
-            #subprocess.check_output(cmd, shell=True)
             self.logger.info("Plotted picking for {}!".format(tomoName))
 
     def plot_rotAxes_2(self, tomoName):
@@ -431,10 +398,6 @@ class Manual(QTabWidget):
             self.logger.error("{} not detected in folder {}!"\
                 .format(rot_name, os.path.basename(self.initParams_folder)))
         else:
-            #cmd = "cd {}; plotRotAxes {} {}"\
-            #    .format(self.initParams_folder, mod_name, rot_name)
-            #os.system(cmd)
-            #subprocess.check_output(cmd, shell=True)
             self.logger.info("Plotted picking for {}!".format(tomoName))
 
     def combine_mods(self, tomoName):
@@ -508,8 +471,6 @@ class Manual(QTabWidget):
             self.logger.info("Combined {} particles for {}!"\
                 .format(len(particle_pairs)//2,tomoName))
 
-        #self.logger.info(mod_exist)
-
     def stalkInit(self, tomoName, tomoPath, flgRandomize):
         mod_name = "{}.mod".format(tomoName)
         if not os.path.exists("{}/{}".format(self.stalkInit_folder,mod_name)):
@@ -522,9 +483,7 @@ class Manual(QTabWidget):
             except:
                 self.logger.error("StalkInit error for {}! The mod file may have strange number per contour".format(tomoName))
                 return
-
             
-
             cmd = "mv {}/centroid.mod {}/{}.mod; mv {}/{}_InitMOTL.csv {}/;\
                   mv {}/{}_RotAxes.csv {}/; rm {}/{}; rm {}/{}"\
                     .format(self.stalkInit_folder, self.initParams_folder, tomoName, \

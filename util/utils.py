@@ -1,5 +1,6 @@
 import os
 import shutil
+
 def string2float(s, d=2):
         try:
             n = round(float(s),d)
@@ -18,8 +19,6 @@ def mkfolder(folder):
     try:
         os.makedirs(folder)
     except FileExistsError:
-        #logging.warning("The {0} folder already exists  \n The old {0} folder will be renamed (to {0}~)".format(folder))
-
         if os.path.exists(folder+'~'):
             shutil.rmtree(folder+'~')
         os.system('mv {} {}'.format(folder, folder+'~'))
@@ -35,8 +34,6 @@ def getRGBs(a, max_angle=15, avg_angle=0):
     r = round(255*ratio)
     g = 155
     b = 0
-    #g = 60
-    #b = round(255*(1-ratio))
     return r, g, b
 
 def check_or_create_path(folder):
@@ -63,8 +60,6 @@ def check_log_file(log_file, folder):
         file.close()
     except:
         pass
-        #print("fatal error when open log file {}!".format(self.log_file))
-        #self.logger.error("fatal error when open log file {}!".format(self.log_file))
 
 def getLogContent(fileName):
     '''
@@ -78,7 +73,6 @@ def getLogContent(fileName):
     else:
         return None
     
-
 def idx2list(tomo_idx):
     if tomo_idx is not None:
             if type(tomo_idx) is tuple:
@@ -86,7 +80,6 @@ def idx2list(tomo_idx):
             elif type(tomo_idx) is int:
                 tomo_idx = [str(tomo_idx)]
             else:
-                # tomo_idx = tomo_idx.split(',')
                 txt=str(tomo_idx)
                 txt=txt.replace(',',' ').split()
                 tomo_idx=[]

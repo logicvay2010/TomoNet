@@ -1,18 +1,17 @@
 import logging
 import os.path
+import os, glob, subprocess
+import numpy as np
+import matplotlib.pyplot as plt
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QTabWidget, QHeaderView, QMessageBox, QTableWidgetItem
+
 from TomoNet.util import metadata
 from TomoNet.util import browse
 from TomoNet.util.utils import string2float, string2int
-import os, glob, subprocess
-
 from TomoNet.process.bash_cttfind import Ctffind4
-
-import numpy as np
-import matplotlib.pyplot as plt
 
 class Ctffind(QTabWidget):
     def __init__(self):
@@ -54,6 +53,7 @@ class Ctffind(QTabWidget):
 
         self.tab = QtWidgets.QWidget()
         self.tab.setObjectName("tab")     
+        
         #horizontalLayout_1
         self.horizontalLayout_1 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_1.setContentsMargins(10, 5, 10, 5)
@@ -274,7 +274,6 @@ class Ctffind(QTabWidget):
 
         self.gridLayout_ctffind4 = QtWidgets.QGridLayout(self.tab)
 
-
         self.gridLayout_ctffind4.addLayout(self.horizontalLayout_1, 0, 0, 1, 1)
         self.gridLayout_ctffind4.addLayout(self.horizontalLayout_1_2, 1, 0, 1, 1)
         self.gridLayout_ctffind4.addLayout(self.horizontalLayout_2, 2, 0, 1, 1)
@@ -285,7 +284,6 @@ class Ctffind(QTabWidget):
 
         self.gridLayout_ctffind4.addLayout(self.horizontalLayout_last, 5, 0, 1, 1)
 
-        
         self.addTab(self.tab, "Ctffind4")
 
         self.tab2 = QtWidgets.QWidget()
@@ -310,7 +308,6 @@ class Ctffind(QTabWidget):
         self.pushButton_reload.setObjectName("pushButton_reload")
         self.horizontalLayout_summary.addWidget(self.pushButton_reload)
 
-
         self.tableView = QtWidgets.QTableWidget(self)
 
         header_labels = metadata.header_labels_ctffind
@@ -326,7 +323,6 @@ class Ctffind(QTabWidget):
 
         self.gridLayout_result.addLayout(self.horizontalLayout_summary, 0, 0, 1, 1)
         self.gridLayout_result.addWidget(self.tableView, 1, 0)
-
 
         self.addTab(self.tab2, "Results")
 
@@ -344,7 +340,6 @@ class Ctffind(QTabWidget):
         self.lineEdit_max_defocus.textChanged.connect(self.save_setting)
         self.lineEdit_defocus_step.textChanged.connect(self.save_setting)
        
-
         self.pushButton_ts_tlt_folder.clicked.connect\
             (lambda: browse.browseFolderSlot(self.lineEdit_ts_tlt_folder)) 
         self.pushButton_ctffind_exe.clicked.connect\
@@ -353,10 +348,8 @@ class Ctffind(QTabWidget):
         self.pushButton_run_ctffind.clicked.connect(self.ctffind4)
         self.pushButton_reload.clicked.connect(self.reload_table)
 
-        
         self.currentChanged.connect(self.tab_changed)
 
-        #self.tableView.clicked.connect(self.table_click)
         self.tableView.doubleClicked.connect(self.table_click)
         self.read_settting()
         self.setTabShape(QtWidgets.QTabWidget.Triangular)
@@ -466,7 +459,6 @@ class Ctffind(QTabWidget):
             font-size:9pt;\">Defocus search step.\
             </span></p></body></html>"))
 
-        
         self.lineEdit_ts_tlt_folder.setPlaceholderText(_translate("Form", \
             "YourPath/toMaps/usedForInitPick/"))
         self.lineEdit_ts_tlt_folder.setToolTip(_translate("MainWindow", \
@@ -494,14 +486,6 @@ class Ctffind(QTabWidget):
                     custom_font = QtGui.QFont()
                     custom_font.setPointSize(11)
                     self.log_window.setCurrentFont(custom_font)
-        
-        # self.log_window = self.parentWidget().parentWidget().children()[3] 
-        # self.log_window.setText(self.getLogContent(txt))
-        # self.log_window.moveCursor(QtGui.QTextCursor.End)
-        
-        # custom_font = QtGui.QFont()
-        # custom_font.setPointSize(11)
-        # self.log_window.setCurrentFont(custom_font)
 
     def read_settting(self):
         if not os.path.exists(self.setting_file):
@@ -588,12 +572,10 @@ class Ctffind(QTabWidget):
                 tomoName = f.split('/')[-1]
                 if os.path.isfile("{}/{}_ctf.txt".format(f, tomoName)):
                     tomoNames.append(tomoName)
-
         try:
             tomoNames.sort(key=self.natural_keys)
         except:
             pass
-
 
         results = {}
         tilt_nums = []
@@ -611,11 +593,9 @@ class Ctffind(QTabWidget):
 
             first_column = [int(float(l.split()[0])) for l in newlines]
 
-            
             defoci_1 = np.array([int(float(l.split()[1])) for l in newlines])
             defoci_2 = np.array([int(float(l.split()[2])) for l in newlines])
             defoci = (defoci_1 + defoci_2)//2
-            
             
             tilt_num = first_column[-1] if len(first_column) > 0 else 0
             tilt_nums.append(tilt_num)
@@ -624,7 +604,6 @@ class Ctffind(QTabWidget):
             best_fit = np.array([round(float(l.split()[6]),1) for l in newlines])
             best_ctf_rings.append(best_fit)
         
-
         results['tomoNames'] = tomoNames
         results['tilt_nums'] = tilt_nums
         results['defocus'] = defocus
@@ -687,7 +666,6 @@ class Ctffind(QTabWidget):
         if len(self.lineEdit_cpu_num.text()) > 0:
             cpu_num = string2int(self.lineEdit_cpu_num.text())
             if not cpu_num:
-                #self.cmd_finished()
                 return "cpu number must be a interger!"
         else: 
             cpu_num = 8
@@ -695,7 +673,6 @@ class Ctffind(QTabWidget):
         if len(self.lineEdit_apix.text()) > 0:
             apix = string2float(self.lineEdit_apix.text(),3)
             if not apix:
-                #self.cmd_finished()
                 return "pixel size should be in decimal format!"
         else: 
             apix = 1.0
@@ -703,7 +680,6 @@ class Ctffind(QTabWidget):
         if len(self.lineEdit_voltage.text()) > 0:
             voltage = string2int(self.lineEdit_voltage.text())
             if not voltage:
-                #self.cmd_finished()
                 return "voltage must be a interger!"
         else: 
             voltage = 300
@@ -711,7 +687,6 @@ class Ctffind(QTabWidget):
         if len(self.lineEdit_cs.text()) > 0:
             cs = string2float(self.lineEdit_cs.text(),2)
             if not cs:
-                #self.cmd_finished()
                 return "cs should be in decimal format!"
         else: 
             cs = 2.7
@@ -719,7 +694,6 @@ class Ctffind(QTabWidget):
         if len(self.lineEdit_amp.text()) > 0:
             amp = string2float(self.lineEdit_amp.text(), 2)
             if not amp:
-                #self.cmd_finished()
                 return "amplitude contrast should be in decimal format!"
         else: 
             amp = 0.1
@@ -727,7 +701,6 @@ class Ctffind(QTabWidget):
         if len(self.lineEdit_pow_size.text()) > 0:
             pow_size = string2int(self.lineEdit_pow_size.text())
             if not pow_size:
-                #self.cmd_finished()
                 return "the size of power spectrum must be a interger, like 256, 512 or 1024!"
         else: 
             pow_size = 512
@@ -735,7 +708,6 @@ class Ctffind(QTabWidget):
         if len(self.lineEdit_min_res.text()) > 0:
             min_res = string2float(self.lineEdit_min_res.text(), 1)
             if not min_res:
-                #self.cmd_finished()
                 return "min resolution should be in decimal format!"
         else: 
             min_res = 50.0
@@ -743,7 +715,6 @@ class Ctffind(QTabWidget):
         if len(self.lineEdit_max_res.text()) > 0:
             max_res = string2float(self.lineEdit_max_res.text(), 1)
             if not max_res:
-                #self.cmd_finished()
                 return "max resolution should be in decimal format!"
         else: 
             max_res = 5.0
@@ -751,7 +722,6 @@ class Ctffind(QTabWidget):
         if len(self.lineEdit_min_defocus.text()) > 0:
             min_defocus = string2float(self.lineEdit_min_defocus.text(), 1)
             if not min_defocus:
-                #self.cmd_finished()
                 return "min defocus should be in decimal format!"
         else: 
             min_defocus = 5000.0
@@ -759,7 +729,6 @@ class Ctffind(QTabWidget):
         if len(self.lineEdit_max_defocus.text()) > 0:
             max_defocus = string2float(self.lineEdit_max_defocus.text(), 1)
             if not max_defocus:
-                #self.cmd_finished()
                 return "max defocus should be in decimal format!"
         else: 
             max_defocus = 50000.0
@@ -767,7 +736,6 @@ class Ctffind(QTabWidget):
         if len(self.lineEdit_defocus_step.text()) > 0:
             defocus_step = string2float(self.lineEdit_defocus_step.text(), 1)
             if not defocus_step:
-                #self.cmd_finished()
                 return "defocus step should be in decimal format!"
         else: 
             defocus_step = 500.0
@@ -794,7 +762,6 @@ class Ctffind(QTabWidget):
         self.pushButton_run_ctffind.setStyleSheet("QPushButton {color: black;}")
 
     def ctffind4(self):
-        
         params = self.get_params()
         if type(params) is str:
             QMessageBox.warning(self, 'Error!', \
@@ -815,17 +782,13 @@ class Ctffind(QTabWidget):
                     self.pushButton_run_ctffind.setStyleSheet('QPushButton {color: red;}')
                     
                     override = True
-                    #if ret == QMessageBox.No:
-                    #    override = False
                     params['override'] = override
 
-            
                     self.thread_ctffind = Ctffind4(params)                
 
                     self.thread_ctffind.finished.connect(self.cmd_finished)
                     
                     self.thread_ctffind.start()
-                    #print("HHH",params)
                 else:
                     self.cmd_finished()
             else :
@@ -843,9 +806,6 @@ class Ctffind(QTabWidget):
 
     def tab_changed(self, i):
         if i == 1:
-            # You are now at Reconstruction tab, refresh the table contain the tomo information
-            #self.loadTomo()
-            #print("aaaa")
             self.reload_table()
 
     def check_or_create_path(self, folder):
@@ -853,10 +813,6 @@ class Ctffind(QTabWidget):
             os.mkdir(folder)
 
     def isValid(self, fileName):
-        '''
-        returns True if the file exists and can be
-        opened.  Returns False otherwise.
-        '''
         try:
             file = open(fileName, 'r')
             file.close()
@@ -872,8 +828,6 @@ class Ctffind(QTabWidget):
             file.close()
         except:
             pass
-            #print("fatal error when open log file {}!".format(self.log_file))
-            #self.logger.error("fatal error when open log file {}!".format(self.log_file))
 
     def getLogContent(self, fileName):
         '''
@@ -891,7 +845,6 @@ class Ctffind(QTabWidget):
     def table_click(self, item):
         i = item.row()
         j = item.column()
-        #tomoName = self.tableView.item(i, 0).text()
         tomoName = self.ctf_results['tomoNames'][i]
         if j == 4:
             defoci = self.ctf_results['defocus'][i]

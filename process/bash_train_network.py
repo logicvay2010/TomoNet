@@ -6,14 +6,11 @@ import subprocess
 import json
 
 class Train_network(QThread):
-
     def __init__(self, d):
         super().__init__()
         self.d = d
         self.log_file = "Autopick/autopick.log"
         self.pool = None
-        #self.proc = QProcess()
-        #self.stream = StringIO()
         
         self.logger = logging.getLogger(__name__)
         handler = logging.FileHandler(filename=self.log_file, mode='a')
@@ -22,7 +19,6 @@ class Train_network(QThread):
         formatter.datefmt = "%y-%m-%d %H:%M:%S"
         self.logger.handlers = [handler]
         self.logger.setLevel(logging.INFO)
-
 
     def run(self):
         tomo_list = self.get_tomo_list(self.d['input_folder_train'])
@@ -35,7 +31,6 @@ class Train_network(QThread):
             self.d['label_size'], self.d['subtomo_num'], \
             self.d['subtomo_box_size'], self.d['coords_scale'], self.log_file)
         
-        #subprocess.run(cmd, shell=True, bufsize=0, encoding="utf-8", stdout=open(self.log_file, "a"))
         if self.d['checkBox_print_only_train_network']:
             cmd = "extraction_ts.py {} {} {} {} {} {} {} {}".format(\
                 self.d['input_folder_train'], ",".join(tomo_list), \
@@ -43,7 +38,6 @@ class Train_network(QThread):
                 self.d['subtomo_num'],  self.d['subtomo_box_size'], self.d['coords_scale'])
             self.logger.info("########cmd for subtomogram extraction:########")
             self.logger.info(cmd)
-
         else:
             subprocess.run(cmd, shell=True, encoding="utf-8", stdout=subprocess.PIPE)
 
@@ -70,7 +64,6 @@ class Train_network(QThread):
         tomoName_coords.update(tomoName_mod)
         tomoName_coords.update(tomoName_pts)
         tomoName_tomo = set([ os.path.basename(x).split(".")[0] for x in list(tomo_files)])
-        #tomoName_MOTL = set([ os.path.basename(x).split("_")[0] for x in glob.glob("{}/*MOTL.csv".format(folder))])
 
         intersection_tomoName = list(tomoName_coords.intersection(tomoName_tomo))
 

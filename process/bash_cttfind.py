@@ -1,11 +1,10 @@
-from PyQt5.QtCore import QThread
 import os, glob
-from multiprocessing import Pool
 import subprocess
 import logging
+from multiprocessing import Pool
+from PyQt5.QtCore import QThread
 
 def ctffind4_single(param):
-        #param = self.get_param()
         ctf_folder = param['ctf_folder']
         tomoName = param['tomoName']
         st_file = param['st_file']
@@ -26,7 +25,6 @@ def ctffind4_single(param):
         exp_astig = '200'
         additional_phase = 'no'
         exp_opt= 'no'
-
         mrc_file = "{}.mrc".format(tomoName)
         sh_code = "#!/bin/bash\
                 \n#\
@@ -49,7 +47,6 @@ def ctffind4_single(param):
             cmd_file_name = "{}/{}/{}_cmd.sh".format(ctf_folder, tomoName, tomoName)
             cmd_file_folder = "{}/{}".format(ctf_folder, tomoName, tomoName)
             
-            
             if not os.path.exists(cmd_file_folder):
                 os.mkdir(cmd_file_folder)
             
@@ -57,13 +54,10 @@ def ctffind4_single(param):
             f.write(sh_code)
             f.close()
 
-            #cmd = "cd {}; exec sh {}_cmd.sh".format(cmd_file_folder, tomoName)
             cmd = "cd {}; ln -s {} {}.mrc; exec sh {}_cmd.sh".format(cmd_file_folder, st_file, tomoName, tomoName)
-            #cmd2 = "cd {}".format(cmd_file_folder, tomoName)
             
             subprocess.run(cmd, shell=True, capture_output=True)
-            #os.system(cmd)
-            #time.sleep(5)
+
             logger.info("Done Ctf Estimation for {}".format(tomoName))
             try:
                 with open(history_record_file, "a") as f:
@@ -87,8 +81,6 @@ class Ctffind4(QThread):
         self.ctf_folder = "Ctffind"
         self.ctffind_exe = d['ctffind_exe']
         self.log_file = "Ctffind/ctffind.log"
-        #self.proc = QProcess()
-        #self.stream = StringIO()
         
         self.logger = logging.getLogger(__name__)
         handler = logging.FileHandler(filename=self.log_file, mode='a')
@@ -109,18 +101,10 @@ class Ctffind4(QThread):
         tomoName_list, st_list = self.get_ts_list(self.d['ts_tlt_folder'])
                 
         self.params = []
-        #s = min(len(st_list), self.d['cpu_num'])
         
-        #for i, st in enumerate(st_list[:s]):
         for i, st in enumerate(st_list):
             param = {}
             tomoName = tomoName_list[i]
-            #cmd_2 = '{}/{} -OutMrc {}/{}_ali.mrc '.format(self.d['raw_image_folder'],image,self.corrected_folder,basename)
-            #cmd_4 = '-Gpu {} -LogFile {}/{}.log > {}/{}_MotionCor2_output.log 2>&1 '\
-            #    '\" > {}/{}_MotionCor2_cmd.log'.format(gpu_ID[i], self.corrected_folder, basename, self.corrected_folder,\
-            #    basename, self.corrected_folder, basename)
-            #cmd_5 = 'sh {}/{}_MotionCor2_cmd.log; mv {}/{} {}/'.format(self.corrected_folder, basename,\
-            #self.d['raw_image_folder'], image, self.processed_folder,image)
             param = self.d.copy()
             
             param['ctf_folder'] = self.ctf_folder
@@ -138,22 +122,15 @@ class Ctffind4(QThread):
         self.pool = Pool(self.d['cpu_num']) 
         self.pool.map(ctffind4_single, self.params)
 
-
     def get_ts_list(self, path):
         tomoName_list1 = [os.path.basename(x).split(".")[0] for x in glob.glob("{}/*.st".format(path))]
-        #tomoName_list2 = [os.path.basename(x).split(".")[0] for x in glob.glob("{}/*.rawtlt".format(path))]
-        #tomoName_list = list(set(tomoName_list1) & set(tomoName_list2))
         tomoName_list = tomoName_list1
-        
         st_list = ["{}/{}.st".format(path,x) for x in tomoName_list]
-        #st_list2 = glob.glob("{}/*.st".format(path))
 
         return [tomoName_list, st_list]
 
     def stop_process(self):
-       
         self.pool.terminate()
-
         self.terminate()
         self.quit()
         self.wait()

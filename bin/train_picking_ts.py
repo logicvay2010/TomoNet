@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 import logging
-import numpy as np
 import os
 import sys
 import math
+
+import numpy as np
+import matplotlib.pyplot as plt
+
 from TomoNet.util.utils import string2int
 from TomoNet.util.io import log
-
-import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
     import time

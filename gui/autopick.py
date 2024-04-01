@@ -1,13 +1,12 @@
 import logging
+import os
 import os.path
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QTabWidget, QMessageBox
 
 from TomoNet.util import browse
-import os
 from TomoNet.util.utils import check_log_file, getLogContent, string2float, string2int
-
 from TomoNet.process.bash_train_network import Train_network
 from TomoNet.process.bash_predict_network import Predict_network
 
@@ -62,8 +61,6 @@ class Autopick(QTabWidget):
             (lambda: browse.browseFolderSlot(self.lineEdit_input_folder_predict)) 
         self.pushButton_input_model.clicked.connect\
             (lambda: browse.browseSlot(self.lineEdit_input_model, 'h5')) 
-        #self.pushButton_input_mask_predict.clicked.connect\
-        #    (lambda: browse.browseSlot(self.lineEdit_input_mask_predict, 'map')) 
         
         self.pushButton_train_network.clicked.connect(self.train_network)
 
@@ -75,13 +72,10 @@ class Autopick(QTabWidget):
 
         self.pushButton_predict_network.clicked.connect(self.predict_network)
 
-        
-
         self.setTabShape(QtWidgets.QTabWidget.Triangular)
         
         self.retranslateUi_tab1()
         self.retranslateUi_tab2()
-        #self.retranslateUi_tab3()
         self.read_settting()
 
     def setUI_tab1(self):
@@ -220,7 +214,6 @@ class Autopick(QTabWidget):
         self.lineEdit_label_size.setObjectName("lineEdit_label_size")
         self.horizontalLayout_3.addWidget(self.lineEdit_label_size)
 
-
         self.groupBox_2 = QtWidgets.QGroupBox()
 
         self.verticalLayout_2 = QtWidgets.QVBoxLayout()
@@ -236,7 +229,6 @@ class Autopick(QTabWidget):
         self.label_lr.setObjectName("label_lr")
         self.horizontalLayout_9.addWidget(self.label_lr)
 
-
         self.lineEdit_lr = QtWidgets.QLineEdit(self.tab)
         self.lineEdit_lr.setInputMask("")
         self.lineEdit_lr.setObjectName("lineEdit_lr")
@@ -249,7 +241,6 @@ class Autopick(QTabWidget):
         self.label_batch_size.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_batch_size.setObjectName("label_batch_size")
         self.horizontalLayout_9.addWidget(self.label_batch_size)
-
 
         self.lineEdit_batch_size = QtWidgets.QLineEdit(self.tab)
         self.lineEdit_batch_size.setInputMask("")
@@ -264,7 +255,6 @@ class Autopick(QTabWidget):
         self.label_steps_per_epoch.setObjectName("label_steps_per_epoch")
         self.horizontalLayout_9.addWidget(self.label_steps_per_epoch)
 
-
         self.lineEdit_steps_per_epoch = QtWidgets.QLineEdit(self.tab)
         self.lineEdit_steps_per_epoch.setInputMask("")
         self.lineEdit_steps_per_epoch.setObjectName("lineEdit_steps_per_epoch")
@@ -277,7 +267,6 @@ class Autopick(QTabWidget):
         self.label_coords_scale.setObjectName("label_coords_scale")
         self.horizontalLayout_9.addWidget(self.label_coords_scale)
 
-
         self.lineEdit_coords_scale = QtWidgets.QLineEdit(self.tab)
         self.lineEdit_coords_scale.setInputMask("")
         self.lineEdit_coords_scale.setObjectName("lineEdit_coords_scale")
@@ -285,7 +274,6 @@ class Autopick(QTabWidget):
 
         self.verticalLayout_2.addLayout(self.horizontalLayout_9)
         self.groupBox_2.setLayout(self.verticalLayout_2)
-
 
         self.horizontalLayout_last = QtWidgets.QHBoxLayout()
         self.horizontalLayout_last.setObjectName("horizontalLayout_last")
@@ -327,7 +315,7 @@ class Autopick(QTabWidget):
         self.gridLayout_prepare.addLayout(self.horizontalLayout_last, 6, 0, 1, 1)
     
     def setUI_tab2(self):
-        #tab 1
+        #tab 2
         self.tab_2 = QtWidgets.QWidget()
         self.tab_2.setObjectName("tab")
 
@@ -448,7 +436,6 @@ class Autopick(QTabWidget):
         self.label_tolerance.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_tolerance.setObjectName("label_tolerance")
         self.horizontalLayout_8.addWidget(self.label_tolerance)
-
 
         self.lineEdit_tolerance = QtWidgets.QLineEdit(self.tab_2)
         self.lineEdit_tolerance.setInputMask("")
@@ -826,15 +813,6 @@ class Autopick(QTabWidget):
                     custom_font.setPointSize(11)
                     self.log_window.setCurrentFont(custom_font)
 
-
-        # self.log_window = self.parentWidget().parentWidget().children()[3] 
-        # self.log_window.setText(getLogContent(txt).strip())
-        # self.log_window.moveCursor(QtGui.QTextCursor.End)
-        
-        # custom_font = QtGui.QFont()
-        # custom_font.setPointSize(11)
-        # self.log_window.setCurrentFont(custom_font)
-
     def read_settting(self):
         if not os.path.exists(self.setting_file):
             try:
@@ -1073,7 +1051,6 @@ class Autopick(QTabWidget):
                 if ret == QMessageBox.Yes:
                     self.pushButton_train_network.setText("STOP")
                     self.pushButton_train_network.setStyleSheet('QPushButton {color: red;}')
-                    #print(params)
                     
                     self.thread_train_network = Train_network(params)
                     self.thread_train_network.finished.connect(lambda: self.cmd_finished(self.pushButton_train_network, 'Train'))
@@ -1082,7 +1059,6 @@ class Autopick(QTabWidget):
                     except:
                         print("There is an issue running this function!")
                         self.thread_train_network.stop_process()
-                    #self.cmd_finished(self.pushButton_train_network, "Train")
         else:
             ret = QMessageBox.question(self, 'Quit!', \
                         "Quit training?"\
@@ -1192,7 +1168,6 @@ class Autopick(QTabWidget):
                 if ret == QMessageBox.Yes:
                     self.pushButton_predict_network.setText("STOP")
                     self.pushButton_predict_network.setStyleSheet('QPushButton {color: red;}')
-                    #print(params)
                     
                     self.thread_predict_network = Predict_network(params)
                     self.thread_predict_network.finished.connect(lambda: self.cmd_finished(self.pushButton_predict_network, 'Predict'))
@@ -1217,5 +1192,3 @@ class Autopick(QTabWidget):
     def cmd_finished(self, button, text="Run"):
         button.setText(text)
         button.setStyleSheet("QPushButton {color: black;}")
-
-    

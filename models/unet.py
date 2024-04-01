@@ -4,8 +4,7 @@ import torch.nn as nn
 import pytorch_lightning as pl
 
 class ConvBlock(pl.LightningModule):
-    # conv_per_depth fixed to 2
-    def __init__(self, in_channels, out_channels, n_conv, kernel_size =3, stride=1, padding=1):
+    def __init__(self, in_channels, out_channels, n_conv, kernel_size=3, stride=1, padding=1):
         super(ConvBlock, self).__init__()
         layers = [
             nn.Conv3d(in_channels=in_channels, out_channels=out_channels,
@@ -17,7 +16,7 @@ class ConvBlock(pl.LightningModule):
         for _ in range(max(n_conv-1,0)):
             layers.append(nn.Conv3d(in_channels=out_channels, out_channels=out_channels,
                     kernel_size=kernel_size, stride=stride, padding=padding, bias=True))
-            #layers.append(nn.InstanceNorm3d(num_features=out_channels))
+            #layers.append(nn.InstanceNorm3d(num_features = out_channels))
             layers.append(nn.BatchNorm3d(num_features=out_channels))
             layers.append(nn.LeakyReLU())
 
@@ -77,7 +76,7 @@ class Unet(pl.LightningModule):
             filter_base = [32,64,128,256,320,320]
         elif filter_base == 16:
             filter_base = [16,32,64,128,256,320]
-        #filter_base = [1,1,1,1,1]
+        
         unet_depth = 3
         n_conv = 3
         self.encoder = EncoderBlock(filter_base=filter_base, unet_depth=unet_depth, n_conv=n_conv)
@@ -96,7 +95,6 @@ class Unet(pl.LightningModule):
                 nn.Softplus()
             )
         
-
         self.learning_rate = learning_rate
         if metrics is None:
             self.metrics = {'train_loss':[], 'val_loss':[]}
@@ -109,7 +107,7 @@ class Unet(pl.LightningModule):
             with torch.no_grad():
                 x, down_sampling_features = self.encoder(x)
                 x = self.decoder(x, down_sampling_features)
-                y_hat = self.final(x)#  + x_org
+                y_hat = self.final(x)
             mse_map = self.mse_layer(x) + 10**-3
             return [y_hat,mse_map]
         else:
@@ -123,17 +121,11 @@ class Unet(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         x, y = batch
         out = self(x)
-        #print(out.shape)
-        #print(y.shape)
-        #print(self.variance_out)
+
         if self.variance_out:
-            #loss = nn.L1Loss()(out[1], torch.abs(out[0]-y))
             c = 0.6931471805599453 # log(2)
             loss = torch.mean(torch.div(torch.abs(out[0]-y), out[1]) + torch.log(out[1])) + c
         else:
-            #loss = nn.L1Loss()(out, y)
-            #loss = nn.MSELoss()(out, y)
-            #loss = nn.CrossEntropyLoss()(out, y)
             loss = nn.BCEWithLogitsLoss()(out, y)
 
         return loss
@@ -147,36 +139,18 @@ class Unet(pl.LightningModule):
             x, y = batch
             out = self(x)
             if self.variance_out:
-                #loss = nn.L1Loss()(out[1], torch.abs(out[0]-y))
                 c = 0.6931471805599453 # log(2)
                 loss = torch.mean(torch.div(torch.abs(out[0]-y), out[1]) + torch.log(out[1])) + c
             else:
-                #loss = nn.L1Loss()(out, y)
-                #loss = nn.MSELoss()(out, y)
-                #loss = nn.CrossEntropyLoss()(out, y)
                 loss = nn.BCEWithLogitsLoss()(out, y)
 
             return loss
     
     def training_epoch_end(self, outputs):
-        #print(outputs)
         loss = torch.stack([x['loss'] for x in outputs]).mean().item()
         self.metrics["train_loss"].append(loss)
-        #self.log("train_loss", loss, logger=True,on_epoch=True)
-
-    
-
+ 
     def validation_epoch_end(self, outputs):
         loss = torch.stack(outputs).mean().item()
         self.metrics["val_loss"].append(loss)
         self.log("val_loss", loss, prog_bar=True, on_epoch=True)
-    '''
-    def on_training_epoch_end(self, outputs):
-        loss = torch.stack([x['loss'] for x in outputs]).mean().item()
-        self.metrics["train_loss"].append(loss)
-        #self.log("train_loss", loss, logger=True,on_epoch=True)
-    def on_validation_epoch_end(self, outputs):
-        loss = torch.stack(outputs).mean().item()
-        self.metrics["val_loss"].append(loss)
-        self.log("val_loss", loss, prog_bar=True,on_epoch=True)
-    '''

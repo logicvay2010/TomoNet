@@ -6,37 +6,13 @@ header_labels_recon = ['Tomo Name', 'Action', 'Action', 'Action', 'Action', 'Til
 header_labels_manual = ['Tomo Name', 'Top(one point)', 'Bottom(one point)', \
                         'Side(two points)', 'Action', 'Action', 'Action','Action']
 
-
 header_labels_ctffind = ['Tomo Name', 'Tilt #', 'defocus (Å)', 'Best CTF ring fit at (Å)', 'Action', 'Action']
 
 header_labels_expand = ['Tomo Name', 'Rounds # ', 'Final Particle #', 'Action', 'Action']
 
-# **************************************************************************
-# *
-# * Authors:  J. M. de la Rosa Trevin (delarosatrevin@gmail.com)
-# *
-# * This program is free software; you can redistribute it and/or modify
-# * it under the terms of the GNU General Public License as published by
-# * the Free Software Foundation; either version 2 of the License, or
-# * (at your option) any later version.
-# *
-# * This program is distributed in the hope that it will be useful,
-# * but WITHOUT ANY WARRANTY; without even the implied warranty of
-# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# * GNU General Public License for more details.
-# *
-# * You should have received a copy of the GNU General Public License
-# * along with this program; if not, write to the Free Software
-# * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# * 02111-1307  USA
-# *
-# **************************************************************************
-
 import sys
-# from itertools import izip
 from collections import OrderedDict
 import copy
-
 
 LABELS = {
     'rlnImageName': str,
@@ -87,11 +63,9 @@ LABELS = {
     'rlnMaskBoundary': str
 }
 
-
 class Label():
     def __init__(self, labelName):
         self.name = labelName
-        # Get the type from the LABELS dict, assume str by default
         self.type = LABELS.get(labelName, str)
 
     def __str__(self):
@@ -115,7 +89,6 @@ class Item():
 
     def clone(self):
         return copy.deepcopy(self)
-
 
 class MetaData():
     """ Class to parse Relion star files

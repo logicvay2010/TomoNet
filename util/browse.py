@@ -8,12 +8,9 @@ def switch_btn(widget, btn):
     return switcher.get(btn, "Invaid btn name")
 
 def browseSlot(lineEdit, type='*'):
-    ''' Called when the user presses the Browse button
-    '''
-    #lineEdit = switch_btn(widget, btn)
-    
-    #pwd = os.getcwd().replace("\\","/")
-    
+    ''' 
+        Called when the user presses the Browse button
+    '''    
     options = QtWidgets.QFileDialog.Options()
     options |= QtWidgets.QFileDialog.DontUseNativeDialog
     
@@ -37,11 +34,9 @@ def browseSlot(lineEdit, type='*'):
     if fileName:
         lineEdit.setText(fileName)
 
-
 def browseFolderSlot(lineEdit):
     ''' 
         Called when the user presses the Browse folder button
-        TODO: add file name filter
     '''
     try:
         pwd = os.getcwd().replace("\\","/") 

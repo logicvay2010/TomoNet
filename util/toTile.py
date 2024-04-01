@@ -24,9 +24,6 @@ class reform3D:
         outdata=np.array(outdata)
         return outdata
 
-
-
-
     def pad_and_crop(self,cropsize=(64,64,64)):
         self._cropsize = cropsize
         sp = np.array(self._sp)
@@ -68,7 +65,6 @@ class reform3D:
                     new[i*cubesize:(i+1)*cubesize,j*cubesize:(j+1)*cubesize,k*cubesize:(k+1)*cubesize] \
                             = cubes[i*self._sidelen[1]*self._sidelen[2]+j*self._sidelen[2]+k][start:end,start:end,start:end]
         return new[0:self._sp[0],0:self._sp[1],0:self._sp[2]]
-
 
     def pad4times(self,time=4):
         sp = np.array(self._orig_data.shape)

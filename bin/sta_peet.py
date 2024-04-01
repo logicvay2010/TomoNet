@@ -277,7 +277,7 @@ def sta_peet_one(star_file, param_file, tomoName, cpus, first_round):
       
       result = subprocess.run(cmd,shell=True, stdout=subprocess.PIPE)
     log_file_writer.write(result.stdout.decode())
-    end_signal = True
+    #end_signal = True
 
     log_file_writer.close()
     motl_final = "{}/{}_MOTL_Tom1_Iter{}.csv".format(tomo.staPath,tomo.tomoName, prm.iterNum+1)

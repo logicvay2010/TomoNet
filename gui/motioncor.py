@@ -3,6 +3,7 @@ import logging
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QTabWidget, QMessageBox
+
 from TomoNet.util import browse
 from TomoNet.util.utils import check_or_create_path, string2float, string2int
 from TomoNet.process.bash_motioncor import MotionCor2
@@ -12,7 +13,6 @@ class MotionCor(QTabWidget):
         super().__init__()
         ############### Define variables ################
         self.corrected_folder = "MotionCorrection/MotionCor/corrected_images"
-        #self.processed_folder = "MotionCorrection/MotionCor/processed_raw_images"
         self.processed_folder = "Raw_frames_DoNotDelete"
         self.setting_file ="MotionCorrection/MotionCor/motioncor.setting"
         
@@ -37,7 +37,6 @@ class MotionCor(QTabWidget):
         self.setTabShape(QtWidgets.QTabWidget.Triangular)
         self.setupUi()        
         
-
     def setupUi(self):
         self.tab = QtWidgets.QWidget()
         self.tab.setObjectName("tab")
@@ -125,7 +124,6 @@ class MotionCor(QTabWidget):
         self.horizontalLayout_3.addWidget(self.pushButton_gain_ref)
         self.gridLayout_1.addLayout(self.horizontalLayout_3, 2, 0, 1, 1)
 
-
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_4.setContentsMargins(10, 5, 10, 5)
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
@@ -171,7 +169,6 @@ class MotionCor(QTabWidget):
         self.lineEdit_ftbin = QtWidgets.QLineEdit(self.tab)
         self.lineEdit_ftbin.setSizePolicy(sizePolicy)
         self.lineEdit_ftbin.setMaximumWidth(60)
-        #self.lineEdit_ftbin.setMinimumSize(QtCore.QSize(120, 0))
         self.lineEdit_ftbin.setInputMask("")
         self.lineEdit_ftbin.setObjectName("lineEdit_ftbin")
         self.horizontalLayout_4.addWidget(self.lineEdit_ftbin)
@@ -187,9 +184,6 @@ class MotionCor(QTabWidget):
         self.comboBox_input_file_type.addItem("")
         self.comboBox_input_file_type.addItem("")
         self.horizontalLayout_4.addWidget(self.comboBox_input_file_type)
-        #self.gridLayout_1.addLayout(self.horizontalLayout_5, 4, 0, 1, 1)
-
-
 
         self.horizontalLayout_6 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_6.setContentsMargins(10, 5, 10, 5)
@@ -209,7 +203,6 @@ class MotionCor(QTabWidget):
 
         self.spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.gridLayout_1.addItem(self.spacerItem1, 6, 0, 1, 1)
-
 
         self.horizontalLayout_last = QtWidgets.QHBoxLayout()
         self.horizontalLayout_last.setObjectName("horizontalLayout_last")
@@ -232,7 +225,6 @@ class MotionCor(QTabWidget):
         self.addTab(self.tab, "")
 
         self.thread_motioncor = None
-        ############### Define variables ################
 
         for child in self.findChildren(QtWidgets.QLineEdit):
             child.textChanged.connect(self.save_setting)
@@ -242,7 +234,6 @@ class MotionCor(QTabWidget):
         self.pushButton_raw_image_folder.clicked.connect(lambda: browse.browseFolderSlot(self.lineEdit_raw_image_folder)) 
         self.pushButton_motioncor_exe.clicked.connect(lambda: browse.browseSlot(self.lineEdit_motioncor_exe)) 
         self.pushButton_gain_ref.clicked.connect(lambda: browse.browseSlot(self.lineEdit_gain_ref, 'map')) 
-
 
         self.pushButton_run_motioncor.clicked.connect(self.motioncor)
 
@@ -256,12 +247,10 @@ class MotionCor(QTabWidget):
         self.lineEdit_raw_image_folder.setPlaceholderText(_translate("Form", "MotionCorrection/MotionCor/frames"))
         self.lineEdit_raw_image_folder.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\">Folder path to your raw frames. </span></p></body></html>"))
 
-        
         self.label_motioncor_exe.setText(_translate("Form", "MotionCor Executable:"))
         self.lineEdit_motioncor_exe.setPlaceholderText(_translate("Form", ""))
         self.lineEdit_motioncor_exe.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\">Path to MotionCor executable file, e.g., Your/Path/To/Motioncorr2/bin/MotionCor2_1.2.6-Cuda101 </span></p></body></html>"))
-
-        
+ 
         self.label_gain_ref.setText(_translate("Form", "Gain Reference Image:"))
         self.lineEdit_gain_ref.setPlaceholderText(_translate("Form", "YourPath/gain_ref.mrc"))
         self.lineEdit_gain_ref.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\">Path to Gain Reference Image, e.g., Your/Path/To/gain_ref.mrc </span></p></body></html>"))
@@ -269,7 +258,6 @@ class MotionCor(QTabWidget):
         self.label_pixel_size.setText(_translate("Form", "PixSize:"))
         self.lineEdit_pixel_size.setPlaceholderText(_translate("Form", "1.0"))
         self.lineEdit_pixel_size.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\">Pixel size. </span></p></body></html>"))
-
 
         self.label_frame_dose.setText(_translate("Form", "FmDose:"))
         self.lineEdit_frame_dose.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\">\
@@ -317,7 +305,6 @@ class MotionCor(QTabWidget):
             pixel_size = string2float(self.lineEdit_pixel_size.text())
             if pixel_size == None or pixel_size < 0:
                 return "please use correct format for pixel size (positive real number)!"
-            #pixel_size = self.lineEdit_pixel_size.text()
         else: 
             self.cmd_finished()
             return "please provide pixel size!"
@@ -326,7 +313,6 @@ class MotionCor(QTabWidget):
             frame_dose = string2float(self.lineEdit_frame_dose.text())
             if frame_dose == None or frame_dose < 0:
                 return "please use correct format for frame dose (positive real number)!"
-            #frame_dose = self.lineEdit_frame_dose.text()
         else: 
             frame_dose = None
 
@@ -336,13 +322,8 @@ class MotionCor(QTabWidget):
             ftbin = string2int(self.lineEdit_ftbin.text())
             if ftbin == None or ftbin < 0:
                 return "please use correct format for binning (positive int number)!"
-            #pixel_size = self.lineEdit_pixel_size.text()
         else: 
-            ftbin = 1
-            #return "please provide pixel size!"
-        
-
-        #ftbin = self.lineEdit_ftbin.text() if len(self.lineEdit_ftbin.text()) > 0 else 1
+            ftbin = 1        
 
         input_file_type = self.comboBox_input_file_type.currentText()
         addtional_param = self.lineEdit_addtional_param.text()
@@ -361,7 +342,6 @@ class MotionCor(QTabWidget):
         return d
                
     def motioncor(self):
-        
         d = self.get_params()
         if type(d) is dict:
             if self.pushButton_run_motioncor.text() == "RUN":
@@ -406,7 +386,6 @@ class MotionCor(QTabWidget):
              self.cmd_finished()
         self.save_setting()
         
-
     def cmd_finished(self):
         self.pushButton_run_motioncor.setText("RUN")
         self.pushButton_run_motioncor.setStyleSheet("QPushButton {color: black;}")
@@ -437,7 +416,6 @@ class MotionCor(QTabWidget):
                 self.lineEdit_ftbin.setText(data['ftbin'])
                 self.comboBox_input_file_type.setCurrentText(data['input_file_type'])
                 self.lineEdit_addtional_param.setText(data['addtional_param'])
-                
             except:
                 print("error reading {}!".format(self.setting_file))
 
@@ -501,7 +479,6 @@ class MotionCor(QTabWidget):
         else:
             return None
     
-
     def check_log_file(self, folder):
         if not os.path.exists(folder):
             os.mkdir(folder)

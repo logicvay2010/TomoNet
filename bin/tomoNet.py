@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
+import os
+import socket
+
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtWidgets import QListWidgetItem, QListWidget
 from PyQt5.QtCore import Qt, QSize
+
 from TomoNet.util import metadata
 from TomoNet.gui.motioncor import MotionCor
 from TomoNet.gui.ctffind import Ctffind
@@ -10,9 +14,6 @@ from TomoNet.gui.recon import Recon
 from TomoNet.gui.expand import Expand
 from TomoNet.gui.autopick import Autopick
 from TomoNet.gui.others import OtherUtils
-
-import os
-import socket
 
 class Ui_TomoNet(object):
     def setupUi(self, TomoNet):

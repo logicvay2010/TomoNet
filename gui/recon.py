@@ -1,3 +1,8 @@
+import os, glob, subprocess, shutil
+import logging
+import json
+import numpy as np
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QTabWidget, QTableWidgetItem, QHeaderView, QMessageBox, QInputDialog, QLineEdit
@@ -5,10 +10,6 @@ from PyQt5.QtWidgets import QTabWidget, QTableWidgetItem, QHeaderView, QMessageB
 from TomoNet.util import browse, metadata
 from TomoNet.util.io import mkfolder
 from TomoNet.util.utils import string2float, string2int
-import os, glob, subprocess, shutil
-import logging
-import json
-import numpy as np
 from TomoNet.process.bash_gts import Generate_TS
 from TomoNet.process.bash_aretomo import AreTomo
 
@@ -33,7 +34,6 @@ class Recon(QTabWidget):
 
         self.thread_gt = None
         self.thread_aretomo = None
-
 
         self.pushButton_check_tomo_num.clicked.connect(self.check_tomo_num)
 
@@ -416,7 +416,6 @@ class Recon(QTabWidget):
         self.label_aretomo_tomoNum_detect.setObjectName("label_aretomo_tomoNum_detect")
         self.horizontalLayout_6.addWidget(self.label_aretomo_tomoNum_detect)
         
-        #######
         self.horizontalLayout_7 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_7.setContentsMargins(10, 5, 10, 5)
         self.horizontalLayout_7.setObjectName("horizontalLayout_7")
@@ -458,7 +457,6 @@ class Recon(QTabWidget):
         self.lineEdit_TiltAxis.setObjectName("lineEdit_TiltAxis")
         self.horizontalLayout_7.addWidget(self.lineEdit_TiltAxis)        
 
-        ##############
         self.horizontalLayout_8 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_8.setContentsMargins(10, 5, 10, 5)
         self.horizontalLayout_8.setObjectName("horizontalLayout_8")
@@ -512,7 +510,6 @@ class Recon(QTabWidget):
         self.lineEdit_GPU_ID.setObjectName("lineEdit_GPU_ID")
         self.horizontalLayout_8.addWidget(self.lineEdit_GPU_ID) 
         
-        ############
         self.horizontalLayout_9 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_9.setContentsMargins(10, 5, 10, 5)
         self.horizontalLayout_9.setObjectName("horizontalLayout_9")
@@ -874,8 +871,6 @@ class Recon(QTabWidget):
                     try:
                         current_ts_list = sorted([os.path.basename(x) for x in glob.glob("{}/*.st".format(self.ts_folder))])
                         if len(current_ts_list) > 0:
-                            #last_item = current_ts_list[-1]
-                            #last_index = os.path.splitext(last_item)[0].split("_")[-1]
                             indexes = [int(os.path.splitext(x)[0].split("_")[-1]) for x in current_ts_list]
                             indexes.sort()
                             last_index = indexes[-1]
@@ -928,8 +923,6 @@ class Recon(QTabWidget):
     def cmd_finished(self):
         self.pushButton_run_ts_generation.setText("RUN")
         self.pushButton_run_ts_generation.setStyleSheet("QPushButton {color: black;}")
-        #self.thread_gt.quit()
-        #self.thread_gt.wait()
 
     def read_setting(self):
         if os.path.exists(self.setting_file):
@@ -1023,8 +1016,6 @@ class Recon(QTabWidget):
 
     def tab_changed(self,i):
         if i == 1:
-            # You are now at Reconstruction tab, refresh the table contain the tomo information
-
             self.reload_table()
         if i == 2:
             self.aretomo_count_tomo()
@@ -1045,7 +1036,6 @@ class Recon(QTabWidget):
         return tomoNames
 
     def loadTomo(self):
-
         tomoNames = self.read_tomo()
         self.tableView.setRowCount(len(tomoNames))
         if len(tomoNames) > 0:
@@ -1142,18 +1132,12 @@ class Recon(QTabWidget):
             if ret == QMessageBox.Yes:
                 current_tomo_folder = "{}/{}".format(self.etomo_folder,tomoName)
                 mkfolder(current_tomo_folder)
-                #if not os.path.exists(current_tomo_folder):
-                #    os.makedirs(current_tomo_folder)
-                #edfName = "{}/{}.edf".format(current_tomo_folder,tomoName)
-                #current_st_path = "{}/{}.st".format(current_tomo_folder, tomoName)
-                #if not os.path.exists(current_st_path):
+
                 current_st_link_path = "{}/{}.st".format(self.ts_folder,tomoName)
                 current_rawtlt_link_path = "{}/{}.rawtlt".format(self.ts_folder,tomoName)
                 cmd = "cd {} ; ln -s ../../../{} ./ ; ln -s ../../../{} ./ ; etomo".format(current_tomo_folder, current_st_link_path, current_rawtlt_link_path)
                 subprocess.check_output(cmd, shell=True)
-                
-                #cmd = "cd {}; etomo".format(current_tomo_folder)
-                #subprocess.check_output(cmd, shell=True)
+
                 self.reload_table()
         elif j == 4:
             ret = QMessageBox.question(self, 'Risky Action!', "Do you want to move {} to trash?".format(tomoName), QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
@@ -1205,7 +1189,6 @@ class Recon(QTabWidget):
                 self.reload_table()
         elif j == 11:
             previous_text = self.tableView.item(i, j).text()
-            #print(previous_text)
             text, ok = QInputDialog.getText(self, 'Take notes!', 'Confirm changes?', QLineEdit.Normal, previous_text)
             if ok:
                 self.tableView.setItem(i, j, QTableWidgetItem(text))
@@ -1231,7 +1214,6 @@ class Recon(QTabWidget):
         st_path = "{}/{}.st".format(etomo_path, tomoName)
         rec_path = "{}/{}.rec".format(etomo_path, tomoName)
         mrc_path = "{}/{}_rec.mrc".format(etomo_path, tomoName)
-
 
         if os.path.exists(rec_path) or os.path.exists(mrc_path):
             try:                
@@ -1350,13 +1332,6 @@ class Recon(QTabWidget):
                     custom_font = QtGui.QFont()
                     custom_font.setPointSize(11)
                     self.log_window.setCurrentFont(custom_font)
-        # self.log_window = self.parentWidget().parentWidget().children()[3] 
-        # self.log_window.setText(self.getLogContent(self.log_file))
-        # self.log_window.moveCursor(QtGui.QTextCursor.End)
-        
-        # custom_font = QtGui.QFont()
-        # custom_font.setPointSize(11)
-        # self.log_window.setCurrentFont(custom_font)
 
     def isValid(self, fileName):
         '''
@@ -1496,7 +1471,6 @@ class Recon(QTabWidget):
 
         self.logger.info("Check: Total tomo # is {} from {} images".format(len(tomo_lists), len(images_list)))
 
-    
     ############# for AreTomo tab ###########################
     def aretomo_count_tomo(self):
         folder_path = self.lineEdit_aretomo_input_folder.text()
@@ -1626,11 +1600,6 @@ class Recon(QTabWidget):
                 if ret == QMessageBox.Yes:
                     self.pushButton_run_aretomo.setText("RUN")
                     self.pushButton_run_aretomo.setStyleSheet("QPushButton {color: black;}")
-                    # try:
-                    #     self.thread_motioncor.stop_process()
-
-                    # except:
-                    #     self.logger.warning("no thread are running!")
         else:
              self.logger.error(d)
              self.cmd_finished_aretomo()
@@ -1638,5 +1607,3 @@ class Recon(QTabWidget):
     def cmd_finished_aretomo(self):
         self.pushButton_run_aretomo.setText("RUN")
         self.pushButton_run_aretomo.setStyleSheet("QPushButton {color: black;}")
-        #self.thread_gt.quit()
-        #self.thread_gt.wait()

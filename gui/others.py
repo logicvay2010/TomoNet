@@ -3,23 +3,19 @@ import os.path
 import shutil
 import mrcfile
 import math
+import os, glob
+import starfile
+
+import numpy as np
+from scipy.spatial import distance_matrix
+from scipy.spatial.distance import pdist, squareform
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QTabWidget, QMessageBox
 
-
 from TomoNet.util import browse
-import os, glob
 from TomoNet.util.utils import check_log_file, getLogContent, string2float, string2int, getRGBs
 from TomoNet.util.utils import mkfolder
-
 from TomoNet.util.geometry import get_raw_shifts_PEET, apply_slicerRot_PEET, PEET2Relion, Relion2ChimeraX, getNeighbors
-
-import numpy as np
-import math
-import starfile
-
-from scipy.spatial import distance_matrix
-from scipy.spatial.distance import pdist, squareform
 
 class OtherUtils(QTabWidget):
     def __init__(self):
@@ -53,7 +49,6 @@ class OtherUtils(QTabWidget):
         self.icon = QtGui.QIcon()
         self.icon.addPixmap(QtGui.QPixmap("{}/icons/icon_folder.png".format(scriptDir)), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
-
         self.setUI_tab1()
 
         self.setUI_tab2()
@@ -61,7 +56,6 @@ class OtherUtils(QTabWidget):
         self.addTab(self.tab, "Recenter {} Rotate {} Assemble to .star file".format("|","|"))
 
         self.addTab(self.tab2, "3D Subtomogram Place Back")
-
 
         for child in self.findChildren(QtWidgets.QLineEdit):
             child.textChanged.connect(self.save_setting)
@@ -306,7 +300,6 @@ class OtherUtils(QTabWidget):
         self.horizontalLayout_last.addWidget(self.pushButton_assemble)
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_last.addItem(spacerItem2)
-
 
         self.gridLayout_run_tab_1 = QtWidgets.QGridLayout(self.tab)
 
@@ -619,7 +612,6 @@ class OtherUtils(QTabWidget):
         spacerItem5 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_last_2.addItem(spacerItem5)
         
-        
         self.gridLayout_pick_params = QtWidgets.QGridLayout(self.tab2)
 
         self.gridLayout_pick_params.addLayout(self.horizontalLayout_2_1, 0, 0, 1, 1)
@@ -727,15 +719,6 @@ class OtherUtils(QTabWidget):
                     custom_font.setPointSize(11)
                     self.log_window.setCurrentFont(custom_font)
 
-
-        # self.log_window = self.parentWidget().parentWidget().children()[3] 
-        # self.log_window.setText(getLogContent(txt))
-        # self.log_window.moveCursor(QtGui.QTextCursor.End)
-
-        # custom_font = QtGui.QFont()
-        # custom_font.setPointSize(11)
-        # self.log_window.setCurrentFont(custom_font)
-
     def read_settting(self):
         if not os.path.exists(self.setting_file):
             try:
@@ -764,7 +747,6 @@ class OtherUtils(QTabWidget):
 
         data['min_num_neighbors'] =""
         data['avg_angle'] =""
-
         try:
             with open(self.setting_file) as f:
                 for line in f:
@@ -923,7 +905,6 @@ class OtherUtils(QTabWidget):
     def transform_coords_euler(self, tomo, origin_coords_file, origin_motl_file, output_coords_file, output_euler_file, shifts, rotation):
         with open(origin_coords_file, 'r') as f:
             origin_coords_lines = np.array([ x.split() for x in f.readlines()])
-        #print(origin_coords_lines.shape)
         if os.path.exists(origin_motl_file):
             with open(origin_motl_file, 'r') as f:
                 origin_motl_lines = np.array([ x.split(',') for x in f.readlines()][1:])
@@ -992,12 +973,8 @@ class OtherUtils(QTabWidget):
             "_rlnRandomSubset #14")
             f.write(header)
             particle_index = 1
-            #tomo_index = 1
             manifold_id = 0
             for tomo in tomo_list:
-                #print(coords)
-                #tomo_name = coords.split(".")[0]
-                #coord_file=open(coords)
                 pid = -1
                 coords_file = "{}/{}.coords".format(folder,tomo)
                 try:
@@ -1026,7 +1003,6 @@ class OtherUtils(QTabWidget):
     
     def assemble(self):
         params = self.get_assemble_params()
-        #print(params)
         if type(params) is str:
             self.logger.error(params)
         elif type(params) is dict:
@@ -1041,14 +1017,11 @@ class OtherUtils(QTabWidget):
                 self.logger.info("Start transform!")
                 tomo_list = self.get_final_folder_list(params['expand_result_folder'])
 
-                # rotations = "{},{},{}".format(-1*params['rotation_x'],-1*params['rotation_y'],-1*params['rotation_z'])
-                # shifts = "{},{},{}".format(-1*params['recenter_x'], -1*params['recenter_y'], -1*params['recenter_z'])
                 rotations = [params['rotation_x'],params['rotation_y'],params['rotation_z']]
                 shifts = [params['recenter_x'], params['recenter_y'], params['recenter_z']]
                 for tomo in tomo_list:
                     pts_file = "{}/{}_final/{}.pts".format(params['expand_result_folder'], tomo, tomo)
                     motl_file = "{}/{}_final/{}_InitMOTL.csv".format(params['expand_result_folder'], tomo, tomo)
-                    #motl_convert_file = "{}/{}_final/{}_convert_MOTL.csv".format(params['assemble_output_folder'], tomo, tomo)
 
                     coords_file = "{}/{}.coords".format(params['assemble_output_folder'], tomo)
                     euler_file = "{}/{}.euler".format(params['assemble_output_folder'], tomo)
@@ -1133,12 +1106,9 @@ class OtherUtils(QTabWidget):
         params['min_num_neighbors'] = min_num_neighbors
         params['avg_angle'] = avg_angle
         
-        
         return params
     
     def generate_cxs_file(self, params):
-        #self.logger.info(params)
-
         star_file = params['data_star_file']
         tomo_name = params['tomo_name']
         average_map = params['fitin_map_file']
@@ -1162,16 +1132,12 @@ class OtherUtils(QTabWidget):
         try:
             df_particles = df_particles.loc[df_particles['rlnTomoName']==tomo_name]
         except:
-            #no such TomoName
             return -1
         df_particles = df_particles.reset_index()
-        #pNum = df_particles.shape[0]
-
 
         manifoldIndex_start = df_particles['rlnTomoManifoldIndex'].astype(int).min()
-        #print(manifoldIndex_start)
         manifold_num = df_particles['rlnTomoManifoldIndex'].astype(int).max() - manifoldIndex_start + 1
-        #print(manifold_num)
+        
         try:
             shutil.copy(average_map, self.others_folder)
         except:
@@ -1187,7 +1153,6 @@ class OtherUtils(QTabWidget):
         else:
             with open(output_file_name, "w") as outfile:
                 with open(clean_version_star, "w") as c_star_file:
-                    
                     for i in range(int(manifold_num)):
                         current_manifold_id = manifoldIndex_start+i
                         manifold_df = df_particles.loc[df_particles['rlnTomoManifoldIndex']==current_manifold_id]
@@ -1251,7 +1216,6 @@ class OtherUtils(QTabWidget):
                                 #r,g,b = getRGBs(avg_angle, max_angle=30)
                                 r,g,b = getRGBs(avg_angle, max_angle= Avg_angle_limit)
                                 
-                                #if len(neignbors) > 1 and avg_angle <= 30:
                                 if len(neignbors) >= Min_neighbors and avg_angle <= Avg_angle_limit:
                                     c_star_line = " ".join([str(x) for x in manifold_df.loc[j].values.flatten().tolist()][2:]) + "\n"
                                     c_star_file.write(c_star_line)

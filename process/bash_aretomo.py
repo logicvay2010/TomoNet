@@ -1,12 +1,12 @@
-from PyQt5.QtCore import QThread
-import os, time, glob
-import multiprocessing as mp
-from multiprocessing import Pool
+import os
 import subprocess
 import re
 import logging
 import torch
 import shutil
+from multiprocessing import Pool
+
+from PyQt5.QtCore import QThread
 
 def read_header(st_path):
     d = {}
@@ -23,7 +23,6 @@ def read_header(st_path):
             d['sections'] = int(sections)  
     return d
 
-
 def check_output(aretomo_folder, ts, tomoName):
     log_file = "{}/{}.log".format(aretomo_folder,tomoName)
     
@@ -39,15 +38,10 @@ def check_output(aretomo_folder, ts, tomoName):
         return -1
     else:
         aln_file_path = "{}/{}.aln".format(aretomo_folder, ts)
-        #print(aln_file_path)
         rec_file = "{}/{}.rec".format(aretomo_folder, tomoName)
-        #print(rec_file)
         proj_files = ["{}_projXZ.mrc".format(rec_file), "{}_projXY.mrc".format(rec_file)]
-        #print(proj_files)
         folder_imod = "{}_Imod".format(rec_file)
-        #print(folder_imod)
         folder_imod_correct = "{}/{}".format(aretomo_folder, tomoName)
-        #print(folder_imod_correct)
         try:
             aln_file_old_path = "{}/{}.aln".format(folder_imod_correct, tomoName)
             aln_file_path_correct_1 = "{}/{}.aln".format(aretomo_folder, tomoName)
@@ -58,7 +52,6 @@ def check_output(aretomo_folder, ts, tomoName):
             if os.path.exists(folder_imod_correct):
                 shutil.rmtree(folder_imod_correct)
             shutil.move(folder_imod, folder_imod_correct)
-            #mkfolder(folder_imod_correct)
             
             aln_file_path_correct_2 = "{}/{}.aln".format(folder_imod_correct, tomoName)
             os.replace(aln_file_path_correct_1, aln_file_path_correct_2)
@@ -81,9 +74,7 @@ def aretomo_single(param):
     ts = param['ts']
     tomoName = param['tomoName']
     gpu_ID = param['gpu_ID']
-    #cmd = '{}{}{}{}; {}'.format(param['cmd_1'],param['cmd_2'],param['cmd_3'],param['cmd_4'],param['cmd_5'])
     try:
-        #print(cmd)
         subprocess.check_output(cmd, shell=True)
     except:
         param['logger'].error('AreTomo reconstruction failed on GPU {} for tomo: {}. \
@@ -96,7 +87,6 @@ def aretomo_single(param):
         param['logger'].error('Failed AreTomo on GPU {}: {}'.format(gpu_ID, ts))
 
 class AreTomo(QThread):
-
     def __init__(self,d, processed_folder):
         super().__init__()
         self.d = d
@@ -129,7 +119,6 @@ class AreTomo(QThread):
         if not os.path.exists(self.processed_folder):
             os.makedirs(self.processed_folder)
 
-        #raw_images = sorted([ os.path.basename(x) for x in glob.glob("{}/*.{}".format(self.d['raw_image_folder'], self.d['input_file_type']))])
         self.logger.info("\n########Processing {} images on GPU {}########".format(len(self.d['current_ts_list']), self.d["GPU_ID"]))
         self.logger.info("\n########The results will be saved in {}########".format(self.processed_folder))
         cmd_1 = "AreTomo"
@@ -168,8 +157,6 @@ class AreTomo(QThread):
                         self.d['aretomo_addtional_param'], header['apix'], self.processed_folder, tomoName)
 
                 cmd = "{} {} {} {} {} {} {}".format(cmd_1, cmd_2, cmd_3, cmd_4, cmd_5, cmd_6, cmd_7)
-                #print(cmd)
-                #subprocess.check_output(cmd, shell=True)
                 param = {}
                 param['cmd'] = cmd
                 param['processed_folder'] = self.processed_folder
@@ -233,10 +220,6 @@ class AreTomo(QThread):
                 with Pool(s) as pool:
                     pool.map(aretomo_single, params)
 
-                #with Pool(s) as pool:
-                #    [pool.apply_async(aretomo_single, args=(v,)) for v in params]
-                #set timeout just in case progress get stucked
-
                 ts_todo_list = ts_todo_list[batch_size:]
                 if len(ts_todo_list) > 0:
                     self.logger.info('{} AreTomo Reconstructions remains to do.'.format(len(ts_todo_list)))  
@@ -248,7 +231,6 @@ class AreTomo(QThread):
             return -1
     
     def stop_process(self):
-
         self.terminate()
         self.quit()
         self.wait()
