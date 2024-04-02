@@ -5,6 +5,7 @@ import mrcfile
 import math
 import os, glob
 import starfile
+import subprocess
 
 import numpy as np
 from scipy.spatial import distance_matrix
@@ -15,7 +16,7 @@ from PyQt5.QtWidgets import QTabWidget, QMessageBox
 from TomoNet.util import browse
 from TomoNet.util.utils import check_log_file, getLogContent, string2float, string2int, getRGBs
 from TomoNet.util.utils import mkfolder
-from TomoNet.util.geometry import get_raw_shifts_PEET, apply_slicerRot_PEET, PEET2Relion, Relion2ChimeraX, getNeighbors
+from TomoNet.util.geometry import get_raw_shifts_PEET, apply_slicerRot_PEET, PEET2Relion, Relion2PEET, Relion2ChimeraX, getNeighbors
 
 class OtherUtils(QTabWidget):
     def __init__(self):
@@ -53,9 +54,13 @@ class OtherUtils(QTabWidget):
 
         self.setUI_tab2()
 
+        self.setUI_tab3()
+
         self.addTab(self.tab, "Recenter {} Rotate {} Assemble to .star file".format("|","|"))
 
         self.addTab(self.tab2, "3D Subtomogram Place Back")
+
+        self.addTab(self.tab_Star2PEET, "Star2PEET")
 
         for child in self.findChildren(QtWidgets.QLineEdit):
             child.textChanged.connect(self.save_setting)
@@ -68,15 +73,20 @@ class OtherUtils(QTabWidget):
         self.pushButton_fitin_map_file.clicked.connect\
             (lambda: browse.browseSlot(self.lineEdit_fitin_map_file, 'map')) 
         
+        self.pushButton_input_star_file.clicked.connect\
+            (lambda: browse.browseSlot(self.lineEdit_input_star_file, 'star')) 
+        
         for child in self.findChildren(QtWidgets.QComboBox):
             child.currentIndexChanged.connect(self.save_setting)
 
         self.pushButton_assemble.clicked.connect(self.assemble)
         self.pushButton_place_back.clicked.connect(self.placeback)
+        self.pushButton_star2PEET.clicked.connect(self.star2PEET)
 
         self.setTabShape(QtWidgets.QTabWidget.Triangular)
         self.retranslateUi_tab1()
         self.retranslateUi_tab2()
+        self.retranslateUi_tab3()
         self.read_settting()
     
     def setUI_tab1(self):
@@ -702,6 +712,157 @@ class OtherUtils(QTabWidget):
 
         self.pushButton_place_back.setText(_translate("Form", "RUN"))
           
+    def setUI_tab3(self):
+        #tab 3
+        self.tab_Star2PEET = QtWidgets.QWidget()
+        self.tab_Star2PEET.setObjectName("tab")
+
+        self.horizontalLayout_3_1 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_3_1.setContentsMargins(10, 5, 10, 5)
+
+        self.label_input_star_file = QtWidgets.QLabel(self.tab_Star2PEET)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_input_star_file.sizePolicy().hasHeightForWidth())
+        self.label_input_star_file.setSizePolicy(sizePolicy)
+        self.label_input_star_file.setMinimumSize(QtCore.QSize(120, 0))
+        self.label_input_star_file.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_input_star_file.setObjectName("label_input_star_file")
+        self.horizontalLayout_3_1.addWidget(self.label_input_star_file)
+
+        self.lineEdit_input_star_file = QtWidgets.QLineEdit(self.tab_Star2PEET)
+        self.lineEdit_input_star_file.setInputMask("")
+        self.lineEdit_input_star_file.setObjectName("lineEdit_input_star_file")
+
+        self.horizontalLayout_3_1.addWidget(self.lineEdit_input_star_file)
+
+        self.pushButton_input_star_file = QtWidgets.QPushButton(self.tab_Star2PEET)
+        self.pushButton_input_star_file.setText("")
+        self.pushButton_input_star_file.setIcon(self.icon)
+        self.pushButton_input_star_file.setIconSize(QtCore.QSize(24, 24))
+        self.pushButton_input_star_file.setMaximumSize(QtCore.QSize(160, 24))
+        self.pushButton_input_star_file.setMinimumSize(QtCore.QSize(60, 24))
+        self.pushButton_input_star_file.setObjectName("pushButton_input_star_file")
+        self.horizontalLayout_3_1.addWidget(self.pushButton_input_star_file)
+
+        self.horizontalLayout_3_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_3_2.setContentsMargins(10, 5, 10, 5)
+
+        self.label_star2PEET_output_folder = QtWidgets.QLabel(self.tab_Star2PEET)
+        sizePolicy.setHeightForWidth(self.label_star2PEET_output_folder.sizePolicy().hasHeightForWidth())
+        self.label_star2PEET_output_folder.setSizePolicy(sizePolicy)
+        self.label_star2PEET_output_folder.setMinimumSize(QtCore.QSize(120, 0))
+        self.label_star2PEET_output_folder.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_star2PEET_output_folder.setObjectName("label_star2PEET_output_folder")
+        self.horizontalLayout_3_2.addWidget(self.label_star2PEET_output_folder)
+
+        self.lineEdit_star2PEET_output_folder = QtWidgets.QLineEdit(self.tab_Star2PEET)
+        self.lineEdit_star2PEET_output_folder.setInputMask("")
+        self.lineEdit_star2PEET_output_folder.setObjectName("lineEdit_star2PEET_output_folder")
+        self.horizontalLayout_3_2.addWidget(self.lineEdit_star2PEET_output_folder)
+
+        self.label_star2PEET_bin_factor = QtWidgets.QLabel(self.tab_Star2PEET)
+        self.label_star2PEET_bin_factor.setSizePolicy(sizePolicy)
+        self.label_star2PEET_bin_factor.setMinimumSize(QtCore.QSize(120, 0))
+        self.label_star2PEET_bin_factor.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_star2PEET_bin_factor.setObjectName("label_star2PEET_bin_factor")
+        self.horizontalLayout_3_2.addWidget(self.label_star2PEET_bin_factor)
+
+        self.lineEdit_star2PEET_bin_factor = QtWidgets.QLineEdit(self.tab_Star2PEET)
+        self.lineEdit_star2PEET_bin_factor.setInputMask("")
+        self.lineEdit_star2PEET_bin_factor.setObjectName("lineEdit_star2PEET_bin_factor")
+        self.horizontalLayout_3_2.addWidget(self.lineEdit_star2PEET_bin_factor)
+
+        self.label_star2PEET_apix = QtWidgets.QLabel(self.tab_Star2PEET)
+        self.label_star2PEET_apix.setSizePolicy(sizePolicy)
+        self.label_star2PEET_apix.setMinimumSize(QtCore.QSize(120, 0))
+        self.label_star2PEET_apix.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_star2PEET_apix.setObjectName("label_star2PEET_apix")
+        self.horizontalLayout_3_2.addWidget(self.label_star2PEET_apix)
+
+        self.lineEdit_star2PEET_apix = QtWidgets.QLineEdit(self.tab_Star2PEET)
+        self.lineEdit_star2PEET_apix.setInputMask("")
+        self.lineEdit_star2PEET_apix.setObjectName("lineEdit_star2PEET_apix")
+        self.horizontalLayout_3_2.addWidget(self.lineEdit_star2PEET_apix)
+        
+        self.horizontalLayout_star2PEET_last = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_star2PEET_last.setObjectName("horizontalLayout_star2PEET_last")
+        spacerItem7 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_star2PEET_last.addItem(spacerItem7)
+        self.pushButton_star2PEET = QtWidgets.QPushButton(self.tab_Star2PEET)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.pushButton_star2PEET.sizePolicy().hasHeightForWidth())
+        self.pushButton_star2PEET.setSizePolicy(sizePolicy)
+        self.pushButton_star2PEET.setMinimumSize(QtCore.QSize(98, 50))
+        self.pushButton_star2PEET.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.pushButton_star2PEET.setObjectName("run")
+        self.horizontalLayout_star2PEET_last.addWidget(self.pushButton_star2PEET)
+        spacerItem8 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_star2PEET_last.addItem(spacerItem8)
+
+        self.gridLayout_star2PEET_tab_3 = QtWidgets.QGridLayout(self.tab_Star2PEET)
+
+        self.gridLayout_star2PEET_tab_3.addLayout(self.horizontalLayout_3_1, 0, 0, 1, 1)
+        self.gridLayout_star2PEET_tab_3.addLayout(self.horizontalLayout_3_2, 1, 0, 1, 1)
+
+        spacerItem9 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.gridLayout_star2PEET_tab_3.addItem(spacerItem9, 2, 0, 1, 1)
+
+        self.gridLayout_star2PEET_tab_3.addLayout(self.horizontalLayout_star2PEET_last, 3, 0, 1, 1)
+
+    def retranslateUi_tab3(self):
+        _translate = QtCore.QCoreApplication.translate
+        self.setWindowTitle(_translate("Form", "Form"))
+        
+        self.label_input_star_file.setText(_translate("Form", "Input STAR file:"))
+        self.label_input_star_file.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            </span></p></body></html>"))
+        
+        self.lineEdit_input_star_file.setPlaceholderText(_translate("Form", "run_data.star"))
+        self.lineEdit_input_star_file.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            font-size:9pt;\"> The input STAR file path. \
+            </span></p></body></html>"))
+        
+        self.label_star2PEET_output_folder.setText(_translate("Form", "Output folder name:"))
+        self.label_star2PEET_output_folder.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            </span></p></body></html>"))
+        
+        self.lineEdit_star2PEET_output_folder.setPlaceholderText(_translate("Form", "PEET_params_01"))
+        self.lineEdit_star2PEET_output_folder.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            font-size:9pt;\">The output folder name. All output parameter files will be stored in this folder.\
+            </span></p></body></html>"))
+        
+        self.label_star2PEET_bin_factor.setText(_translate("Form", "Bin factor:"))
+        self.label_star2PEET_bin_factor.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            </span></p></body></html>"))
+        
+        self.lineEdit_star2PEET_bin_factor.setPlaceholderText(_translate("Form", "4"))
+        self.lineEdit_star2PEET_bin_factor.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            font-size:9pt;\">The binning factor applied on for the given input. Output coords = unbin_coords/bin_factor. (Default: 4)\
+            </span></p></body></html>"))
+        
+        self.label_star2PEET_apix.setText(_translate("Form", "Unbinned pixel size:"))
+        self.label_star2PEET_apix.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            </span></p></body></html>"))
+        
+        self.lineEdit_star2PEET_apix.setPlaceholderText(_translate("Form", "1.0"))
+        self.lineEdit_star2PEET_apix.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            font-size:9pt;\">The unbinned (bin1) pixel size (Default: 1.0)\
+            </span></p></body></html>"))
+        
+        self.pushButton_star2PEET.setText(_translate("Form", "RUN"))
+
     @QtCore.pyqtSlot(str)
     def update_log_window(self, txt):
         in_current_page = True
@@ -747,6 +908,11 @@ class OtherUtils(QTabWidget):
 
         data['min_num_neighbors'] =""
         data['avg_angle'] =""
+
+        data['input_star_file'] =""
+        data['star2PEET_output_folder'] =""
+        data['star2PEET_bin_factor'] =""
+        data['star2PEET_apix'] =""
         try:
             with open(self.setting_file) as f:
                 for line in f:
@@ -780,6 +946,11 @@ class OtherUtils(QTabWidget):
 
         self.lineEdit_min_num_neighbors.setText(data['min_num_neighbors'])
         self.lineEdit_avg_angle.setText(data['avg_angle'])
+
+        self.lineEdit_input_star_file.setText(data['input_star_file'])
+        self.lineEdit_star2PEET_output_folder.setText(data['star2PEET_output_folder'])
+        self.lineEdit_star2PEET_bin_factor.setText(data['star2PEET_bin_factor'])
+        self.lineEdit_star2PEET_apix.setText(data['star2PEET_apix'])
           
     def save_setting(self):
         param = {}
@@ -804,6 +975,11 @@ class OtherUtils(QTabWidget):
         param['unit_size_cxs'] = self.lineEdit_unit_size_cxs.text()
         param['min_num_neighbors'] = self.lineEdit_min_num_neighbors.text()
         param['avg_angle'] = self.lineEdit_avg_angle.text()
+
+        param['input_star_file'] = self.lineEdit_input_star_file.text()
+        param['star2PEET_output_folder'] = self.lineEdit_star2PEET_output_folder.text()
+        param['star2PEET_bin_factor'] = self.lineEdit_star2PEET_bin_factor.text()
+        param['star2PEET_apix'] = self.lineEdit_star2PEET_apix.text()
 
         try:
             with open(self.setting_file, 'w') as f: 
@@ -947,7 +1123,7 @@ class OtherUtils(QTabWidget):
                             new_euler_line = "{},{},{}\n".format(round(zyz_euler[0],2), round(zyz_euler[1],2), round(zyz_euler[2],2))
                             w_e.write(new_euler_line)
 
-            self.logger.info("coords and euler files are generated for {}!".format(tomo))
+            self.logger.info("coords and euler files are generated for {}! Total particle # {}".format(tomo, len(origin_coords_lines)))
         except:
             self.logger.error("It seems that the number of particle is not consistent from MOTL and pts files for {}!".format(tomo))
 
@@ -1264,6 +1440,114 @@ class OtherUtils(QTabWidget):
                 
                 self.cmd_finished(self.pushButton_place_back)
     
+    def get_star2PEET_params(self):
+        
+        if not len(self.lineEdit_input_star_file.text()) > 0:
+            return "Please specify the input star file!"
+        else:
+            input_star_file = self.lineEdit_input_star_file.text()
+
+        if not len(self.lineEdit_star2PEET_output_folder.text()) > 0:
+            return "Please specify the STAR2PEET result folder!"
+        else:
+            star2PEET_output_folder = "{}/{}".format(self.others_folder, self.lineEdit_star2PEET_output_folder.text())
+
+        if len(self.lineEdit_star2PEET_bin_factor.text()) > 0:
+            if not string2float(self.lineEdit_star2PEET_bin_factor.text()) == None:
+                star2PEET_bin_factor = string2float(self.lineEdit_star2PEET_bin_factor.text())
+            else:
+                return "Please use the valid format for the bin factor!"
+        else:
+            star2PEET_bin_factor = 4
+
+        if len(self.lineEdit_star2PEET_apix.text()) > 0:
+            if not string2float(self.lineEdit_star2PEET_apix.text()) == None:
+                star2PEET_apix = string2float(self.lineEdit_star2PEET_apix.text())
+            else:
+                return "Please use the valid format for the the pixel size!"
+        else:
+            star2PEET_apix = 1.0  
+
+        if not os.path.exists(star2PEET_output_folder):
+            mkfolder(star2PEET_output_folder)
+
+        params = {}
+        params['input_star_file'] = input_star_file
+        params['star2PEET_output_folder'] = star2PEET_output_folder
+        params['star2PEET_bin_factor'] = star2PEET_bin_factor
+        params['star2PEET_apix'] = star2PEET_apix
+
+        return params
+    
+    def generate_PEET_files(self, params):
+        input_star_file = params['input_star_file']
+        output_folder = params['star2PEET_output_folder'] 
+        bin_factor = params['star2PEET_bin_factor']
+        apix = params['star2PEET_apix']
+        peet_motl_header = "CCC,reserved,reserved,pIndex,wedgeWT,NA,NA,NA,NA,NA,xOffset,yOffset,zOffset,NA,NA,reserved,EulerZ(1),EulerZ(3),EulerX(2),reserved,CREATED WITH PEET Version 1.15.0 10-January-2021\n"
+
+        df_particles = starfile.read(input_star_file,  always_dict=True)['particles']
+        try:
+            tomoList = sorted(set(df_particles['rlnTomoName'].tolist()))
+        except:
+            return -1
+        
+        for tomo_name in tomoList:
+            try:
+                df_particles_current = df_particles.loc[df_particles['rlnTomoName']==tomo_name]
+            except:
+                return -1
+            
+            df_particles_current = df_particles_current.reset_index()
+            num_par = df_particles_current.shape[0]
+            
+            pts_file = "{}/{}.pts".format(output_folder, tomo_name)
+            mod_file = "{}/{}.mod".format(output_folder, tomo_name)
+            motl_file = "{}/{}_MOTL.csv".format(output_folder, tomo_name)
+            rotAxis_file = "{}/{}_RotAxes.csv".format(output_folder, tomo_name)
+
+            with open(pts_file, "w") as fp:
+                with open(motl_file, "w") as fm:
+                    with open(rotAxis_file, "w") as fr:
+                        fm.write(peet_motl_header)
+                        for i in range(num_par):
+                            xp, yp, zp = [df_particles_current['rlnCoordinateX'][i], df_particles_current['rlnCoordinateY'][i], df_particles_current['rlnCoordinateZ'][i]]
+                            xt, yt, zt = [df_particles_current['rlnOriginXAngst'][i], df_particles_current['rlnOriginYAngst'][i], df_particles_current['rlnOriginZAngst'][i]]
+                            rot, tilt, psi = [df_particles_current['rlnAngleRot'][i], df_particles_current['rlnAngleTilt'][i], df_particles_current['rlnAnglePsi'][i]]
+
+                            output_eulers, output_vector = Relion2PEET(np.array([rot, tilt, psi]))
+
+                            x_coords_binned = int(round(xp*apix + xt,3)/apix/bin_factor)
+                            y_coords_binned = int(round(yp*apix + yt,3)/apix/bin_factor)
+                            z_coords_binned = int(round(zp*apix + zt,3)/apix/bin_factor)
+
+                            fp.write("{} {} {}\n".format(x_coords_binned, y_coords_binned, z_coords_binned))
+                            motl_line = "1,0,0,{},1,0,0,0,0,0,0,0,0,0,0,0,{},{},{},0 \n".format(i+1, output_eulers[0],output_eulers[2],output_eulers[1])
+                            fm.write(motl_line)
+                            fr.write("{},{},{}\n".format(output_vector[0], output_vector[1], output_vector[2]))
+
+
+            cmd = "point2model {} {} -scat -sphere 5 ".format(pts_file, mod_file)
+            subprocess.run(cmd,shell=True, stdout=subprocess.PIPE)
+            self.logger.info("Done STAR2PEET for {}. Total particle # {}.".format(tomo_name, num_par))
+
+    def star2PEET(self):
+        params = self.get_star2PEET_params()
+        if type(params) is str:
+            self.logger.error(params)
+        elif type(params) is dict:
+            ret = QMessageBox.question(self, 'Generating PEET parameter files', \
+                    "Continue?\n"\
+                    , QMessageBox.Yes | QMessageBox.No, \
+                    QMessageBox.No)   
+            if ret == QMessageBox.Yes:
+                self.pushButton_star2PEET.setText("STOP")
+                self.pushButton_star2PEET.setStyleSheet('QPushButton {color: red;}')
+                
+                self.generate_PEET_files(params)
+                
+                self.cmd_finished(self.pushButton_star2PEET)
+
     def cmd_finished(self, button, text="RUN"):
         button.setText(text)
         button.setStyleSheet("QPushButton {color: black;}")

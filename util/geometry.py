@@ -66,8 +66,28 @@ def PEET2Relion(zxz_euler):
                                 invert_matrix=True)
   return output_eulers
 
-def Relion2ChimeraX(zxz_euler):
-  output_eulers = euler2euler(zxz_euler,
+def Relion2PEET(zyz_euler):
+  output_eulers = euler2euler(np.array(zyz_euler),
+                                target_axes='zyz',
+                                target_intrinsic=False,
+                                target_right_handed_rotation=False,
+                                source_axes='zxz',
+                                source_intrinsic=True,
+                                source_right_handed_rotation=False,
+                                invert_matrix=True)
+  
+  output_matrix = euler2matrix(zyz_euler,
+                                axes='zyz',
+                                intrinsic=False,
+                                right_handed_rotation=False)
+
+  output_vector = np.matmul([0,0,1], np.linalg.inv(output_matrix))
+  return [np.round(output_eulers,3), output_vector]
+  
+  return output_eulers
+
+def Relion2ChimeraX(zyz_euler):
+  output_eulers = euler2euler(zyz_euler,
                                 source_axes='zyz',
                                 source_intrinsic=False,
                                 source_right_handed_rotation=False,
@@ -76,7 +96,7 @@ def Relion2ChimeraX(zxz_euler):
                                 target_right_handed_rotation=True,
                                 invert_matrix=False)
   
-  output_matrix = euler2matrix(zxz_euler,
+  output_matrix = euler2matrix(zyz_euler,
                                 axes='zyz',
                                 intrinsic=False,
                                 right_handed_rotation=False)
