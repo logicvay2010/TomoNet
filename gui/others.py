@@ -660,10 +660,10 @@ class OtherUtils(QTabWidget):
         self.label_tomo_name.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\""))
         
-        self.lineEdit_tomo_name.setPlaceholderText(_translate("Form", ""))
+        self.lineEdit_tomo_name.setPlaceholderText(_translate("Form", "all"))
         self.lineEdit_tomo_name.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
-            font-size:9pt;\">The target tomogram name.</span></p></body></html>"))
+            font-size:9pt;\">The target tomogram name. For example TS_01. Leave empty or input 'all' this will apply on all tomograms. default: all</span></p></body></html>"))
         
         self.label_pixel_size_unbinned.setText(_translate("Form", "Unbinned pixel size:"))
         self.label_pixel_size_unbinned.setToolTip(_translate("MainWindow", \
@@ -1227,7 +1227,8 @@ class OtherUtils(QTabWidget):
             fitin_map_file = self.lineEdit_fitin_map_file.text()
 
         if not len(self.lineEdit_tomo_name.text()) > 0:
-            return "Please provide the tomogram name!"
+            tomo_name = "all"
+            #return "Please provide the tomogram name!"
         else:
             tomo_name = self.lineEdit_tomo_name.text()
 
@@ -1467,7 +1468,6 @@ class OtherUtils(QTabWidget):
             
             self.logger.info("clean version of STAR file saved: {}!".format(clean_version_star_all))
             
-
     def get_header(self, star_file):
         header = ""
         with open(star_file, 'r') as f:
