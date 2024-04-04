@@ -1423,14 +1423,15 @@ class OtherUtils(QTabWidget):
                                     ## TEST ## save based on max angle
                                     #if len(neignbors) >= Min_neighbors and max_angle <= Avg_angle_limit:
                                     ## TEST ## save based on side/top view
-                                    if Avg_angle_limit >= 0:
-                                        test_bool = abs(new_vectors[j][2]) >= Avg_angle_limit
-                                    else:
-                                        test_bool = abs(new_vectors[j][2]) <= -Avg_angle_limit
-                                    if len(neignbors) >= Min_neighbors and test_bool:
+                                    # if Avg_angle_limit >= 0:
+                                    #     test_bool = abs(new_vectors[j][2]) >= Avg_angle_limit
+                                    # else:
+                                    #     test_bool = abs(new_vectors[j][2]) <= -Avg_angle_limit
+                                    
+                                    # if len(neignbors) >= Min_neighbors and test_bool:
                                         
                                     # original setting
-                                    #if len(neignbors) >= Min_neighbors and avg_angle <= Avg_angle_limit:
+                                    if len(neignbors) >= Min_neighbors and avg_angle <= Avg_angle_limit:
                                         c_star_line = " ".join([str(x) for x in manifold_df.loc[j].values.flatten().tolist()][2:]) + "\n"
                                         c_star_file.write(c_star_line)
                                         clean_i+=1
