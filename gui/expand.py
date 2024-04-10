@@ -1400,7 +1400,7 @@ class Expand(QTabWidget):
                 rotRanges = [rotRange, rotRange, rotRange]
             else:
                 rotRanges = self.lineEdit_rotRange.text().split(",")
-                if (not len(rotRanges) ==3) or not string2float(rotRanges[0]) or not string2float(rotRanges[1]) or not string2float(rotRanges[2]):
+                if (not len(rotRanges) ==3) or string2float(rotRanges[0]) == None or string2float(rotRanges[1]) == None or string2float(rotRanges[2]) == None:
                    return "Please use the valid format for the first round search range!" 
                 rotRanges = [int(string2float(x)) for x in rotRanges]
         else:
