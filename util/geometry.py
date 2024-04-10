@@ -84,8 +84,6 @@ def Relion2PEET(zyz_euler):
   output_vector = np.matmul([0,0,1], np.linalg.inv(output_matrix))
   return [np.round(output_eulers,3), output_vector]
   
-  return output_eulers
-
 def Relion2ChimeraX(zyz_euler):
   output_eulers = euler2euler(zyz_euler,
                                 source_axes='zyz',

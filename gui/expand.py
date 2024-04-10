@@ -1524,7 +1524,6 @@ class Expand(QTabWidget):
                 return "Reference dimensions required to be even number, but the provided are {}!".format(header['dimensions'])
         else: 
             reference = None
-            self.logger.warning("no reference used, will use the 1st particle as reference. If you are generating initial reference and set the iter to 1, please ignore this!")
             #return "Please specify the reference!"
         
         mask = "none"
@@ -1587,6 +1586,7 @@ class Expand(QTabWidget):
             self.logger.error(results)
         else:
             params, output = results
+            
             ret = QMessageBox.question(self, 'Generate {}!'.format(output), \
                     "Continue?\n"\
                     , QMessageBox.Yes | QMessageBox.No, \
@@ -1594,6 +1594,12 @@ class Expand(QTabWidget):
                 
             if ret == QMessageBox.Yes:
                 
+                try:
+                    if not params['reference']:
+                        self.logger.warning("no reference used, will use the 1st particle as reference. If you are generating initial reference and set the iter to 1, please ignore this!")
+                except:
+                    pass
+        
                 self.pushButton_generate_pick_params.setText("STOP")
                 self.pushButton_generate_pick_params.setStyleSheet('QPushButton {color: red;}')
 

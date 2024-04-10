@@ -660,10 +660,10 @@ class OtherUtils(QTabWidget):
         self.label_tomo_name.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\""))
         
-        self.lineEdit_tomo_name.setPlaceholderText(_translate("Form", ""))
+        self.lineEdit_tomo_name.setPlaceholderText(_translate("Form", "all"))
         self.lineEdit_tomo_name.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
-            font-size:9pt;\">The target tomogram name.</span></p></body></html>"))
+            font-size:9pt;\">The target tomogram name. For example TS_01. Leave empty or input 'all' this will apply on all tomograms. default: all</span></p></body></html>"))
         
         self.label_pixel_size_unbinned.setText(_translate("Form", "Unbinned pixel size:"))
         self.label_pixel_size_unbinned.setToolTip(_translate("MainWindow", \
@@ -1227,7 +1227,8 @@ class OtherUtils(QTabWidget):
             fitin_map_file = self.lineEdit_fitin_map_file.text()
 
         if not len(self.lineEdit_tomo_name.text()) > 0:
-            return "Please provide the tomogram name!"
+            tomo_name = "all"
+            #return "Please provide the tomogram name!"
         else:
             tomo_name = self.lineEdit_tomo_name.text()
 
@@ -1285,11 +1286,14 @@ class OtherUtils(QTabWidget):
         return params
     
     def generate_cxs_file(self, params):
+        placeback_folder = "{}/PlaceBack".format(self.others_folder)
+        if not os.path.exists(placeback_folder):
+            mkfolder(placeback_folder)
+        
         star_file = params['data_star_file']
-        tomo_name = params['tomo_name']
+        tomo_names = params['tomo_name']
         average_map = params['fitin_map_file']
-        output_file_name = "{}/placeback_tomo_{}.cxc".format(self.others_folder, tomo_name)
-        clean_version_star = "{}/clean_tomo_{}.star".format(self.others_folder, tomo_name)
+        
         bin_factor = params['pixel_size_fitin_map']/params['pixel_size_unbinned']
         Min_neighbors = params['min_num_neighbors']
         Avg_angle_limit = params['avg_angle']
@@ -1304,117 +1308,188 @@ class OtherUtils(QTabWidget):
 
         apix = params['pixel_size_unbinned']
 
-        df_particles = starfile.read(star_file,  always_dict=True)['particles']
         try:
-            df_particles = df_particles.loc[df_particles['rlnTomoName']==tomo_name]
+            df_particles = starfile.read(star_file,  always_dict=True)['particles']
         except:
             return -1
-        df_particles = df_particles.reset_index()
-
-        manifoldIndex_start = df_particles['rlnTomoManifoldIndex'].astype(int).min()
-        manifold_num = df_particles['rlnTomoManifoldIndex'].astype(int).max() - manifoldIndex_start + 1
         
-        try:
-            shutil.copy(average_map, self.others_folder)
-        except:
-            pass
-        
-        global_id = 0
-        real_patch_num = 0
-        clean_i = 0
-        average_map_basename = os.path.basename(average_map)
-        if not manifold_num or math.isnan(manifold_num):
-            self.logger.warning("No Tomo Name: {}.".format(tomo_name))
-            return 0
+        if tomo_names.lower() == "all":
+            try:
+                tomoList = sorted(set(df_particles['rlnTomoName'].tolist()))
+            except:
+                return -1
         else:
-            with open(output_file_name, "w") as outfile:
-                with open(clean_version_star, "w") as c_star_file:
-                    for i in range(int(manifold_num)):
-                        current_manifold_id = manifoldIndex_start+i
-                        manifold_df = df_particles.loc[df_particles['rlnTomoManifoldIndex']==current_manifold_id]
-                        manifold_df = manifold_df.reset_index()
-                        pNum_i = manifold_df.shape[0]
-                        if pNum_i > 0:
-                            real_patch_num+=1
-                            global_id+=pNum_i
-                            
-                            open_line = "open"
-                            move_cmds = ""
-                            turn_cmds = ""
+            tomoList = [tomo_names]
+        
+        header = self.get_header(star_file)
+        
+        for tomo_name in tomoList:
+            try:
+                df_particles_i = df_particles.loc[df_particles['rlnTomoName']==tomo_name]
+            except:
+                self.logger.error("No particle was found for tomogame: {}!".format(tomo_name))
+                return -1
+            df_particles_i = df_particles_i.reset_index()
 
-                            centers = []
-                            new_vectors = []
+            manifoldIndex_start = df_particles_i['rlnTomoManifoldIndex'].astype(int).min()
+            manifold_num = df_particles_i['rlnTomoManifoldIndex'].astype(int).max() - manifoldIndex_start + 1
+            
+            average_map_basename = os.path.basename(average_map)
+            try:
+                if not os.path.exists("{}/{}".format(placeback_folder, average_map_basename)):
+                    shutil.copy(average_map, placeback_folder)
+            except:
+                pass
+        
+            global_id = 0
+            real_patch_num = 0
+            clean_i = 0
+            
+            output_file_name = "{}/placeback_tomo_{}.cxc".format(placeback_folder, tomo_name)
+            clean_version_star = "{}/clean_tomo_{}.star".format(placeback_folder, tomo_name)
 
-                            for j in range(pNum_i):
+            if not manifold_num or math.isnan(manifold_num):
+                self.logger.warning("No Tomo Name: {}.".format(tomo_name))
+                return 0
+            else:
+                with open(output_file_name, "w") as outfile:
+                    with open(clean_version_star, "w") as c_star_file:
+                        for i in range(int(manifold_num)):
+                            current_manifold_id = manifoldIndex_start+i
+                            manifold_df = df_particles_i.loc[df_particles_i['rlnTomoManifoldIndex']==current_manifold_id]
+                            manifold_df = manifold_df.reset_index()
+                            pNum_i = manifold_df.shape[0]
+                            if pNum_i > 0:
+                                real_patch_num+=1
+                                global_id+=pNum_i
                                 
-                                xp, yp, zp = [manifold_df['rlnCoordinateX'][j], manifold_df['rlnCoordinateY'][j], manifold_df['rlnCoordinateZ'][j]]
-                                xt, yt, zt = [manifold_df['rlnOriginXAngst'][j], manifold_df['rlnOriginYAngst'][j], manifold_df['rlnOriginZAngst'][j]]
-                                rot, tilt, psi = [manifold_df['rlnAngleRot'][j], manifold_df['rlnAngleTilt'][j], manifold_df['rlnAnglePsi'][j]]
+                                open_line = "open"
+                                move_cmds = ""
+                                turn_cmds = ""
+
+                                centers = []
+                                new_vectors = []
+
+                                for j in range(pNum_i):
+                                    
+                                    xp, yp, zp = [manifold_df['rlnCoordinateX'][j], manifold_df['rlnCoordinateY'][j], manifold_df['rlnCoordinateZ'][j]]
+                                    xt, yt, zt = [manifold_df['rlnOriginXAngst'][j], manifold_df['rlnOriginYAngst'][j], manifold_df['rlnOriginZAngst'][j]]
+                                    rot, tilt, psi = [manifold_df['rlnAngleRot'][j], manifold_df['rlnAngleTilt'][j], manifold_df['rlnAnglePsi'][j]]
+                                    
+                                    output_eulers, output_vector = Relion2ChimeraX(np.array([rot, tilt, psi]))
+
+                                    x = round(xp*apix + xt,3)
+                                    y = round(yp*apix + yt,3)
+                                    z = round(zp*apix + zt,3)
+
+                                    centers.append([x,y,z])
+                                    new_vectors.append([output_vector[0],output_vector[1],output_vector[2]])
+
+                                    if pNum_i == 1:
+                                        model_id = "{}".format(real_patch_num, j+1)
+                                    else:
+                                        model_id = "{}.{}".format(real_patch_num, j+1)
+                                    
+                                    open_line = "{} {}".format(open_line, average_map_basename)
+
+                                    move_cmds = "{}move x {} models #{}; move y {} models #{}; move z {} models #{};\n"\
+                                                .format(move_cmds, x, model_id, y, model_id, z, model_id)
+                                    
+                                    turn_cmds = "{}turn z {} center 0,0,0 models #{} coordinateSystem #{}; turn y {} center 0,0,0 models #{} coordinateSystem #{}; turn z {} center 0,0,0  models #{} coordinateSystem #{};\n"\
+                                                .format(turn_cmds, output_eulers[0], model_id, model_id, output_eulers[1], model_id, model_id, \
+                                                    output_eulers[2], model_id, model_id)
+
+                                mat_coords = np.array(distance_matrix(centers, centers))
+                                mat_norm = squareform(pdist(new_vectors, "cosine"))
                                 
-                                output_eulers, output_vector = Relion2ChimeraX(np.array([rot, tilt, psi]))
+                                color_cmds = ""
 
-                                x = round(xp*apix + xt,3)
-                                y = round(yp*apix + yt,3)
-                                z = round(zp*apix + zt,3)
+                                for j in range(pNum_i):
+                                    
+                                    neignbors = getNeighbors(mat_coords[j], j, dis_unit*dis_ratio)
+                                    sum = 0
+                                    max_angle = 0
+                                    avg_angle = 0
+                                    for n in neignbors:		
+                                        sum += math.acos(1-mat_norm[j][n])/math.pi*180
+                                        max_angle = max(max_angle, math.acos(1-mat_norm[j][n])/math.pi*180)
+                                    if len(neignbors) > 0:
+                                        avg_angle =  sum/len(neignbors)
 
-                                centers.append([x,y,z])
-                                new_vectors.append([output_vector[0],output_vector[1],output_vector[2]])
+                                    #r,g,b = getRGBs(avg_angle, max_angle=30)
+                                    r,g,b = getRGBs(avg_angle, max_angle= Avg_angle_limit)
+                                    
+                                    ## TEST ## save only largely curved region
+                                    #if len(neignbors) >= Min_neighbors and avg_angle >= Avg_angle_limit:
+                                    ## TEST ## save based on max angle
+                                    #if len(neignbors) >= Min_neighbors and max_angle <= Avg_angle_limit:
+                                    ## TEST ## save based on side/top view
+                                    # if Avg_angle_limit >= 0:
+                                    #     test_bool = abs(new_vectors[j][2]) >= Avg_angle_limit
+                                    # else:
+                                    #     test_bool = abs(new_vectors[j][2]) <= -Avg_angle_limit
+                                    
+                                    # if len(neignbors) >= Min_neighbors and test_bool:
+                                        
+                                    # original setting
+                                    if len(neignbors) >= Min_neighbors and avg_angle <= Avg_angle_limit:
+                                        c_star_line = " ".join([str(x) for x in manifold_df.loc[j].values.flatten().tolist()][2:]) + "\n"
+                                        c_star_file.write(c_star_line)
+                                        clean_i+=1
+                                    if pNum_i == 1:
+                                        model_id = "{}".format(real_patch_num, j+1)
+                                    else:
+                                        model_id = "{}.{}".format(real_patch_num, j+1)
 
-                                if pNum_i == 1:
-                                    model_id = "{}".format(real_patch_num, j+1)
-                                else:
-                                    model_id = "{}.{}".format(real_patch_num, j+1)
+                                    color_cmds = "{}color #{} rgb({},{},{});\n".format(color_cmds, model_id, r, g, b)
+
+                                recenter_line = "vop #{} originIndex {},{},{};\n".format(real_patch_num, map_dimension[2]/2, map_dimension[1]/2, map_dimension[0]/2)
                                 
-                                open_line = "{} {}".format(open_line, average_map_basename)
+                                outfile.write(open_line+";\n\n")
+                                outfile.write(recenter_line+"\n")
+                                outfile.write(move_cmds+"\n")
+                                outfile.write(turn_cmds+"\n")
+                                outfile.write(color_cmds+"\n")
 
-                                move_cmds = "{}move x {} models #{}; move y {} models #{}; move z {} models #{};\n"\
-                                            .format(move_cmds, x, model_id, y, model_id, z, model_id)
-                                
-                                turn_cmds = "{}turn z {} center 0,0,0 models #{} coordinateSystem #{}; turn y {} center 0,0,0 models #{} coordinateSystem #{}; turn z {} center 0,0,0  models #{} coordinateSystem #{};\n"\
-                                            .format(turn_cmds, output_eulers[0], model_id, model_id, output_eulers[1], model_id, model_id, \
-                                                output_eulers[2], model_id, model_id)
+                    outfile.write("view\n")  
 
-                            mat_coords = np.array(distance_matrix(centers, centers))
-                            mat_norm = squareform(pdist(new_vectors, "cosine"))
-                            
-                            color_cmds = ""
+                self.logger.info("Original: {}; Clean version: {}.".format(global_id, clean_i))
+                self.logger.info("Done getting placeback session file for ChimeraX: {}!".format(tomo_name))
 
-                            for j in range(pNum_i):
-                                
-                                neignbors = getNeighbors(mat_coords[j], j, dis_unit*dis_ratio)
-                                sum = 0
-                                avg_angle = 0
-                                for n in neignbors:		
-                                    sum += math.acos(1-mat_norm[j][n])/math.pi*180
-                                if len(neignbors) > 0:
-                                    avg_angle =  sum/len(neignbors)
-
-                                #r,g,b = getRGBs(avg_angle, max_angle=30)
-                                r,g,b = getRGBs(avg_angle, max_angle= Avg_angle_limit)
-                                
-                                if len(neignbors) >= Min_neighbors and avg_angle <= Avg_angle_limit:
-                                    c_star_line = " ".join([str(x) for x in manifold_df.loc[j].values.flatten().tolist()][2:]) + "\n"
-                                    c_star_file.write(c_star_line)
-                                    clean_i+=1
-                                if pNum_i == 1:
-                                    model_id = "{}".format(real_patch_num, j+1)
-                                else:
-                                    model_id = "{}.{}".format(real_patch_num, j+1)
-
-                                color_cmds = "{}color #{} rgb({},{},{});\n".format(color_cmds, model_id, r, g, b)
-
-                            recenter_line = "vop #{} originIndex {},{},{};\n".format(real_patch_num, map_dimension[2]/2, map_dimension[1]/2, map_dimension[0]/2)
-                            
-                            outfile.write(open_line+";\n\n")
-                            outfile.write(recenter_line+"\n")
-                            outfile.write(move_cmds+"\n")
-                            outfile.write(turn_cmds+"\n")
-                            outfile.write(color_cmds+"\n")
-
-                outfile.write("view\n")  
-
-            self.logger.info("Original: {}; Clean version: {}.".format(global_id, clean_i))
-            return 1
+        if len(tomoList) > 1:
+            clean_version_star_all = "{}/particles_clean_all.star".format(placeback_folder)
+            with open (clean_version_star_all, 'w') as w:
+                w.write(header)
+            for tomo_name in tomoList:
+                starfile_i = "{}/clean_tomo_{}.star".format(placeback_folder, tomo_name)
+                if os.path.exists(starfile_i):
+                    cmd = "cat {} >> {}".format(starfile_i, clean_version_star_all)
+                    subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
+            
+            self.logger.info("clean version of STAR file saved: {}!".format(clean_version_star_all))
+            
+    def get_header(self, star_file):
+        header = ""
+        with open(star_file, 'r') as f:
+            lines = f.readlines()
+            start_particle_header = False
+            start_particle_header_rln = False
+            for line in lines:
+                if not start_particle_header:
+                    header += line
+                    if line.startswith("data_particles"):
+                        start_particle_header = True
+                else:
+                    if not start_particle_header_rln:
+                        header += line
+                        if line.startswith("_rln"):
+                            start_particle_header_rln = True
+                    else:
+                        if not line.startswith("_rln"):
+                            break
+                        else:
+                            header += line
+        return header 
     
     def placeback(self):
         params = self.get_placeback_params()
@@ -1431,12 +1506,12 @@ class OtherUtils(QTabWidget):
                 
                 result = self.generate_cxs_file(params)
 
-                if result == 1:
-                    self.logger.info("Done getting placeback session file for ChimeraX: {}!".format(params['tomo_name']))
-                elif result == -1:
-                    self.logger.error("No particle was found for tomogame: {}!".format(params['tomo_name']))
-                else:
-                    self.logger.error("Unexpected error for tomogame: {}!".format(params['tomo_name']))
+                # if result == 1:
+                #     self.logger.info("Done getting placeback session file for ChimeraX: {}!".format(params['tomo_name']))
+                # elif result == -1:
+                #     self.logger.error("No particle was found for tomogame: {}!".format(params['tomo_name']))
+                # else:
+                #     self.logger.error("Unexpected error for tomogame: {}!".format(params['tomo_name']))
                 
                 self.cmd_finished(self.pushButton_place_back)
     
