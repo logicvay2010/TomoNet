@@ -22,6 +22,24 @@ Google group: https://groups.google.com/g/tomonet_cryoet
 ## Reference ##
 Our preprint is available here: https://www.biorxiv.org/content/10.1101/2024.02.17.580557v1
 
+Please also cite the corresponding tools/packages if specific modules were used in your workflow:
+###
+**Motion Correction**: MotionCorr2
+###
+###
+**3D Reconstruction**: Imod, PEET, or AreTomo
+###
+###
+**CTF Est.**: CTFFIND4
+###
+###
+**Manual Picking**: Imod
+###
+###
+**Auto Exp.**: PEET
+###
+
+
 ## Examples of TomoNet Application ##
 ### <p align="center"> HIV Gag 2D lattice </p> ###
 <p align="center"> <img src="assets/images/2Dlattice-HIV-Gag.png" width=600/> </p> 
