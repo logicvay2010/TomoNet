@@ -1412,7 +1412,7 @@ class Expand(QTabWidget):
                 rot_steps = [rot_step, rot_step, rot_step]
             else:
                 rot_steps = self.lineEdit_rot_steps.text().split(",")
-                if (not len(rot_steps) ==3) or not string2float(rot_steps[0]) or not string2float(rot_steps[1]) or not string2float(rot_steps[2]):
+                if (not len(rot_steps) ==3) or string2float(rot_steps[0]) == None or string2float(rot_steps[1]) == None or string2float(rot_steps[2]) == None:
                    return "Please use the valid format for the first round search steps!" 
                 rot_steps = [int(string2float(x)) for x in rot_steps]
         else:
@@ -1424,7 +1424,7 @@ class Expand(QTabWidget):
                 fineRotRanges = [fineRotRange, fineRotRange, fineRotRange]
             else:
                 fineRotRanges = self.lineEdit_fineRotRange.text().split(",")
-                if (not len(fineRotRanges) ==3) or not string2float(fineRotRanges[0]) or not string2float(fineRotRanges[1]) or not string2float(fineRotRanges[2]):
+                if (not len(fineRotRanges) ==3) or string2float(fineRotRanges[0]) == None or string2float(fineRotRanges[1]) == None or string2float(fineRotRanges[2]) == None:
                    return "Please use the valid format for the later round angular search range!" 
                 fineRotRanges = [int(string2float(x)) for x in fineRotRanges]
         else:
@@ -1436,7 +1436,7 @@ class Expand(QTabWidget):
                 fineRot_steps = [fineRot_step, fineRot_step, fineRot_step]
             else:
                 fineRot_steps = self.lineEdit_fineRot_steps.text().split(",")
-                if (not len(fineRot_steps) ==3) or not string2float(fineRot_steps[0]) or not string2float(fineRot_steps[1]) or not string2float(fineRot_steps[2]):
+                if (not len(fineRot_steps) ==3) or string2float(fineRot_steps[0]) == None or string2float(fineRot_steps[1]) == None or string2float(fineRot_steps[2]) == None: 
                    return "Please use the valid format for the later round angular search steps!" 
                 fineRot_steps = [int(string2float(x)) for x in fineRot_steps]
         else:
@@ -1448,7 +1448,7 @@ class Expand(QTabWidget):
                 transRanges = [transRange, transRange, transRange]
             else:
                 transRanges = self.lineEdit_transRange.text().split(",")
-                if (not len(transRanges) ==3) or not string2float(transRanges[0]) or not string2float(transRanges[1]) or not string2float(transRanges[2]):
+                if (not len(transRanges) ==3) or string2float(transRanges[0]) == None or string2float(transRanges[1]) == None or string2float(transRanges[2]) == None:
                    return "Please use the valid format for the first round transpational search range!" 
                 transRanges = [int(string2float(x)) for x in transRanges]
         else:
@@ -1460,7 +1460,7 @@ class Expand(QTabWidget):
                 fineTransRanges = [fineTransRange, fineTransRange, fineTransRange]
             else:
                 fineTransRanges = self.lineEdit_fineTransRange.text().split(",")
-                if (not len(fineTransRanges) ==3) or not string2float(fineTransRanges[0]) or not string2float(fineTransRanges[1]) or not string2float(fineTransRanges[2]):
+                if (not len(fineTransRanges) ==3) or string2float(fineTransRanges[0]) == None or string2float(fineTransRanges[1]) == None or string2float(fineTransRanges[2]) == None:
                    return "Please use the valid format for the later round translational search steps!" 
                 fineTransRanges = [int(string2float(x)) for x in fineTransRanges]
         else:
@@ -1483,14 +1483,16 @@ class Expand(QTabWidget):
             transition_list = np.array(literal_eval("[0,0,0]"))
         
         if len(self.lineEdit_boxSize.text()) > 0:
-            if not string2float(self.lineEdit_boxSize.text()) == None:
-                box_size = int(string2float(self.lineEdit_boxSize.text()))
+            if not string2int(self.lineEdit_boxSize.text()) == None:
+                box_size = int(string2int(self.lineEdit_boxSize.text()))
                 box_sizes = [box_size, box_size, box_size]
             else:
                 box_sizes = self.lineEdit_boxSize.text().split(",")
-                if (not len(box_sizes) ==3) or not string2float(box_sizes[0]) or not string2float(box_sizes[1]) or not string2float(box_sizes[2]):
+                if (not len(box_sizes) ==3) or not string2int(box_sizes[0]) or string2int(box_sizes[0]) <=1 \
+                    or not string2int(box_sizes[1]) or string2int(box_sizes[1]) <=1 \
+                    or not string2int(box_sizes[2]) or string2int(box_sizes[2]) <=1:
                    return "Please use the valid format for the box size!" 
-                box_sizes = [int(string2float(x)) for x in box_sizes]
+                box_sizes = [int(string2int(x)) for x in box_sizes]
         else:
             return "Please specify the box size!"
         

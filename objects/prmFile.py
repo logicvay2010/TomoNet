@@ -15,8 +15,19 @@ class PRMFile():
       step_list.append(step_i)
       step_i = step_i*2
 
+
     if len(step_list) == 0 or range < step*3:
-      return [0], [1]
+      try:
+        temp_a = int(range//step)
+        if temp_a < 1:
+          return [0], [1]
+        temp_b = int(range//temp_a)
+        temp_c = int(temp_a*temp_b)
+        if temp_c < 1:
+          return [0], [1]
+        return [temp_c], [temp_b]
+      except:
+        return [0], [1]
 
     ranges = []
     steps = []
@@ -60,7 +71,7 @@ class PRMFile():
           rangexyz_list[i].append(rangexyz_list[i][-1])
           stepxyz_list[i].append(stepxyz_list[i][-1])
 
-    print(rangexyz_list, stepxyz_list)
+    #print(rangexyz_list, stepxyz_list)
     dPhi = dTheta = dPsi = searchRadius = lowCutoff = hiCutoff = refThreshold = "{}".format("{")
     
     if len(rangexyz_list[0]) > len(rangexyz_list[1]):
