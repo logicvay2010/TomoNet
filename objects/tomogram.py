@@ -34,7 +34,7 @@ class Tomogram:
         elif filename.endswith("RotAxes.csv"):
           self.rotaxesPath = filename
         elif (filename.endswith("MOTL.csv") or filename.endswith("motl.csv")) and "less" not in filename:
-          if not (self.motlPath == "{}_MOTL.csv".format(self.tomoName) or self.motlPath == "{}_InitMOTL.csv".format(self.tomoName)):
+          if self.motlPath == None or not (self.motlPath.endswith("{}_MOTL.csv".format(self.tomoName)) or self.motlPath.endswith("{}_InitMOTL.csv".format(self.tomoName))):
             self.motlPath = filename
         elif filename.endswith((".mrc",".rec")):
           self.tomogramPickPath = filename
