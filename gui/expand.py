@@ -1784,11 +1784,15 @@ class Expand(QTabWidget):
         
         if len(self.lineEdit_star_file_to_use.text()) > 0:
             star_file_to_use = self.lineEdit_star_file_to_use.text()
+            if not os.path.exists(star_file_to_use):
+                return "Cannot find the tomogram star file to be used!".format(star_file_to_use)
         else: 
             return "Please specify the tomogram star file to be used!"
         
         if len(self.lineEdit_pick_param_file_to_use.text()) > 0:
             pick_param_file_to_use = self.lineEdit_pick_param_file_to_use.text()
+            if not os.path.exists(pick_param_file_to_use):
+                return "Cannot find the pick param file to be used! {}".format(pick_param_file_to_use)
         else: 
             return "Please specify the pick param file to be used!"
         

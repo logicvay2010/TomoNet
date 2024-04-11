@@ -32,13 +32,19 @@ class Expand:
 
         ########################### mrc, mod. MOTL files #########################
         if os.path.exists("{}/{}_Tom1_Iter{}.mod".format(self.target_cache_folder, prefix, self.peet_iter)):
-            cmd = "cd {}/exp; ln -s ../{}_Tom1_Iter{}.mod ./{}.mod; ln -s ../{}_Tom1_Iter{}.csv ./{}_MOTL.csv; ln -s {} ./{}.mrc;".format( \
-                self.target_cache_folder, prefix, self.peet_iter, self.tomo.tomoName, prefix, \
+            #cmd = "cd {}/exp; ln -s ../{}_Tom1_Iter{}.mod ./{}.mod; ln -s ../{}_Tom1_Iter{}.csv ./{}_MOTL.csv; ln -s {} ./{}.mrc;".format( \
+            #    self.target_cache_folder, prefix, self.peet_iter, self.tomo.tomoName, prefix, \
+            #    self.peet_iter, self.tomo.tomoName, self.tomo.originTomogramPickPath, self.tomo.tomoName)
+            cmd = "cd {}/exp; model2point ../{}_Tom1_Iter{}.mod ./{}.pts; point2model ./{}.pts ./{}.mod; ln -s ../{}_Tom1_Iter{}.csv ./{}_MOTL.csv; ln -s {} ./{}.mrc;".format( \
+                self.target_cache_folder, prefix, self.peet_iter, self.tomo.tomoName, self.tomo.tomoName, self.tomo.tomoName, prefix, \
                 self.peet_iter, self.tomo.tomoName, self.tomo.originTomogramPickPath, self.tomo.tomoName)
         else:
-            cmd = "cd {}/exp; ln -s ../{}_exp_Tom1_Iter{}.mod ./{}.mod; ln -s ../{}_exp_Tom1_Iter{}.csv ./{}_MOTL.csv; ln -s {} ./{}.mrc;".format( \
-                self.target_cache_folder, prefix, self.peet_iter, self.tomo.tomoName, prefix, \
-                self.peet_iter, self.tomo.tomoName, self.tomo.originTomogramPickPath, self.tomo.tomoName)
+            #cmd = "cd {}/exp; ln -s ../{}_exp_Tom1_Iter{}.mod ./{}.mod; ln -s ../{}_exp_Tom1_Iter{}.csv ./{}_MOTL.csv; ln -s {} ./{}.mrc;".format( \
+            #    self.target_cache_folder, prefix, self.peet_iter, self.tomo.tomoName, prefix, \
+            #    self.peet_iter, self.tomo.tomoName, self.tomo.originTomogramPickPath, self.tomo.tomoName)
+            cmd = "cd {}/exp; model2point ../{}_exp_Tom1_Iter{}.mod ./{}.pts; point2model ./{}.pts ./{}.mod; ln -s ../{}_exp_Tom1_Iter{}.csv ./{}_MOTL.csv; ln -s {} ./{}.mrc;".format( \
+               self.target_cache_folder, prefix, self.peet_iter, self.tomo.tomoName, self.tomo.tomoName, self.tomo.tomoName, prefix, \
+               self.peet_iter, self.tomo.tomoName, self.tomo.originTomogramPickPath, self.tomo.tomoName)
         subprocess.run(cmd,shell=True)
         
     def expand_one(self):
