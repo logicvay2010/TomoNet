@@ -13,6 +13,19 @@ from TomoNet.util.star_metadata import MetaData
 from TomoNet.util.utils import mkfolder
 from TomoNet.util.searchParam import SearchParam
 
+########################
+log_file = "Expand/expand.log"
+
+logger = logging.getLogger(__name__)
+handler = logging.FileHandler(filename=log_file, mode='a')
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+formatter.datefmt = "%y-%m-%d %H:%M:%S"
+logger.handlers = [handler]
+logger.setLevel(logging.INFO)
+########################
+#search_param = SearchParam(param_file)
+
 # read input parameters
 star_file = sys.argv[1]
 param_file = sys.argv[2]
@@ -42,22 +55,39 @@ if max_exp_num == 0:
     latest_round = -1
 
     if os.path.exists(cache_folder_path):
-      cache_folder_list = []
-      for dir in os.listdir(cache_folder_path):
-          if dir.startswith("round"):
-              cache_folder_list.append(dir)
-      rounds_num = [int(x.split("_")[1]) for x in cache_folder_list]
-      if len(rounds_num) > 0:
-        latest_round = max(rounds_num)
-      latest_cache_folder_path = "{}_cache/round_{}".format(tomo.staPath,latest_round)
+        cache_folder_list = []
+        for dir in os.listdir(cache_folder_path):
+            if dir.startswith("round"):
+                cache_folder_list.append(dir)
+        rounds_num = [int(x.split("_")[1]) for x in cache_folder_list]
+        if len(rounds_num) > 0:
+            latest_round = max(rounds_num)
+        else:
+            logger.error("No cache subfolder found for {}!".format(tomo.tomoName))
+            sys.exit()
+      
+        ready2go = False
+        while not ready2go:
+            latest_cache_folder_path = "{}_cache/round_{}".format(tomo.staPath, latest_round)
 
-      if not os.path.exists("{}/exp/{}_exp.mod".format(latest_cache_folder_path, tomo.tomoName)):
-        cmd = "rm {}/* -rf".format(cache_folder_path) 
-        subprocess.check_output(cmd, shell=True)
-        latest_round = -1
-        tomo.setInitialParams()
-      else:
-        tomo.updateAlignmentFile(latest_round, latest_cache_folder_path)
+            if os.path.exists(latest_cache_folder_path):
+                if not os.path.exists("{}/exp/{}.mod".format(latest_cache_folder_path, tomo.tomoName)):
+                    cmd = "rm {}/* -rf".format(latest_cache_folder_path) 
+                    subprocess.check_output(cmd, shell=True)
+                    latest_round -= 1
+                    tomo.setInitialParams()
+                else:
+                    ready2go = True
+                    tomo.updateAlignmentFile(latest_round, latest_cache_folder_path)
+            else:
+                if latest_round < 0:
+                    logger.error("No valid cache subfolder found for {}! .mod file not found in round_x/exp folder".format(tomo.tomoName))
+                    ready2go = True
+                    tomo.updateAlignmentFile(latest_round, latest_cache_folder_path)
+                    sys.exit()
+                else:
+                    latest_round -= 1
+                    tomo.setInitialParams()
     else:
       tomo.setInitialParams()
     
@@ -81,18 +111,6 @@ else:
       if not os.path.exists("{}/exp/{}_exp.mod".format(latest_cache_folder_path, tomo.tomoName)):
         latest_round = -1
 
-########################
-log_file = "Expand/expand.log"
-
-logger = logging.getLogger(__name__)
-handler = logging.FileHandler(filename=log_file, mode='a')
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-formatter.datefmt = "%y-%m-%d %H:%M:%S"
-logger.handlers = [handler]
-logger.setLevel(logging.INFO)
-########################
-#search_param = SearchParam(param_file)
 
 for i in range(max_exp_num):
     first_round = i==0  
@@ -150,6 +168,7 @@ search_param = SearchParam(param_file)
 repeat_unit = round(search_param.repeating_unit/tomo.apix, 1)
 particle_dup_ratio = 0.8
 patch_dis_ratio = 1.5
+print(points)
 clusters = hcluster.fclusterdata(points, repeat_unit*particle_dup_ratio, criterion="distance")
 points_rmdup = []
 motls_rmdup = []
