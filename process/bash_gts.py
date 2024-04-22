@@ -53,7 +53,7 @@ def newstack(param):
                 mrc_flip = mrcfile.new(output_name_flip, overwrite=True)
                 mrc_flip.set_data(mrcdata_flip)
                 mrc_flip.voxel_size = apix.copy()
-                print(mrc_flip.voxel_size)
+                #print(mrc_flip.voxel_size)
                 mrc_flip.close()
 
                 os.replace(output_name_flip, output_name)
