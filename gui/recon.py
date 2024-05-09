@@ -67,6 +67,7 @@ class Recon(QTabWidget):
         self.currentChanged.connect(self.tab_changed)
         
         self.tableView.doubleClicked.connect(self.table_click)
+
         self.tableView_aretomo.doubleClicked.connect(self.table_click_aretomo)
 
         for child in self.findChildren(QtWidgets.QLineEdit):
@@ -80,9 +81,6 @@ class Recon(QTabWidget):
         self.setting_file ="Recon/recon.setting"
         
         self.read_setting()
-
-
-
 
         self.fileSystemWatcher = QtCore.QFileSystemWatcher(self)
         self.fileSystemWatcher.addPath(self.log_file)
@@ -1246,7 +1244,7 @@ class Recon(QTabWidget):
                 pass
             else:
                 tomoName = self.tableView.item(i, 0).text()
-                rec_path = self.read_recon_folder(tomoName)[6]
+                rec_path = self.read_recon_folder(tomoName, self.etomo_folder)[6]
                 cmd = "3dmod {}".format(rec_path)
                 subprocess.check_output(cmd, shell=True)
         elif j == 12:
