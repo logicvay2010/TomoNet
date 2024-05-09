@@ -1127,7 +1127,7 @@ class Autopick(QTabWidget):
                     try:
                         self.thread_train_network.start()
                     except:
-                        print("There is an issue running this function!")
+                        self.logger.error("There is an issue running this function!")
                         self.thread_train_network.stop_process()
         else:
             ret = QMessageBox.question(self, 'Quit!', \
@@ -1244,7 +1244,7 @@ class Autopick(QTabWidget):
                     try:
                         self.thread_predict_network.start()
                     except:
-                        print("There is an issue running this function!")
+                        self.logger.error("There is an issue running this function!")
                         self.thread_predict_network.stop_process()
         else:
             ret = QMessageBox.question(self, 'Quit!', \
@@ -1379,3 +1379,5 @@ class Autopick(QTabWidget):
     def cmd_finished(self, button, text="Run"):
         button.setText(text)
         button.setStyleSheet("QPushButton {color: black;}")
+        self.model_folder_changed()
+        self.reload_table()
