@@ -2,9 +2,6 @@
 
 **Net** refers to 1. lattice **Net**work structure 2. usage of neural **Net**work 
 
-## **Update 02/12/2024:** ##
-
-TomoNet now support AreTomo Reconstruction
 
 ## Installation and Mannual ##
 Please check this user manual for usage of TomoNet: 
