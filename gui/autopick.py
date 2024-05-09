@@ -1,15 +1,19 @@
 import logging
 import os
 import os.path
+import glob
+import shutil
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QTabWidget, QMessageBox
+from PyQt5.QtWidgets import QTabWidget, QMessageBox, QHeaderView, QTableWidgetItem
+from PyQt5.QtGui import QFont
 
 from TomoNet.util import browse
 from TomoNet.util.utils import check_log_file, getLogContent, string2float, string2int
 from TomoNet.process.bash_train_network import Train_network
 from TomoNet.process.bash_predict_network import Predict_network
 
+from TomoNet.util import metadata
 
 class Autopick(QTabWidget):
     def __init__(self):
@@ -43,6 +47,9 @@ class Autopick(QTabWidget):
         self.icon = QtGui.QIcon()
         self.icon.addPixmap(QtGui.QPixmap("{}/icons/icon_folder.png".format(scriptDir)), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
+        self.icon_trashCan = QtGui.QIcon()
+        self.icon_trashCan.addPixmap(QtGui.QPixmap("{}/icons/trash_can.png".format(scriptDir)), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+
         self.setUI_tab1()
         self.setUI_tab2()
         
@@ -52,6 +59,7 @@ class Autopick(QTabWidget):
         for child in self.findChildren(QtWidgets.QLineEdit):
             child.textChanged.connect(self.save_setting)
 
+        self.lineEdit_input_model.textChanged.connect(self.model_folder_changed)
         self.pushButton_input_folder_train.clicked.connect\
             (lambda: browse.browseFolderSlot(self.lineEdit_input_folder_train)) 
         self.pushButton_continue_from_model.clicked.connect\
@@ -70,13 +78,21 @@ class Autopick(QTabWidget):
         for child in self.findChildren(QtWidgets.QCheckBox):
             child.stateChanged.connect(self.save_setting)
 
+        self.comboBox_prediction_condition.currentIndexChanged.connect(self.reload_table)
+
+        self.tableView_prediction.doubleClicked.connect(self.table_click)
+
         self.pushButton_predict_network.clicked.connect(self.predict_network)
+
+        self.pushButton_delete_condition.clicked.connect(self.remove_condition)
 
         self.setTabShape(QtWidgets.QTabWidget.Triangular)
         
         self.retranslateUi_tab1()
         self.retranslateUi_tab2()
         self.read_settting()
+        self.model_folder_changed()
+        self.reload_table()
 
     def setUI_tab1(self):
         #tab 1
@@ -301,18 +317,18 @@ class Autopick(QTabWidget):
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_last.addItem(spacerItem2)
 
-        self.gridLayout_prepare = QtWidgets.QGridLayout(self.tab)
+        self.gridLayout_train = QtWidgets.QGridLayout(self.tab)
 
-        self.gridLayout_prepare.addLayout(self.horizontalLayout_1, 0, 0, 1, 1)
-        self.gridLayout_prepare.addLayout(self.horizontalLayout_1_2, 1, 0, 1, 1)
-        self.gridLayout_prepare.addLayout(self.horizontalLayout_2, 2, 0, 1, 1)
-        self.gridLayout_prepare.addLayout(self.horizontalLayout_3, 3, 0, 1, 1)
-        self.gridLayout_prepare.addWidget(self.groupBox_2, 4, 0, 1, 1)
+        self.gridLayout_train.addLayout(self.horizontalLayout_1, 0, 0, 1, 1)
+        self.gridLayout_train.addLayout(self.horizontalLayout_1_2, 1, 0, 1, 1)
+        self.gridLayout_train.addLayout(self.horizontalLayout_2, 2, 0, 1, 1)
+        self.gridLayout_train.addLayout(self.horizontalLayout_3, 3, 0, 1, 1)
+        self.gridLayout_train.addWidget(self.groupBox_2, 4, 0, 1, 1)
 
         self.spacerItem3 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_prepare.addItem(self.spacerItem3, 5, 0, 1, 1)
+        self.gridLayout_train.addItem(self.spacerItem3, 5, 0, 1, 1)
 
-        self.gridLayout_prepare.addLayout(self.horizontalLayout_last, 6, 0, 1, 1)
+        self.gridLayout_train.addLayout(self.horizontalLayout_last, 6, 0, 1, 1)
     
     def setUI_tab2(self):
         #tab 2
@@ -499,18 +515,61 @@ class Autopick(QTabWidget):
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_last_2.addItem(spacerItem2)
 
-        self.gridLayout_prepare = QtWidgets.QGridLayout(self.tab_2)
+        self.gridLayout_prediction = QtWidgets.QGridLayout(self.tab_2)
 
-        self.gridLayout_prepare.addLayout(self.horizontalLayout_4, 0, 0, 1, 1)
-        self.gridLayout_prepare.addLayout(self.horizontalLayout_5, 1, 0, 1, 1)
-        self.gridLayout_prepare.addLayout(self.horizontalLayout_7, 3, 0, 1, 1)
-        self.gridLayout_prepare.addWidget(self.groupBox_1, 4, 0, 1, 1)
+        self.gridLayout_prediction.addLayout(self.horizontalLayout_4, 0, 0, 1, 1)
+        self.gridLayout_prediction.addLayout(self.horizontalLayout_5, 1, 0, 1, 1)
+        self.gridLayout_prediction.addLayout(self.horizontalLayout_7, 3, 0, 1, 1)
+        self.gridLayout_prediction.addWidget(self.groupBox_1, 4, 0, 1, 1)
 
-        self.spacerItem4 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_prepare.addItem(self.spacerItem4, 5, 0, 1, 1)
+        #self.spacerItem4 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        #self.gridLayout_prediction.addItem(self.spacerItem4, 5, 0, 1, 1)
 
-        self.gridLayout_prepare.addLayout(self.horizontalLayout_last_2, 6, 0, 1, 1)
+        self.gridLayout_prediction.addLayout(self.horizontalLayout_last_2, 5, 0, 1, 1)
+
+        self.horizontalLayout_10 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_10.setContentsMargins(10, 5, 10, 5)
+
+        self.label_prediction_condition = QtWidgets.QLabel(self.tab_2)
+        self.label_prediction_condition.setSizePolicy(sizePolicy)
+        self.label_prediction_condition.setMinimumSize(QtCore.QSize(60, 0))
+        self.label_prediction_condition.setMaximumSize(QtCore.QSize(80, 30))
+        self.label_prediction_condition.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_prediction_condition.setObjectName("label_prediction_condition")
         
+        self.horizontalLayout_10.addWidget(self.label_prediction_condition)
+
+        self.comboBox_prediction_condition = QtWidgets.QComboBox(self.tab_2)
+        self.comboBox_prediction_condition.setObjectName("comboBox_prediction_condition")
+        #self.comboBox_prediction_condition.addItem("")
+        #self.comboBox_prediction_condition.addItem("")
+        self.horizontalLayout_10.addWidget(self.comboBox_prediction_condition)
+
+        self.pushButton_delete_condition = QtWidgets.QPushButton(self.tab_2)
+        self.pushButton_delete_condition.setSizePolicy(sizePolicy)
+        self.pushButton_delete_condition.setIcon(self.icon_trashCan)
+        self.pushButton_delete_condition.setMaximumSize(QtCore.QSize(40, 30))
+        self.pushButton_delete_condition.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.pushButton_delete_condition.setObjectName("delete_condition")
+        
+        self.horizontalLayout_10.addWidget(self.pushButton_delete_condition)
+        
+        self.gridLayout_prediction.addLayout(self.horizontalLayout_10, 6, 0, 1, 1)
+
+        self.tableView_prediction = QtWidgets.QTableWidget(self)
+        
+        header_labels_prediction = metadata.header_labels_prediction
+        
+        self.tableView_prediction.setColumnCount(len(header_labels_prediction))
+        self.tableView_prediction.setHorizontalHeaderLabels(header_labels_prediction)
+        
+        header_prediction = self.tableView_prediction.horizontalHeader()   
+        header_prediction.setSectionResizeMode(QHeaderView.ResizeToContents)
+
+        self.tableView_prediction.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
+        
+        self.gridLayout_prediction.addWidget(self.tableView_prediction, 7, 0)
+       
     def retranslateUi_tab1(self):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("Form", "Form"))
@@ -792,6 +851,17 @@ class Autopick(QTabWidget):
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
             If set Yes, a global segmentation map will be save after prediction for each tomogram. Sometime it helps with optimazing hyper-parameters.\
                 But the map's size is the same as the input map which takes disk spaces. default: No\
+            </span></p></body></html>"))
+        
+        self.label_prediction_condition.setText(_translate("Form", "Condition"))
+        self.label_prediction_condition.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            font-size:9pt;\"> select prediction results under which hyper parameter conditions.\
+            </span></p></body></html>"))
+
+        self.comboBox_prediction_condition.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" font-size:9pt;\">\
+            list all conditions of prediction.\
             </span></p></body></html>"))
         
         self.pushButton_predict_network.setText(_translate("Form", "Predict"))
@@ -1188,6 +1258,123 @@ class Autopick(QTabWidget):
                     self.thread_predict_network.stop_process()
                 except:
                     self.logger.warning("no thread are running!")
+
+    def model_folder_changed(self):
+        model_folder = os.path.dirname(self.lineEdit_input_model.text())
+        listdir = sorted([os.path.basename(x) for x in glob.glob("{}/predict_result*".format(model_folder))])
+        self.comboBox_prediction_condition.clear()
+        for i, item in enumerate(listdir):
+            if os.path.isdir("{}/{}".format(model_folder, item)):
+                self.comboBox_prediction_condition.addItem("")
+                self.comboBox_prediction_condition.setItemText(i, item)
+    
+    def table_click(self, item):
+        i = item.row()
+        j = item.column()
+    
+        if j == 2:
+            try:
+                result_folder = self.comboBox_prediction_condition.currentText()
+            except Exception as e:
+                self.logger.error(e)
+                result_folder = "None"
+
+            abs_path = "{}/{}".format(os.path.dirname(self.lineEdit_input_model.text()), result_folder)
+            tomoFinals = self.read_tomo(abs_path)
+            
+            items = self.read_final_folder(tomoFinals[i], abs_path)
+            cmd = "3dmod {} {}".format(items[1], items[2])
+            os.system(cmd)
+
+    def reload_table(self):
+        try:
+            result_folder = self.comboBox_prediction_condition.currentText()
+        except Exception as e:
+            self.logger.error(e)
+            result_folder = "None"
+        if not result_folder == "None":
+            abs_path = "{}/{}".format(os.path.dirname(self.lineEdit_input_model.text()), result_folder)
+            tomoFinals = self.read_tomo(abs_path)
+            
+            self.tableView_prediction.setRowCount(0)
+            self.tableView_prediction.setRowCount(len(tomoFinals))
+
+            if len(tomoFinals) > 0:
+                for i, tomo in enumerate(tomoFinals):
+                    
+                    action_tomoname = QTableWidgetItem(tomo.split("_final")[0])
+                    action_tomoname.setFont(QFont("sans-serif", 9, QFont.Bold))
+                    self.tableView_prediction.setItem(i, 0, action_tomoname)      
+
+                    items = self.read_final_folder(tomo, abs_path)
+
+                    action_num = QTableWidgetItem(str(items[0]))
+                    action_num.setFont(QFont("sans-serif", 9, QFont.Bold))
+                    self.tableView_prediction.setItem(i, 1, action_num)  
+                
+                    action_check = QTableWidgetItem("View Particles")
+                    action_check.setBackground(QtGui.QColor("#a0d2eb"))
+                    action_check.setFont(QFont("sans-serif", 9, QFont.Bold))
+                    self.tableView_prediction.setItem(i, 2, action_check)
+
+    def read_tomo(self, folder_path):
+        #folder_path = self.ts_folder
+        tomoNames = [os.path.basename(x) for x in sorted(glob.glob("{}/*_final".format(folder_path)))]
+
+        #tomoNames = sorted(list(set(tomoNames1) & set(tomoNames2)))
+        try:
+            tomoNames.sort(key=self.natural_keys)
+        except:
+            pass
+
+        return tomoNames
+    
+    def read_final_folder(self, tomoFinal, abs_folder):
+
+        particle_num, map_path, mod_path = ["", "", ""]
+
+        tomoName = tomoFinal.split("_final")[0]
+        full_path = "{}/{}".format(abs_folder, tomoFinal)
+
+        pts_path = "{}/{}.pts".format(full_path, tomoName)
+        mod_path = "{}/{}.mod".format(full_path, tomoName)
+        rec_path = "{}/{}.rec".format(full_path, tomoName)
+        mrc_path = "{}/{}.mrc".format(full_path, tomoName)
+
+        if os.path.exists(rec_path):
+            map_path = rec_path
+        else:
+            map_path = mrc_path
+
+        try:
+            with open(pts_path) as f:
+                particle_num = sum(1 for line in f if line.strip())
+        except:
+            particle_num = 0
+        
+        return particle_num, map_path, mod_path
+
+    def remove_condition(self):
+        ret = QMessageBox.question(self, 'Train', \
+                        "Sure delete the selected prediciton folder?\n"\
+                        , QMessageBox.Yes | QMessageBox.No, \
+                        QMessageBox.No)
+                    
+        if ret == QMessageBox.Yes:
+            result_folder = self.comboBox_prediction_condition.currentText()
+            abs_path = "{}/{}".format(os.path.dirname(self.lineEdit_input_model.text()), result_folder)
+
+            index = self.comboBox_prediction_condition.findText(result_folder)
+            if index > 0:
+                if os.path.exists(abs_path):
+                    try:
+                        shutil.rmtree(abs_path)
+                    except:
+                        pass
+                
+                    self.comboBox_prediction_condition.removeItem(index)
+                    self.model_folder_changed()
+                    self.reload_table()
 
     def cmd_finished(self, button, text="Run"):
         button.setText(text)

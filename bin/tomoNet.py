@@ -191,6 +191,11 @@ QLabel{
     font-weight: bold;
     font: 14px;
 }
+
+QComboBox{
+    font-weight: bold;
+    font: 14px;
+}
 """
 class MyWindow(QtWidgets.QMainWindow):
     def __init__(self):

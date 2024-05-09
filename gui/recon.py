@@ -1410,8 +1410,6 @@ class Recon(QTabWidget):
                 action_view.setFont(QFont("sans-serif", 8, QFont.Bold))
                 self.tableView.setItem(i, 5, action_view)
 
-                
-
                 self.tableView.setItem(i, 6, QTableWidgetItem(items[0]))
                 self.tableView.setItem(i, 7, QTableWidgetItem(items[1]))
                 self.tableView.setItem(i, 8, QTableWidgetItem(items[2]))

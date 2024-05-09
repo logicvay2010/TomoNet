@@ -6,6 +6,8 @@ header_labels_recon = ['Tomo Name', 'Action', 'Action', 'Action', 'Action', 'Rec
 header_labels_aretomo = ['Tomo Name', 'Action', 'Recon Map', 'Tilts #', \
     'Binning', 'Thickness', 'Skipped view(s)', 'Notes']
 
+header_labels_prediction = ['Tomo Name', 'Particle #', 'Action']
+
 header_labels_manual = ['Tomo Name', 'Top(one point)', 'Bottom(one point)', \
                         'Side(two points)', 'Action', 'Action', 'Action','Action']
 
