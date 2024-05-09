@@ -163,7 +163,8 @@ class Ui_TomoNet(object):
 stylesheet = """
 QPushButton#run {
     background: rgb(239,221,241);
-    font: 14px;
+    font: 16px;
+    font-weight: bold;
 }
 
 QGroupBox{
