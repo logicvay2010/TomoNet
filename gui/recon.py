@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QTabWidget, QTableWidgetItem, QHeaderView, QMessageB
 
 from TomoNet.util import browse, metadata
 from TomoNet.util.io import mkfolder
-from TomoNet.util.utils import string2float, string2int
+from TomoNet.util.utils import string2float, string2int, idx2list
 from TomoNet.process.bash_gts import Generate_TS
 from TomoNet.process.bash_aretomo import AreTomo
 
@@ -18,16 +18,33 @@ class Recon(QTabWidget):
     def __init__(self):
         super().__init__()
         self.setTabShape(QtWidgets.QTabWidget.Triangular)
-        
-        self.setupUi()
-        self.setupUi_aretomo()
+
         ############### Define variables ################
         self.ts_folder = "Recon/ts_tlt"
         self.etomo_folder = "Recon/eTomo"
         self.areTomo_folder = "Recon/AreTomo"
         self._history_record = "Recon/history_record.txt"
         self.current_ts_list = None
+        self.current_ts_list_selected = []
+        self.current_tomoNames_aretomo = []
         ############### Define variables ################
+        
+        self.log_file = "Recon/recon.log"
+        self.note_json = "Recon/notes.json"
+        self.check_log_file("Recon")
+
+        self.logger = logging.getLogger(__name__)
+        handler = logging.FileHandler(filename=self.log_file, mode='a')
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        formatter.datefmt = "%y-%m-%d %H:%M:%S"
+        self.logger.addHandler(handler)
+        self.logger.setLevel(logging.INFO)
+
+                
+        self.setupUi()
+        self.setupUi_aretomo()
+
 
         self.retranslateUi()
         self.retranslateUi_aretomo()
@@ -48,7 +65,9 @@ class Recon(QTabWidget):
         self.pushButton_aretomo_input_folder.clicked.connect(lambda: browse.browseFolderSlot(self.lineEdit_aretomo_input_folder)) 
         
         self.currentChanged.connect(self.tab_changed)
+        
         self.tableView.doubleClicked.connect(self.table_click)
+        self.tableView_aretomo.doubleClicked.connect(self.table_click_aretomo)
 
         for child in self.findChildren(QtWidgets.QLineEdit):
             child.textChanged.connect(self.save_setting)
@@ -62,17 +81,8 @@ class Recon(QTabWidget):
         
         self.read_setting()
 
-        self.log_file = "Recon/recon.log"
-        self.note_json = "Recon/notes.json"
-        self.check_log_file("Recon")
 
-        self.logger = logging.getLogger(__name__)
-        handler = logging.FileHandler(filename=self.log_file, mode='a')
-        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        formatter.datefmt = "%y-%m-%d %H:%M:%S"
-        self.logger.addHandler(handler)
-        self.logger.setLevel(logging.INFO)
+
 
         self.fileSystemWatcher = QtCore.QFileSystemWatcher(self)
         self.fileSystemWatcher.addPath(self.log_file)
@@ -526,6 +536,19 @@ class Recon(QTabWidget):
         self.lineEdit_aretomo_addtional_param.setObjectName("lineEdit_aretomo_addtional_param")
         self.horizontalLayout_9.addWidget(self.lineEdit_aretomo_addtional_param)
 
+        self.label_tomo_index = QtWidgets.QLabel(self.tab_aretomo)
+        self.label_tomo_index.setSizePolicy(sizePolicy)
+        self.label_tomo_index.setMinimumSize(QtCore.QSize(100, 0))
+        self.label_tomo_index.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_tomo_index.setObjectName("label_tomo_index")
+        self.horizontalLayout_9.addWidget(self.label_tomo_index)
+
+        self.lineEdit_tomo_index = QtWidgets.QLineEdit(self.tab_aretomo)
+        self.lineEdit_tomo_index.setInputMask("")
+        self.lineEdit_tomo_index.setMaximumSize(QtCore.QSize(100, 30))
+        self.lineEdit_tomo_index.setObjectName("lineEdit_tomo_index")
+        self.horizontalLayout_9.addWidget(self.lineEdit_tomo_index)
+
         ############################# Run button ###########################
         self.horizontalLayout_10 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_10.setObjectName("horizontalLayout_10")
@@ -549,9 +572,24 @@ class Recon(QTabWidget):
         self.gridLayout_3.addLayout(self.horizontalLayout_7, 1, 0, 1, 1)
         self.gridLayout_3.addLayout(self.horizontalLayout_8, 2, 0, 1, 1)
         self.gridLayout_3.addLayout(self.horizontalLayout_9, 3, 0, 1, 1)
-        self.spacerItem_aretomo_1 = QtWidgets.QSpacerItem(10, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_3.addItem(self.spacerItem_aretomo_1, 4, 0, 1, 1)
-        self.gridLayout_3.addLayout(self.horizontalLayout_10, 5, 0, 1, 1)
+        #self.spacerItem_aretomo_1 = QtWidgets.QSpacerItem(10, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        #self.gridLayout_3.addItem(self.spacerItem_aretomo_1, 4, 0, 1, 1)
+        self.gridLayout_3.addLayout(self.horizontalLayout_10, 4, 0, 1, 1)
+
+        self.tableView_aretomo = QtWidgets.QTableWidget(self)
+        
+        header_labels_aretomo = metadata.header_labels_aretomo
+        
+        self.tableView_aretomo.setColumnCount(len(header_labels_aretomo))
+        self.tableView_aretomo.setHorizontalHeaderLabels(header_labels_aretomo)
+        
+        header_aretomo = self.tableView_aretomo.horizontalHeader()   
+        header_aretomo.setSectionResizeMode(QHeaderView.ResizeToContents)
+
+        self.tableView_aretomo.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
+        
+        self.gridLayout_3.addWidget(self.tableView_aretomo, 5, 0)
+
 
         self.addTab(self.tab_aretomo, "")
 
@@ -559,7 +597,7 @@ class Recon(QTabWidget):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("Form", "Form"))
         self.label_corrected_image_folder.setText(_translate("Form", "Motion Corrected Images Folder:"))
-        self.lineEdit_corrected_image_folder.setPlaceholderText(_translate("Form", "MotionCorrection/corrected_images"))
+        self.lineEdit_corrected_image_folder.setPlaceholderText(_translate("Form", "MotionCorrection/MotionCor2/corrected_images"))
         self.lineEdit_corrected_image_folder.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
             Folder path to your motion corrected images. \
@@ -662,6 +700,17 @@ class Recon(QTabWidget):
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
             If you dont want to overwrite the existing tomogram, select Yes, otherwise No \
             (default Yes)\
+            </span></p></body></html>"))
+        
+        self.label_tomo_index.setText(_translate("Form", "Select Tomo Index:"))
+        self.label_tomo_index.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            font-size:9pt;\">Select which tomograms to perform Aretomo operation.\
+            </span></p></body></html>"))
+        
+        self.lineEdit_tomo_index.setPlaceholderText(_translate("Form", "1-5,7-8,12"))
+        self.lineEdit_tomo_index.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\"font-size:9pt;\"> different tomo indexes are seperated by comma, sequential indexes are connected by dash. \
             </span></p></body></html>"))
         
         self.pushButton_run_ts_generation.setText(_translate("Form", "RUN"))
@@ -950,6 +999,7 @@ class Recon(QTabWidget):
             data['UseAlnFile'] = ""
             data['GPU_ID'] = ""
             data['aretomo_addtional_param'] = ""
+            data['lineEdit_tomo_index'] = ""
             try:
                 with open(self.setting_file) as f:
                     for line in f:
@@ -978,6 +1028,7 @@ class Recon(QTabWidget):
                 self.lineEdit_UseAlnFile.setText(data['UseAlnFile'])
                 self.lineEdit_GPU_ID.setText(data['GPU_ID'])
                 self.lineEdit_aretomo_addtional_param.setText(data['aretomo_addtional_param'])
+                self.lineEdit_tomo_index.setText(data['lineEdit_tomo_index'])
                 
             except:
                 self.logger.error("error reading {}!".format(self.setting_file))
@@ -1007,6 +1058,7 @@ class Recon(QTabWidget):
         param['UseAlnFile'] = self.lineEdit_UseAlnFile.text()
         param['GPU_ID'] = self.lineEdit_GPU_ID.text()
         param['aretomo_addtional_param'] = self.lineEdit_aretomo_addtional_param.text()
+        param['lineEdit_tomo_index'] = self.lineEdit_tomo_index.text()
         try:
             with open(self.setting_file, 'w') as f: 
                 for key, value in param.items(): 
@@ -1018,14 +1070,16 @@ class Recon(QTabWidget):
         if i == 1:
             self.reload_table()
         if i == 2:
+            self.reload_table_aretomo()
             self.aretomo_count_tomo()
 
     def natural_keys(self, text):
         return int(text.split("_")[-1]) 
 
-    def read_tomo(self):
-        tomoNames1 = [os.path.basename(x).split(".")[0] for x in sorted(glob.glob("{}/*.st".format(self.ts_folder)))]
-        tomoNames2 = [os.path.basename(x).split(".")[0] for x in sorted(glob.glob("{}/*.rawtlt".format(self.ts_folder)))]
+    def read_tomo(self, folder_path):
+        #folder_path = self.ts_folder
+        tomoNames1 = [os.path.basename(x).split(".")[0] for x in sorted(glob.glob("{}/*.st".format(folder_path)))]
+        tomoNames2 = [os.path.basename(x).split(".")[0] for x in sorted(glob.glob("{}/*.rawtlt".format(folder_path)))]
 
         tomoNames = sorted(list(set(tomoNames1) & set(tomoNames2)))
         try:
@@ -1105,7 +1159,7 @@ class Recon(QTabWidget):
         tomoName = self.tableView.item(i, 0).text()
         if j == 1:
             current_st_link_path = "{}/{}.st".format(self.ts_folder, tomoName)
-            cmd = "3dmod -b 12,1 {}".format(current_st_link_path)
+            cmd = "3dmod -b 8,1 {}".format(current_st_link_path)
             os.system(cmd)
         elif j == 2:
             current_tomo_folder = "{}/{}".format(self.etomo_folder,tomoName)
@@ -1187,48 +1241,91 @@ class Recon(QTabWidget):
                             if not i == ind:
                                 f.write("{}\n".format(record))
                 self.reload_table()
-        elif j == 11:
+        elif j == 5:
+            if self.tableView.item(i, j).text() == "NA":
+                pass
+            else:
+                tomoName = self.tableView.item(i, 0).text()
+                rec_path = self.read_recon_folder(tomoName)[6]
+                cmd = "3dmod {}".format(rec_path)
+                subprocess.check_output(cmd, shell=True)
+        elif j == 12:
             previous_text = self.tableView.item(i, j).text()
             text, ok = QInputDialog.getText(self, 'Take notes!', 'Confirm changes?', QLineEdit.Normal, previous_text)
             if ok:
                 self.tableView.setItem(i, j, QTableWidgetItem(text))
 
-                params = self.get_note_params()
+                params = self.get_note_params(1)
 
                 with open("{}".format(self.note_json), 'w') as fp:
                     json.dump(params, fp, indent=2, default=int)
     
-    def get_note_params(self):
-        row_count = self.tableView.rowCount()
+    def table_click_aretomo(self, item):
+        i = item.row()
+        j = item.column()
+        tomoName = self.tableView_aretomo.item(i, 0).text()
+        if j == 1:
+            current_st_link_path = "{}/{}.st".format(self.ts_folder, tomoName)
+            cmd = "3dmod -b 8,1 {}".format(current_st_link_path)
+            os.system(cmd)
+        elif j == 2:
+            if self.tableView.item(i, j).text() == "NA":
+                pass
+            else:
+                tomoName = self.tableView.item(i, 0).text()
+                rec_path = self.read_recon_folder(tomoName, self.areTomo_folder)[6]
+                cmd = "3dmod {}".format(rec_path)
+                subprocess.check_output(cmd, shell=True)
+        elif j == 7:
+            previous_text = self.tableView_aretomo.item(i, j).text()
+            text, ok = QInputDialog.getText(self, 'Take notes!', 'Confirm changes?', QLineEdit.Normal, previous_text)
+            if ok:
+                self.tableView_aretomo.setItem(i, j, QTableWidgetItem(text))
+
+                params = self.get_note_params(2)
+
+                with open("{}".format(self.note_json), 'w') as fp:
+                    json.dump(params, fp, indent=2, default=int)
+
+    def get_note_params(self, code):
+        if code == 1:
+            tableView = self.tableView
+        else:
+            tableView = self.tableView_aretomo
+        
+        row_count = tableView.rowCount()
         params = {}
+        index = 12 if code == 1 else 7
         for i in range(row_count):
-            params[self.tableView.item(i, 0).text()] = self.tableView.item(i, 11).text()
+            params[tableView.item(i, 0).text()] = tableView.item(i, index).text()
         return params
 
-    def read_recon_folder(self, tomoName):
+    def read_recon_folder(self, tomoName, rec_root):
 
         tilt_num, re_mean, re_range, binning, thickness_nm, skipped_view = ["", "", "", "", "", ""]
-        etomo_path = "{}/{}".format(self.etomo_folder, tomoName)
+        etomo_path = "{}/{}".format(rec_root, tomoName)
 
         tiltcom_path = "{}/{}".format(etomo_path, "tilt.com")
-        st_path = "{}/{}.st".format(etomo_path, tomoName)
+        #st_path = "{}/{}.st".format(etomo_path, tomoName)
+        st_path = "{}/{}.st".format(self.ts_folder, tomoName)
         rec_path = "{}/{}.rec".format(etomo_path, tomoName)
         mrc_path = "{}/{}_rec.mrc".format(etomo_path, tomoName)
-
+        final_rec_path = ""
         if os.path.exists(rec_path) or os.path.exists(mrc_path):
             try:                
                 d_st = self.read_header(st_path)
                 if os.path.exists(rec_path):
                     d_rec = self.read_header(rec_path)
+                    final_rec_path = rec_path
                 else:
                     d_rec = self.read_header(mrc_path)
-
+                    final_rec_path = mrc_path
 
                 tilt_num = str(d_st["sections"])
                 
                 taError_path = "{}/{}".format(etomo_path, "taError.log")
                 
-                binning = str(np.ceil(d_rec["apix"]/d_st["apix"]))
+                binning = str(int(np.round(d_rec["apix"]/d_st["apix"], 0)))
 
                 thickness_nm = str(int(d_rec["sections"] * d_rec["apix"]))
 
@@ -1252,12 +1349,12 @@ class Recon(QTabWidget):
                             skipped_view = line.split()[-1]      
             except:
                 pass                                
-        return [tilt_num, re_mean, re_range, binning, thickness_nm, skipped_view]
+        return [tilt_num, re_mean, re_range, binning, thickness_nm, skipped_view, final_rec_path]
     
-    def read_header(self, st_path):
+    def read_header(self, file_path):
         d = {}
         d['apix'] = 1.0
-        cmd = "header {} ".format(st_path)
+        cmd = "header {} ".format(file_path)
         out = subprocess.check_output(cmd, shell=True)
         lines = out.decode('utf-8').split("\n")
         for line in lines:
@@ -1270,7 +1367,7 @@ class Recon(QTabWidget):
         return d
     
     def reload_table(self):
-        tomoNames = self.read_tomo()
+        tomoNames = self.read_tomo(self.ts_folder)
         self.tableView.setRowCount(0)
         self.tableView.setRowCount(len(tomoNames))
         
@@ -1302,20 +1399,69 @@ class Recon(QTabWidget):
                 action_delete.setFont(QFont("sans-serif", 8, QFont.Bold))
                 self.tableView.setItem(i, 4, action_delete)
                 
-                items = self.read_recon_folder(tomo)
+                items = self.read_recon_folder(tomo, self.etomo_folder)
 
-                self.tableView.setItem(i, 5, QTableWidgetItem(items[0]))
-                self.tableView.setItem(i, 6, QTableWidgetItem(items[1]))
-                self.tableView.setItem(i, 7, QTableWidgetItem(items[2]))
-                self.tableView.setItem(i, 8, QTableWidgetItem(items[3]))
-                if len(items[4]) > 0:
-                    self.tableView.setItem(i, 9, QTableWidgetItem("{} nm".format(str(int(items[4])/10))))
+                if len(items[6]) > 0:
+                    action_view = QTableWidgetItem(os.path.basename(items[6]))
                 else:
-                    self.tableView.setItem(i, 9, QTableWidgetItem(""))
-                self.tableView.setItem(i, 10, QTableWidgetItem(items[5]))
-                notes_i = note_dict[tomo] if tomo in note_dict.keys() else ""
-                self.tableView.setItem(i, 11, QTableWidgetItem(notes_i))
+                    action_view = QTableWidgetItem("NA")
+                
+                action_view.setBackground(QtGui.QColor("#d0bdf4"))
+                action_view.setFont(QFont("sans-serif", 8, QFont.Bold))
+                self.tableView.setItem(i, 5, action_view)
 
+                
+
+                self.tableView.setItem(i, 6, QTableWidgetItem(items[0]))
+                self.tableView.setItem(i, 7, QTableWidgetItem(items[1]))
+                self.tableView.setItem(i, 8, QTableWidgetItem(items[2]))
+                self.tableView.setItem(i, 9, QTableWidgetItem(items[3]))
+                if len(items[4]) > 0:
+                    self.tableView.setItem(i, 10, QTableWidgetItem("{} nm".format(str(int(items[4])/10))))
+                else:
+                    self.tableView.setItem(i, 10, QTableWidgetItem(""))
+                self.tableView.setItem(i, 11, QTableWidgetItem(items[5]))
+                notes_i = note_dict[tomo] if tomo in note_dict.keys() else ""
+                self.tableView.setItem(i, 12, QTableWidgetItem(notes_i))
+
+    def reload_table_aretomo(self):
+        tomoNames = self.read_tomo(self.lineEdit_aretomo_input_folder.text())
+        self.tableView_aretomo.setRowCount(0)
+        self.tableView_aretomo.setRowCount(len(tomoNames))
+        try:
+            with open(self.note_json) as f:
+                note_dict = json.load(f)
+        except:
+            note_dict = {}
+        if len(tomoNames) > 0:
+            for i, tomo in enumerate(tomoNames):
+                self.tableView_aretomo.setItem(i, 0, QTableWidgetItem(tomo))                
+                action_check = QTableWidgetItem("View ST")
+                action_check.setBackground(QtGui.QColor("#a0d2eb"))
+                action_check.setFont(QFont("sans-serif", 8, QFont.Bold))
+                self.tableView_aretomo.setItem(i, 1, action_check)
+                
+                items = self.read_recon_folder(tomo, self.areTomo_folder)
+
+                if len(items[6]) > 0:
+                    action_view = QTableWidgetItem(os.path.basename(items[6]))
+                else:
+                    action_view = QTableWidgetItem("NA")
+                
+                action_view.setBackground(QtGui.QColor("#d0bdf4"))
+                action_view.setFont(QFont("sans-serif", 8, QFont.Bold))
+                self.tableView_aretomo.setItem(i, 2, action_view)
+
+                self.tableView_aretomo.setItem(i, 3, QTableWidgetItem(items[0]))
+                self.tableView_aretomo.setItem(i, 4, QTableWidgetItem(items[3]))
+                if len(items[4]) > 0:
+                    self.tableView_aretomo.setItem(i, 5, QTableWidgetItem("{} nm".format(str(int(items[4])/10))))
+                else:
+                    self.tableView_aretomo.setItem(i, 5, QTableWidgetItem(""))
+                self.tableView_aretomo.setItem(i, 6, QTableWidgetItem(items[5]))
+                notes_i = note_dict[tomo] if tomo in note_dict.keys() else ""
+                self.tableView_aretomo.setItem(i, 7, QTableWidgetItem(notes_i))
+        self.current_tomoNames_aretomo = tomoNames
     @QtCore.pyqtSlot(str)
     def update_log_window(self, txt):
         in_current_page = True
@@ -1563,7 +1709,33 @@ class Recon(QTabWidget):
         aretomo_addtional_param = self.lineEdit_aretomo_addtional_param.text()
         params['aretomo_addtional_param'] = aretomo_addtional_param
         
-        params['current_ts_list'] = self.current_ts_list
+
+        if len(self.lineEdit_tomo_index.text()) > 0:
+            try:
+                tomo_index = list(set([string2int(x) for x in idx2list(self.lineEdit_tomo_index.text())]))
+                
+                for i in tomo_index:
+                    if not i or i <=0:
+                        return "Please use valid format for the select tomo index!"
+                self.current_ts_list_selected = []
+                if len(tomo_index) > 0:
+                    for i in tomo_index:
+                        if i > 0 and i <= len(self.current_tomoNames_aretomo):
+                            tomo_i = self.current_tomoNames_aretomo[i-1]
+                            
+                            full_path_i = "{}/{}.st".format(aretomo_input_folder, tomo_i)
+                            
+                            if os.path.exists(full_path_i):
+                                self.current_ts_list_selected.append("{}.st".format(tomo_i))
+                else:
+                    self.current_ts_list_selected = []
+            except:
+                return "Please use valid format for the select tomo index!"
+        else: 
+            self.current_ts_list_selected = []
+
+        params['current_ts_list_selected'] = self.current_ts_list_selected
+        
         return params
     
     def run_aretomo(self):
@@ -1607,3 +1779,4 @@ class Recon(QTabWidget):
     def cmd_finished_aretomo(self):
         self.pushButton_run_aretomo.setText("RUN")
         self.pushButton_run_aretomo.setStyleSheet("QPushButton {color: black;}")
+        self.reload_table_aretomo()

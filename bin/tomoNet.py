@@ -18,7 +18,7 @@ from TomoNet.gui.others import OtherUtils
 class Ui_TomoNet(object):
     def setupUi(self, TomoNet):
         TomoNet.setObjectName("TomoNet")
-        TomoNet.resize(1120, 800)
+        TomoNet.resize(1160, 800)
         self.centralwidget = QtWidgets.QWidget(TomoNet)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)

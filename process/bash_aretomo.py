@@ -78,7 +78,7 @@ def aretomo_single(param):
         subprocess.check_output(cmd, shell=True)
     except:
         param['logger'].error('AreTomo reconstruction failed on GPU {} for tomo: {}. \
-            Please check {}.log for details if needed.'.format(param['gpu'], param['tomoName'], param['tomoName']))
+            Please check {}.log for details if needed.'.format(param['gpu_ID'], param['tomoName'], param['tomoName']))
         return 
     
     if check_output(processed_folder, ts=ts, tomoName=tomoName) >= 0:
@@ -119,14 +119,14 @@ class AreTomo(QThread):
         if not os.path.exists(self.processed_folder):
             os.makedirs(self.processed_folder)
 
-        self.logger.info("\n########Processing {} images on GPU {}########".format(len(self.d['current_ts_list']), self.d["GPU_ID"]))
+        self.logger.info("\n########Processing {} images on GPU {}########".format(len(self.d['current_ts_list_selected']), self.d["GPU_ID"]))
         self.logger.info("\n########The results will be saved in {}########".format(self.processed_folder))
         cmd_1 = "AreTomo"
 
         batch_size = len(gpu_ID)
 
         if batch_size == 1:
-            for ts in self.d['current_ts_list']:
+            for ts in self.d['current_ts_list_selected']:
                 tomoName = ts.split('.st')[0]    
                 full_ts_path = "{}/{}".format(self.d['aretomo_input_folder'], ts)
                 cmd_2 = "-InMrc {}".format(full_ts_path)
@@ -168,7 +168,7 @@ class AreTomo(QThread):
                 aretomo_single(param)
 
         elif batch_size > 1:
-            ts_todo_list = self.d['current_ts_list']
+            ts_todo_list = self.d['current_ts_list_selected']
             while len(ts_todo_list) > 0:
                 params = []
                 current_ts = []

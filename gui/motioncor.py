@@ -12,15 +12,15 @@ class MotionCor(QTabWidget):
     def __init__(self):
         super().__init__()
         ############### Define variables ################
-        self.corrected_folder = "MotionCorrection/MotionCor/corrected_images"
+        self.corrected_folder = "MotionCorrection/MotionCor2/corrected_images"
         self.processed_folder = "Raw_frames_DoNotDelete"
-        self.setting_file ="MotionCorrection/MotionCor/motioncor.setting"
+        self.setting_file ="MotionCorrection/MotionCor2/motioncor2.setting"
         
         self.log_file = "MotionCorrection/motion.log"
         
         self.check_log_file("MotionCorrection")
 
-        check_or_create_path("MotionCorrection/MotionCor")
+        check_or_create_path("MotionCorrection/MotionCor2")
 
         self.logger = logging.getLogger(__name__)
         handler = logging.FileHandler(filename=self.log_file, mode='a')
@@ -244,7 +244,7 @@ class MotionCor(QTabWidget):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("Form", "Form"))
         self.label_raw_image_folder.setText(_translate("Form", "Raw Frames Folder:"))
-        self.lineEdit_raw_image_folder.setPlaceholderText(_translate("Form", "MotionCorrection/MotionCor/frames"))
+        self.lineEdit_raw_image_folder.setPlaceholderText(_translate("Form", "xx/xx/frames"))
         self.lineEdit_raw_image_folder.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\">Folder path to your raw frames. </span></p></body></html>"))
 
         self.label_motioncor_exe.setText(_translate("Form", "MotionCor Executable:"))
@@ -253,7 +253,7 @@ class MotionCor(QTabWidget):
  
         self.label_gain_ref.setText(_translate("Form", "Gain Reference Image:"))
         self.lineEdit_gain_ref.setPlaceholderText(_translate("Form", "YourPath/gain_ref.mrc"))
-        self.lineEdit_gain_ref.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\">Path to Gain Reference Image, e.g., Your/Path/To/gain_ref.mrc </span></p></body></html>"))
+        self.lineEdit_gain_ref.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\">Path to Gain Reference Image, e.g., Your/Path/To/gain_ref.mrc. If empty will skip using gain reference.</span></p></body></html>"))
 
         self.label_pixel_size.setText(_translate("Form", "PixSize:"))
         self.lineEdit_pixel_size.setPlaceholderText(_translate("Form", "1.0"))
@@ -298,8 +298,9 @@ class MotionCor(QTabWidget):
         if len(self.lineEdit_gain_ref.text()) > 0:
             gain_ref = self.lineEdit_gain_ref.text()
         else: 
-            self.cmd_finished()
-            return "please provide your gain reference image!"
+            gain_ref = " "
+            #self.cmd_finished()
+            #return "please provide your gain reference image!"
 
         if len(self.lineEdit_pixel_size.text()) > 0 :
             pixel_size = string2float(self.lineEdit_pixel_size.text())
