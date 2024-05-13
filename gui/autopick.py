@@ -1363,14 +1363,13 @@ class Autopick(QTabWidget):
         if ret == QMessageBox.Yes:
             result_folder = self.comboBox_prediction_condition.currentText()
             abs_path = "{}/{}".format(os.path.dirname(self.lineEdit_input_model.text()), result_folder)
-
             index = self.comboBox_prediction_condition.findText(result_folder)
-            if index > 0:
+            if index >= 0:
                 if os.path.exists(abs_path):
                     try:
                         shutil.rmtree(abs_path)
-                    except:
-                        pass
+                    except Exception as e:
+                        print(e)
                 
                     self.comboBox_prediction_condition.removeItem(index)
                     self.model_folder_changed()
