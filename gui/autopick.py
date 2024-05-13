@@ -1267,6 +1267,7 @@ class Autopick(QTabWidget):
             if os.path.isdir("{}/{}".format(model_folder, item)):
                 self.comboBox_prediction_condition.addItem("")
                 self.comboBox_prediction_condition.setItemText(i, item)
+        self.reload_table()
     
     def table_click(self, item):
         i = item.row()
