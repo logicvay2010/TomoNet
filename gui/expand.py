@@ -1575,7 +1575,7 @@ class Expand(QTabWidget):
         #######Advanced params#######
         params['threshold_dis'] = repeating_unit*0.75
         params['yaxisType'] = 3
-        params['flgAbsValue'] = 0
+        params['flgAbsValue'] = 1
         params['flgNoReferenceRefinement'] = flgNoReferenceRefinement
         ##############
 
