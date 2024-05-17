@@ -1521,6 +1521,8 @@ class OtherUtils(QTabWidget):
             return "Please specify the input star file!"
         else:
             input_star_file = self.lineEdit_input_star_file.text()
+            if not os.path.exists(input_star_file):
+                return "The input star file does not exist!"
 
         if not len(self.lineEdit_star2PEET_output_folder.text()) > 0:
             return "Please specify the STAR2PEET result folder!"
