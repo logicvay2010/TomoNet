@@ -1188,6 +1188,7 @@ class Recon(QTabWidget):
                 current_st_link_path = "{}/{}.st".format(self.ts_folder,tomoName)
                 current_rawtlt_link_path = "{}/{}.rawtlt".format(self.ts_folder,tomoName)
                 cmd = "cd {} ; ln -s ../../../{} ./ ; ln -s ../../../{} ./ ; etomo".format(current_tomo_folder, current_st_link_path, current_rawtlt_link_path)
+                
                 subprocess.check_output(cmd, shell=True)
 
                 self.reload_table()
@@ -1240,13 +1241,14 @@ class Recon(QTabWidget):
                                 f.write("{}\n".format(record))
                 self.reload_table()
         elif j == 5:
-            if self.tableView.item(i, j).text() == "NA":
+            if self.tableView.item(i, j).text().strip() == "NA":
                 pass
             else:
                 tomoName = self.tableView.item(i, 0).text()
                 rec_path = self.read_recon_folder(tomoName, self.etomo_folder)[6]
                 cmd = "3dmod {}".format(rec_path)
-                subprocess.check_output(cmd, shell=True)
+                os.system(cmd)
+                #subprocess.check_output(cmd, shell=True)
         elif j == 12:
             previous_text = self.tableView.item(i, j).text()
             text, ok = QInputDialog.getText(self, 'Take notes!', 'Confirm changes?', QLineEdit.Normal, previous_text)
@@ -1267,13 +1269,16 @@ class Recon(QTabWidget):
             cmd = "3dmod -b 8,1 {}".format(current_st_link_path)
             os.system(cmd)
         elif j == 2:
-            if self.tableView.item(i, j).text() == "NA":
+            try:
+                if self.tableView_aretomo.item(i, j).text().strip() == "NA":
+                    pass
+                else:
+                    tomoName = self.tableView_aretomo.item(i, 0).text()
+                    rec_path = self.read_recon_folder(tomoName, self.areTomo_folder)[6]
+                    cmd = "3dmod {}".format(rec_path)
+                    os.system(cmd)
+            except:
                 pass
-            else:
-                tomoName = self.tableView.item(i, 0).text()
-                rec_path = self.read_recon_folder(tomoName, self.areTomo_folder)[6]
-                cmd = "3dmod {}".format(rec_path)
-                subprocess.check_output(cmd, shell=True)
         elif j == 7:
             previous_text = self.tableView_aretomo.item(i, j).text()
             text, ok = QInputDialog.getText(self, 'Take notes!', 'Confirm changes?', QLineEdit.Normal, previous_text)
