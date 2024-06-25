@@ -365,15 +365,17 @@ class Ctffind(QTabWidget):
         self.setWindowTitle(_translate("Form", "Form"))
         
         self.label_ts_tlt_folder.setText(_translate("Form", "Tilt series folder:"))
-        self.lineEdit_ctffind_exe.setToolTip(_translate("MainWindow", \
+        self.lineEdit_ts_tlt_folder.setPlaceholderText(_translate("Form", \
+            "The folder stores stacked tilt series. (such as Recon/ts_tlt)"))
+        self.lineEdit_ts_tlt_folder.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
-            font-size:9pt;\">Your/Path/To/ctffind/bin/ctffind\
+            font-size:9pt;\">Path to the folder stores stacked tilt series.\
             </span></p></body></html>"))
         
         self.label_ctffind_exe.setText(_translate("Form", "Ctffind Executable:"))
-        self.label_ctffind_exe.setToolTip(_translate("MainWindow", \
+        self.lineEdit_ctffind_exe.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
-            font-size:9pt;\">The folder stores stacked tilt series. (default Recon/ts_tlt)\
+            font-size:9pt;\">Your/Path/To/ctffind/bin/ctffind\
             </span></p></body></html>"))
         
         self.label_cpu_num.setText(_translate("Form", "cpu #:"))
@@ -464,12 +466,7 @@ class Ctffind(QTabWidget):
             font-size:9pt;\">Defocus search step.\
             </span></p></body></html>"))
 
-        self.lineEdit_ts_tlt_folder.setPlaceholderText(_translate("Form", \
-            "YourPath/toMaps/usedForInitPick/"))
-        self.lineEdit_ts_tlt_folder.setToolTip(_translate("MainWindow", \
-            "<html><head/><body><p><span style=\" \
-            font-size:9pt;\">Path to the folder stores stacked tilt series.\
-            </span></p></body></html>"))
+        
         
         self.pushButton_run_ctffind.setText(_translate("Form", "RUN"))
 
