@@ -369,7 +369,9 @@ class Manual(QTabWidget):
             self.logger.error("{} not detected in folder {}!"\
                 .format(tomo_name, os.path.basename(self.initParams_folder)))
         else:
-            cmd = "cd {}; 3dmod -B 2 {} {}"\
+            #cmd = "cd {}; 3dmod -B 2 {} {}"\
+            #   .format(self.initParams_folder, tomo_name, mod_name)
+            cmd = "cd {}; 3dmod {} {}"\
                 .format(self.initParams_folder, tomo_name, mod_name)
             os.system(cmd)
 
