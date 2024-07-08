@@ -861,7 +861,8 @@ class Ctffind(QTabWidget):
             searchPath = self.ctffind4_path
             ctf_mrc_file = "{}/{}/{}_ctf.mrc".format(searchPath, tomoName, tomoName)
             cmd = "3dmod {}".format(ctf_mrc_file)
-            subprocess.check_output(cmd, shell=True)
+            os.system(cmd)
+            #subprocess.check_output(cmd, shell=True)
             
         else:
             pass
