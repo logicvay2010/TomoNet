@@ -1468,6 +1468,7 @@ class OtherUtils(QTabWidget):
             
             self.logger.info("clean version of STAR file saved: {}!".format(clean_version_star_all))
             
+
     def get_header(self, star_file):
         header = ""
         with open(star_file, 'r') as f:
@@ -1563,16 +1564,22 @@ class OtherUtils(QTabWidget):
         apix = params['star2PEET_apix']
         peet_motl_header = "CCC,reserved,reserved,pIndex,wedgeWT,NA,NA,NA,NA,NA,xOffset,yOffset,zOffset,NA,NA,reserved,EulerZ(1),EulerZ(3),EulerX(2),reserved,CREATED WITH PEET Version 1.15.0 10-January-2021\n"
 
-        df_particles = starfile.read(input_star_file,  always_dict=True)['particles']
+        try:
+            df_particles = starfile.read(input_star_file,  always_dict=True)['particles']
+        except:
+            self.logger.info("Encountering improper format of particle STAR file: {}".format(input_star_file))
+            return -1
         try:
             tomoList = sorted(set(df_particles['rlnTomoName'].tolist()))
         except:
+            self.logger.info("Encountering improper format of particle STAR file: {}".format(input_star_file))
             return -1
         
         for tomo_name in tomoList:
             try:
                 df_particles_current = df_particles.loc[df_particles['rlnTomoName']==tomo_name]
             except:
+                self.logger.info("Encountering improper format of particle STAR file: {}".format(input_star_file))
                 return -1
             
             df_particles_current = df_particles_current.reset_index()

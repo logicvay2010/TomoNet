@@ -15,9 +15,31 @@ header_labels_ctffind = ['Tomo Name', 'Tilt #', 'defocus (Å)', 'Best CTF ring f
 
 header_labels_expand = ['Tomo Name', 'Rounds # ', 'Final Particle #', 'Action', 'Action']
 
+relion_particle_header = "\
+data_particles\
+loop_\
+_rlnTomoName #1\
+_rlnTomoParticleId #2\
+_rlnTomoManifoldIndex #3\
+_rlnCoordinateX #4\
+_rlnCoordinateY #5\
+_rlnCoordinateZ #6\
+_rlnOriginXAngst #7\
+_rlnOriginYAngst #8\
+_rlnOriginZAngst #9\
+_rlnAngleRot #10\
+_rlnAngleTilt #11\
+_rlnAnglePsi #12\
+_rlnClassNumber #13\
+_rlnRandomSubset #14\
+"
+
+
 import sys
 from collections import OrderedDict
 import copy
+
+
 
 LABELS = {
     'rlnImageName': str,
@@ -67,6 +89,9 @@ LABELS = {
     'rlnMaskStdPercentage': float,
     'rlnMaskBoundary': str
 }
+
+
+
 
 class Label():
     def __init__(self, labelName):
