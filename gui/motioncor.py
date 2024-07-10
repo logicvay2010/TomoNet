@@ -244,8 +244,8 @@ class MotionCor(QTabWidget):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("Form", "Form"))
         self.label_raw_image_folder.setText(_translate("Form", "Raw Frames Folder:"))
-        self.lineEdit_raw_image_folder.setPlaceholderText(_translate("Form", "xx/xx/frames"))
-        self.lineEdit_raw_image_folder.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\">Folder path to your raw frames. </span></p></body></html>"))
+        self.lineEdit_raw_image_folder.setPlaceholderText(_translate("Form", "YourPathTo/frames"))
+        self.lineEdit_raw_image_folder.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\">The folder path to your raw frames. </span></p></body></html>"))
 
         self.label_motioncor_exe.setText(_translate("Form", "MotionCor Executable:"))
         self.lineEdit_motioncor_exe.setPlaceholderText(_translate("Form", ""))
