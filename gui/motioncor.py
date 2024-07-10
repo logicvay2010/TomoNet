@@ -128,6 +128,7 @@ class MotionCor(QTabWidget):
         self.horizontalLayout_4.setContentsMargins(10, 5, 10, 5)
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
         self.label_pixel_size = QtWidgets.QLabel(self.tab)        
+        
         self.label_pixel_size.setSizePolicy(sizePolicy)
         self.label_pixel_size.setMinimumSize(QtCore.QSize(60, 0))
         self.label_pixel_size.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
@@ -137,9 +138,10 @@ class MotionCor(QTabWidget):
         self.lineEdit_pixel_size.setInputMask("")
         self.lineEdit_pixel_size.setObjectName("lineEdit_pixel_size")
         self.horizontalLayout_4.addWidget(self.lineEdit_pixel_size)
+        
         self.label_frame_dose = QtWidgets.QLabel(self.tab)
         self.label_frame_dose.setSizePolicy(sizePolicy)
-        self.label_frame_dose.setMinimumSize(QtCore.QSize(80, 0))
+        self.label_frame_dose.setMinimumSize(QtCore.QSize(100, 0))
         self.label_frame_dose.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_frame_dose.setObjectName("label_frame_dose")
         self.horizontalLayout_4.addWidget(self.label_frame_dose)
@@ -159,31 +161,49 @@ class MotionCor(QTabWidget):
         self.horizontalLayout_4.addWidget(self.lineEdit_gpu_ID)
         self.gridLayout_1.addLayout(self.horizontalLayout_4, 3, 0, 1, 1)
 
+        self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_5.setContentsMargins(10, 5, 10, 5)
+        self.horizontalLayout_5.setObjectName("horizontalLayout_5")
+        
         self.label_ftbin = QtWidgets.QLabel(self.tab)
         self.label_ftbin.setSizePolicy(sizePolicy)
-        self.label_ftbin.setMinimumSize(QtCore.QSize(60, 0))
-        self.label_ftbin.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_ftbin.setMinimumSize(QtCore.QSize(80, 0))
+        self.label_ftbin.setAlignment(QtCore.Qt.AlignLeft|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_ftbin.setObjectName("label_ftbin")
-        self.horizontalLayout_4.addWidget(self.label_ftbin)
-        
+        self.horizontalLayout_5.addWidget(self.label_ftbin)
         self.lineEdit_ftbin = QtWidgets.QLineEdit(self.tab)
-        self.lineEdit_ftbin.setSizePolicy(sizePolicy)
-        self.lineEdit_ftbin.setMaximumWidth(60)
         self.lineEdit_ftbin.setInputMask("")
         self.lineEdit_ftbin.setObjectName("lineEdit_ftbin")
-        self.horizontalLayout_4.addWidget(self.lineEdit_ftbin)
+        self.horizontalLayout_5.addWidget(self.lineEdit_ftbin)
+
+        self.label_splitSum = QtWidgets.QLabel(self.tab)
+        self.label_splitSum.setSizePolicy(sizePolicy)
+        self.label_splitSum.setMinimumSize(QtCore.QSize(200, 0))
+        self.label_splitSum.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_splitSum.setObjectName("label_splitSum")
+        self.horizontalLayout_5.addWidget(self.label_splitSum)
+        self.comboBox_splitSum = QtWidgets.QComboBox(self.tab)
+        self.comboBox_splitSum.setObjectName("comboBox_splitSum")
+        self.comboBox_splitSum.addItem("")
+        self.comboBox_splitSum.addItem("")
+        self.comboBox_splitSum.setMaximumWidth(80)
+        self.horizontalLayout_5.addWidget(self.comboBox_splitSum)
+        
         self.label_input_file_type = QtWidgets.QLabel(self.tab)
         self.label_input_file_type.setSizePolicy(sizePolicy)
         self.label_input_file_type.setMinimumSize(QtCore.QSize(120, 0))
         self.label_input_file_type.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_input_file_type.setObjectName("label_input_file_type")
-        self.horizontalLayout_4.addWidget(self.label_input_file_type)
+        self.horizontalLayout_5.addWidget(self.label_input_file_type)
         self.comboBox_input_file_type = QtWidgets.QComboBox(self.tab)
         self.comboBox_input_file_type.setObjectName("comboBox_input_file_type")
         self.comboBox_input_file_type.addItem("")
         self.comboBox_input_file_type.addItem("")
         self.comboBox_input_file_type.addItem("")
-        self.horizontalLayout_4.addWidget(self.comboBox_input_file_type)
+        self.comboBox_input_file_type.setMaximumWidth(80)
+        self.horizontalLayout_5.addWidget(self.comboBox_input_file_type)
+
+        self.gridLayout_1.addLayout(self.horizontalLayout_5, 4, 0, 1, 1)
 
         self.horizontalLayout_6 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_6.setContentsMargins(10, 5, 10, 5)
@@ -244,39 +264,46 @@ class MotionCor(QTabWidget):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("Form", "Form"))
         self.label_raw_image_folder.setText(_translate("Form", "Raw Frames Folder:"))
-        self.lineEdit_raw_image_folder.setPlaceholderText(_translate("Form", "YourPathTo/frames"))
+        self.lineEdit_raw_image_folder.setPlaceholderText(_translate("Form", "Your/Path/To/frames"))
         self.lineEdit_raw_image_folder.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\">The folder path to your raw frames. </span></p></body></html>"))
 
-        self.label_motioncor_exe.setText(_translate("Form", "MotionCor Executable:"))
-        self.lineEdit_motioncor_exe.setPlaceholderText(_translate("Form", ""))
-        self.lineEdit_motioncor_exe.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\">Path to MotionCor executable file, e.g., Your/Path/To/Motioncorr2/bin/MotionCor2_1.2.6-Cuda101 </span></p></body></html>"))
+        self.label_motioncor_exe.setText(_translate("Form", "MotionCor2 Executable:"))
+        self.lineEdit_motioncor_exe.setPlaceholderText(_translate("Form", "Your/Path/To/Motioncorr2/bin/MotionCor2_x.x.x-Cudaxx "))
+        self.lineEdit_motioncor_exe.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\">Path to MotionCor2 executable file, e.g., Your/Path/To/Motioncorr2/bin/MotionCor2_1.2.6-Cuda101 </span></p></body></html>"))
  
         self.label_gain_ref.setText(_translate("Form", "Gain Reference Image:"))
-        self.lineEdit_gain_ref.setPlaceholderText(_translate("Form", "YourPath/gain_ref.mrc"))
-        self.lineEdit_gain_ref.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\">Path to Gain Reference Image, e.g., Your/Path/To/gain_ref.mrc. If empty will skip using gain reference.</span></p></body></html>"))
+        self.lineEdit_gain_ref.setPlaceholderText(_translate("Form", "Your/Path/To/gain_ref.mrc"))
+        self.lineEdit_gain_ref.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\">Path to gain reference image file. If gain reference is not provided or found, MotionCor2 proceeds without gain correction. </span></p></body></html>"))
 
         self.label_pixel_size.setText(_translate("Form", "PixSize:"))
         self.lineEdit_pixel_size.setPlaceholderText(_translate("Form", "1.0"))
-        self.lineEdit_pixel_size.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\">Pixel size. </span></p></body></html>"))
+        self.lineEdit_pixel_size.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\"> Pixel size of provided frames. </span></p></body></html>"))
 
-        self.label_frame_dose.setText(_translate("Form", "FmDose:"))
+        self.label_frame_dose.setText(_translate("Form", "Dose per Frame:"))
         self.lineEdit_frame_dose.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\">\
-            Electron dosage per frame. If dose-weight is not wanted, keep this param empty. </span></p></body></html>"))
+            Electron dosage per frame. If dose-weight is not wanted, keep this field empty. </span></p></body></html>"))
+        
         self.label_gpu_ID.setText(_translate("Form", "GPU ID:"))
         self.lineEdit_gpu_ID.setPlaceholderText(_translate("Form", "0"))
-        self.lineEdit_gpu_ID.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\">GPU IDs to be used for MotionCor, parallel processing is allow by assigning multiple GPU. e.g. 0,1,2,3 </span></p></body></html>"))
+        self.lineEdit_gpu_ID.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\"> GPU IDs to be used for MotionCor2, parallel processing is allowed by assigning multiple GPUs (e.g. 0,1,2,3). Default: 0. </span></p></body></html>"))
 
-        self.label_ftbin.setText(_translate("Form", "Binning:"))
+        self.label_ftbin.setText(_translate("Form", "Bin Factor:"))
         self.lineEdit_ftbin.setPlaceholderText(_translate("Form", "1"))
-        self.lineEdit_ftbin.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\"> If the raw movie stacks are collected in super-resolution mode and the final images is intended to be binned. </span></p></body></html>"))
+        self.lineEdit_ftbin.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\"> If the provided frames are collected in super-resolution mode, the output images are intended to be binned. Default: 1. </span></p></body></html>"))
         
+        self.label_splitSum.setText(_translate("Form", "Split frames into ODD and EVEN subsets?:"))
+        self.label_splitSum.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\"> If set Yes, -SplitSum parameter will be used to generate ODD and EVEN sums. Note that earlier versions of MotionCor2 (before v.1.4.0?) does not have this option. Default: No. </span></p></body></html>"))
+        self.comboBox_splitSum.setItemText(0, _translate("Form", "No"))
+        self.comboBox_splitSum.setItemText(1, _translate("Form", "Yes"))
+
         self.label_input_file_type.setText(_translate("Form", "Input File Type:"))
+        self.label_input_file_type.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\"> Right now, only .tif, .tiff and .mrc formats are supported. .EER is not supported yet.  </span></p></body></html>"))
         self.comboBox_input_file_type.setItemText(0, _translate("Form", "tif"))
         self.comboBox_input_file_type.setItemText(1, _translate("Form", "tiff"))
         self.comboBox_input_file_type.setItemText(2, _translate("Form", "mrc"))
 
         self.label_addtional_param.setText(_translate("Form", "Additional Parameters:"))
-        self.lineEdit_addtional_param.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\"> Addtional parameters to be used. Follow format -Option1 value1 -Option2 value2 ... </span></p></body></html>"))
+        self.lineEdit_addtional_param.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\"> Addtional parameters to be used. Please follow this format: -Option1 value1 -Option2 value2 ... </span></p></body></html>"))
         
         self.pushButton_run_motioncor.setText(_translate("Form", "RUN"))
 
@@ -298,6 +325,7 @@ class MotionCor(QTabWidget):
         if len(self.lineEdit_gain_ref.text()) > 0:
             gain_ref = self.lineEdit_gain_ref.text()
         else: 
+            # gain ref not provided
             gain_ref = " "
             #self.cmd_finished()
             #return "please provide your gain reference image!"
@@ -326,6 +354,7 @@ class MotionCor(QTabWidget):
         else: 
             ftbin = 1        
 
+        splitSum = self.comboBox_splitSum.currentText()
         input_file_type = self.comboBox_input_file_type.currentText()
         addtional_param = self.lineEdit_addtional_param.text()
 
@@ -337,6 +366,7 @@ class MotionCor(QTabWidget):
         d['frame_dose'] = frame_dose
         d['gpu_ID'] = gpu_ID
         d['ftbin'] = ftbin
+        d['splitSum'] = splitSum
         d['input_file_type'] = input_file_type
         d['addtional_param'] = addtional_param
 
@@ -402,6 +432,7 @@ class MotionCor(QTabWidget):
             data['gpu_ID'] = ""
             data['ftbin'] = ""
             data['input_file_type'] = "tif"
+            data['splitSum'] = "No"
             data['addtional_param'] = ""
             try:
                 with open(self.setting_file) as f:
@@ -416,6 +447,7 @@ class MotionCor(QTabWidget):
                 self.lineEdit_gpu_ID.setText(data['gpu_ID'])
                 self.lineEdit_ftbin.setText(data['ftbin'])
                 self.comboBox_input_file_type.setCurrentText(data['input_file_type'])
+                self.comboBox_splitSum.setCurrentText(data['splitSum'])
                 self.lineEdit_addtional_param.setText(data['addtional_param'])
             except:
                 print("error reading {}!".format(self.setting_file))
@@ -430,6 +462,7 @@ class MotionCor(QTabWidget):
         param['gpu_ID'] = self.lineEdit_gpu_ID.text()
         param['ftbin'] = self.lineEdit_ftbin.text()
         param['input_file_type'] = self.comboBox_input_file_type.currentText()
+        param['splitSum'] = self.comboBox_splitSum.currentText()
         param['addtional_param'] = self.lineEdit_addtional_param.text()
         try:
             with open(self.setting_file, 'w') as f: 
