@@ -18,9 +18,23 @@ def check_output(output_file):
     return False
 
 def motioncor_single(param):
-    cmd = '{}{}{}{}{}; {}'.format(param['cmd_1'],param['cmd_2'],param['cmd_3'],param['cmd_4'],param['cmd_last'],param['cmd_5'])
+    cmd = '{}{}{}{}{}'.format(param['cmd_1'],param['cmd_2'],param['cmd_3'],param['cmd_4'],param['cmd_last'])
     try:
         subprocess.check_output(cmd, shell=True)
+    except Exception as err:
+        param['logger'].error('MotionCor2 failed!')
+        param['logger'].error(f"Unexpected {err=}, {type(err)=}")
+        return -1
+    
+    cmd = '{}'.format(param['cmd_5'])
+    try:
+        subprocess.check_output(cmd, shell=True)
+    except:
+        param['logger'].error('MotionCor2 failed!')
+        param['logger'].error(f"Unexpected {err=}, {type(err)=}")
+        return -1
+    
+    try:
         if check_output(param['output_file']):
             cmd = param['cmd_6']
             subprocess.check_output(cmd, shell=True)
@@ -30,6 +44,7 @@ def motioncor_single(param):
             param['logger'].warning('processing on GPU {} error: {}. Will try it later.'.format(param['gpu'], param['image']))
     except:
         param['logger'].warning('processing on GPU {} error: {}. File is not detected, maybe it is already been processed.'.format(param['gpu'], param['image']))
+        return -1
 
 class MotionCor2(QThread):
 
@@ -112,13 +127,19 @@ class MotionCor2(QThread):
                         cmd_last = '-Gpu {} -LogFile {}/{}.log > {}/{}_MotionCor2_output.log 2>&1 '\
                                 '\" > {}/{}_MotionCor2_cmd.log'.format(gpu_ID[0], self.corrected_folder, basename, self.corrected_folder,\
                                 basename, self.corrected_folder, basename)
+                        
                         cmd = '{}{}{}{}{};'.format(cmd_1,cmd_2,cmd_3,cmd_4,cmd_last)
-                        subprocess.check_output(cmd, shell=True)
+                        try:
+                            subprocess.check_output(cmd, shell=True)
+                        except Exception as err:
+                            self.logger.error('MotionCor2 failed!')
+                            self.logger.error(f"Unexpected {err=}, {type(err)=}")
+                            break
                         cmd = 'sh {}/{}_MotionCor2_cmd.log'.format(self.corrected_folder, basename)
                         try:
                             subprocess.check_output(cmd, shell=True)
                         except Exception as err:
-                            self.logger.error('MotionCor2 failed')
+                            self.logger.error('MotionCor2 failed!')
                             self.logger.error(f"Unexpected {err=}, {type(err)=}")
                             break
 

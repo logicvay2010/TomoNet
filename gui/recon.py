@@ -116,7 +116,6 @@ class Recon(QTabWidget):
         self.lineEdit_corrected_image_folder.setInputMask("")
         self.lineEdit_corrected_image_folder.setObjectName("lineEdit_corrected_image_folder")
         self.horizontalLayout.addWidget(self.lineEdit_corrected_image_folder)
-        
         self.pushButton_corrected_image_folder = QtWidgets.QPushButton(self.tab)
         self.pushButton_corrected_image_folder.setText("")
         self.pushButton_corrected_image_folder.setIcon(icon)
@@ -129,21 +128,21 @@ class Recon(QTabWidget):
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setContentsMargins(10, 5, 10, 5)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        
         self.label_base_name = QtWidgets.QLabel(self.tab)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
+        
         sizePolicy.setHeightForWidth(self.label_base_name.sizePolicy().hasHeightForWidth())
         self.label_base_name.setSizePolicy(sizePolicy)
-        self.label_base_name.setMinimumSize(QtCore.QSize(140, 0))
+        self.label_base_name.setMinimumSize(QtCore.QSize(150, 0))
         self.label_base_name.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_base_name.setObjectName("label_base_name")
         self.horizontalLayout_2.addWidget(self.label_base_name)
         self.lineEdit_base_name = QtWidgets.QLineEdit(self.tab)
         self.lineEdit_base_name.setInputMask("")
-        self.lineEdit_base_name.setMinimumSize(QtCore.QSize(160, 0))
+        #self.lineEdit_base_name.setMinimumSize(QtCore.QSize(140, 0))
         self.lineEdit_base_name.setObjectName("lineEdit_base_name")
         self.horizontalLayout_2.addWidget(self.lineEdit_base_name)
+        
         self.label_delimiter = QtWidgets.QLabel(self.tab)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -157,7 +156,9 @@ class Recon(QTabWidget):
         self.lineEdit_delimiter = QtWidgets.QLineEdit(self.tab)
         self.lineEdit_delimiter.setInputMask("")
         self.lineEdit_delimiter.setObjectName("lineEdit_delimiter")
+        self.lineEdit_delimiter.setMaximumSize(QtCore.QSize(50, 30))
         self.horizontalLayout_2.addWidget(self.lineEdit_delimiter)
+        
         self.label_key_index = QtWidgets.QLabel(self.tab)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -171,6 +172,7 @@ class Recon(QTabWidget):
         self.lineEdit_key_index = QtWidgets.QLineEdit(self.tab)
         self.lineEdit_key_index.setInputMask("")
         self.lineEdit_key_index.setObjectName("lineEdit_key_index")
+        self.lineEdit_key_index.setMaximumSize(QtCore.QSize(50, 30))
         self.horizontalLayout_2.addWidget(self.lineEdit_key_index)
 
         self.label_flip_axis = QtWidgets.QLabel(self.tab)
@@ -184,6 +186,7 @@ class Recon(QTabWidget):
         self.comboBox_flip_axis.addItem("")
         self.comboBox_flip_axis.addItem("")
         self.comboBox_flip_axis.addItem("")
+        self.comboBox_flip_axis.setMaximumWidth(60)
         self.horizontalLayout_2.addWidget(self.comboBox_flip_axis)
 
         self.gridLayout_2.addLayout(self.horizontalLayout_2, 1, 0, 1, 1)
@@ -191,29 +194,31 @@ class Recon(QTabWidget):
         self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_5.setContentsMargins(10, 5, 10, 5)
         self.horizontalLayout_5.setObjectName("horizontalLayout_5")
+        
         self.label_base_name_index = QtWidgets.QLabel(self.tab)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_base_name_index.sizePolicy().hasHeightForWidth())
         self.label_base_name_index.setSizePolicy(sizePolicy)
-        self.label_base_name_index.setMinimumSize(QtCore.QSize(140, 0))
+        self.label_base_name_index.setMinimumSize(QtCore.QSize(150, 0))
         self.label_base_name_index.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_base_name_index.setObjectName("label_base_name_index")
         self.horizontalLayout_5.addWidget(self.label_base_name_index)
         self.lineEdit_base_name_index = QtWidgets.QLineEdit(self.tab)
         self.lineEdit_base_name_index.setInputMask("")
-        self.lineEdit_base_name_index.setMinimumSize(QtCore.QSize(80, 0))
+        #self.lineEdit_base_name_index.setMinimumSize(QtCore.QSize(60, 0))
         self.lineEdit_base_name_index.setObjectName("lineEdit_base_name_index")
+        self.lineEdit_base_name_index.setMaximumSize(QtCore.QSize(50, 30))
         self.horizontalLayout_5.addWidget(self.lineEdit_base_name_index)
-        self.label_image_file_suffix = QtWidgets.QLabel(self.tab)
+        
         self.label_target_base_name = QtWidgets.QLabel(self.tab)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_target_base_name.sizePolicy().hasHeightForWidth())
         self.label_target_base_name.setSizePolicy(sizePolicy)
-        self.label_target_base_name.setMinimumSize(QtCore.QSize(150, 0))
+        self.label_target_base_name.setMinimumSize(QtCore.QSize(160, 0))
         self.label_target_base_name.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_target_base_name.setIndent(-1)
         self.label_target_base_name.setObjectName("label_target_base_name")
@@ -221,7 +226,10 @@ class Recon(QTabWidget):
         self.lineEdit_target_base_name = QtWidgets.QLineEdit(self.tab)
         self.lineEdit_target_base_name.setInputMask("")
         self.lineEdit_target_base_name.setObjectName("lineEdit_target_base_name")
+        self.lineEdit_target_base_name.setMaximumSize(QtCore.QSize(100, 30))
         self.horizontalLayout_5.addWidget(self.lineEdit_target_base_name)
+        
+        self.label_image_file_suffix = QtWidgets.QLabel(self.tab)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -240,6 +248,7 @@ class Recon(QTabWidget):
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setContentsMargins(10, 5, 10, 5)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        
         self.label_cpus = QtWidgets.QLabel(self.tab)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -253,7 +262,9 @@ class Recon(QTabWidget):
         self.lineEdit_cpus = QtWidgets.QLineEdit(self.tab)
         self.lineEdit_cpus.setInputMask("")
         self.lineEdit_cpus.setObjectName("lineEdit_cpus")
+        self.lineEdit_cpus.setMaximumSize(QtCore.QSize(40, 30))
         self.horizontalLayout_3.addWidget(self.lineEdit_cpus)
+        
         self.label_min_num_tilt = QtWidgets.QLabel(self.tab)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -267,7 +278,9 @@ class Recon(QTabWidget):
         self.lineEdit_min_num_tilt = QtWidgets.QLineEdit(self.tab)
         self.lineEdit_min_num_tilt.setInputMask("")
         self.lineEdit_min_num_tilt.setObjectName("lineEdit_min_num_tilt")
+        self.lineEdit_min_num_tilt.setMaximumSize(QtCore.QSize(40, 30))
         self.horizontalLayout_3.addWidget(self.lineEdit_min_num_tilt)
+        
         self.pushButton_check_tomo_num = QtWidgets.QPushButton(self.tab)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -285,7 +298,7 @@ class Recon(QTabWidget):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_remove_dup.sizePolicy().hasHeightForWidth())
         self.label_remove_dup.setSizePolicy(sizePolicy)
-        self.label_remove_dup.setMinimumSize(QtCore.QSize(100, 0))
+        self.label_remove_dup.setMinimumSize(QtCore.QSize(120, 0))
         self.label_remove_dup.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_remove_dup.setObjectName("label_remove_dup")
         self.horizontalLayout_3.addWidget(self.label_remove_dup)
@@ -293,6 +306,7 @@ class Recon(QTabWidget):
         self.comboBox_rm_dup.setObjectName("comboBox_rm_dup")
         self.comboBox_rm_dup.addItem("")
         self.comboBox_rm_dup.addItem("")
+        #self.comboBox_rm_dup.setMaximumWidth(60)
         self.horizontalLayout_3.addWidget(self.comboBox_rm_dup)
 
         self.label_new_data = QtWidgets.QLabel(self.tab)
@@ -309,6 +323,7 @@ class Recon(QTabWidget):
         self.comboBox_new_data.setObjectName("comboBox_new_data")
         self.comboBox_new_data.addItem("")
         self.comboBox_new_data.addItem("")
+        #self.comboBox_new_data.setMaximumWidth(60)
         self.horizontalLayout_3.addWidget(self.comboBox_new_data)
 
         self.gridLayout_2.addLayout(self.horizontalLayout_3, 3, 0, 1, 1)
@@ -598,122 +613,121 @@ class Recon(QTabWidget):
         self.lineEdit_corrected_image_folder.setPlaceholderText(_translate("Form", "MotionCorrection/MotionCor2/corrected_images"))
         self.lineEdit_corrected_image_folder.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
-            Folder path to your motion corrected images. \
+            The folder path to your motion corrected images. \
             </span></p></body></html>"))
         self.label_corrected_image_folder.setText(_translate("Form", "Motion Corrected Images Folder:"))
         
-        self.label_base_name.setText(_translate("Form", "Filename filter text:"))
-        self.lineEdit_base_name.setPlaceholderText(_translate("Form", "e.g TS_1201_* for X_TS_1201_001_X_ali.mrc"))
+        self.label_base_name.setText(_translate("Form", "Filename Filter Text:"))
+        self.lineEdit_base_name.setPlaceholderText(_translate("Form", "2018Jan01_HIV"))
         self.lineEdit_base_name.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
-            Base name during the data collection, \
-            used to filter out target images in the provided folder. \
-            e.g., HIV_mutant42 for 20180101_HIV_mutant42_00030_30.0_ali.tif\
+            This field is used for image filenames filtering. In case you have mixed data in the same data collection, and you want to process them seperately.\
+            Only image filenames contain the provided substring will be selected for Tilt Series (TS) generation. \
+            Default: No filter.\
             </span></p></body></html>"))
         
         self.label_delimiter.setText(_translate("Form", "Delimiter:"))
         self.lineEdit_delimiter.setPlaceholderText(_translate("Form", "_"))
         self.lineEdit_delimiter.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
-            Delimiter that seperate words in the image name. (default is _)\
+            Delimiter that seperate text in the image filename, e.g, '_' in 2018Jan01_HIV_mutant_Pos42_00030_30.0_ali.mrc.\
+            This image filename will be seperated by this delimiter into [2018Jan01, HIV, mutant, Pos42, 00030, 30.0, _ali.mrc].\
+            Default:'_'.\
             </span></p></body></html>"))
+        
         self.label_key_index.setText(_translate("Form", "Tilt Info Index:"))
-        self.lineEdit_key_index.setPlaceholderText(_translate("Form", "5"))
+        self.lineEdit_key_index.setPlaceholderText(_translate("Form", "6"))
         self.lineEdit_key_index.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
-            The place where tilt info recorded in the image name. e.g., \
-            5 for 20180101_HIV_mutant42_00030_30.0_ali.tif because 30.0 is the\
-            tilt angle and it's index is 5 with delimiter _\
+            Related to the delimiter.\
+            The index of the tilt info in image filename after seperating by the delimiter.\
+            For example, the tilt info (30.0) index is 6 in '2018Jan01_HIV_mutant_Pos42_00030_30.0_ali.mrc'.\
             </span></p></body></html>"))
 
-        self.label_flip_axis.setText(_translate("Form", "Flip images?"))
+        self.label_flip_axis.setText(_translate("Form", "Flip Images?"))
         self.comboBox_flip_axis.setItemText(0, _translate("Form", "No"))
         self.comboBox_flip_axis.setItemText(1, _translate("Form", "Horizontally"))
         self.comboBox_flip_axis.setItemText(2, _translate("Form", "Vertically"))
         self.comboBox_flip_axis.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
-            If you want to flip images before 3D reconstruction, select either Horizontally (flip over the current X-axis) or Vertically (flip over the current Y-axis). \
-            (default No)\
+            Use this field in case you need to flip images before 3D reconstruction to accomendate defocus or structure handedness.\
+            Select either 'Horizontally' (flip over the current X-axis) or 'Vertically' (flip over the current Y-axis).\
+            Default: No.\
             </span></p></body></html>"))
 
-        self.label_base_name_index.setText(_translate("Form", "Base Name index:"))
-        self.lineEdit_base_name_index.setPlaceholderText(_translate("Form", "1-3"))
+        self.label_base_name_index.setText(_translate("Form", "Tomogram Base Name Index:"))
+        self.lineEdit_base_name_index.setPlaceholderText(_translate("Form", "1-4"))
         self.lineEdit_base_name_index.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
-            This is different from the above Base Name. \
-            It is used for identify which images come from the same Tomogram\
-            e.g., 1-3 for 20180101_HIV_mutant42_00030_30.0_ali.tif \
-            because 20180101_HIV_mutant42 can define one of the tomogram. \
-            Only single integer or two integers (range) seperate by -\
+            Related to the delimiter.\
+            It is used to identify what are the text that defining one tomogram.\
+            For example, in 2018Jan01_HIV_mutant_Pos42_00030_30.0_ali.mrc,\
+            'HIV_mutant_Pos42' defines the tomogram at Position 42, thus the index should be 2-4.\
+            '2018Jan01_HIV_mutant_Pos42' also defines the tomogram at Position 42, in this case the index should be 1-4.\
+            Accepted format: a single integer n or two integers seperate by - (range): n1-n2.\
             </span></p></body></html>"))
 
-        self.label_target_base_name.setText(_translate("Form", "Target Base Name:"))
-        self.lineEdit_target_base_name.setPlaceholderText(_translate("Form", "TS "))
+        self.label_target_base_name.setText(_translate("Form", "Tomogram Target Base Name:"))
+        self.lineEdit_target_base_name.setPlaceholderText(_translate("Form", "TS"))
         self.lineEdit_target_base_name.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
-            This program will rename all tomograms in the format \
-            [target_base_name]_[index].st. (default TS)\
+            This program names all output tilt series in the format of \
+            '[tomogram_target_base_name]_[index].st'. Default: 'TS'.\
             </span></p></body></html>"))
 
-        self.label_image_file_suffix.setText(_translate("Form", "Images file suffix:"))
-        self.lineEdit_image_file_suffix.setPlaceholderText(_translate("Form", "xx.mrc"))
+        self.label_image_file_suffix.setText(_translate("Form", "Image Filename Suffix:"))
+        self.lineEdit_image_file_suffix.setPlaceholderText(_translate("Form", "_ali.mrc"))
         self.lineEdit_image_file_suffix.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
-            Filter image with its suffix.\
+            This field is used for a second image filenames filtering.\
+            Only image filenames ends with provided Suffix will be selected as input.\
+            Default: '_ali.mrc'.\
             </span></p></body></html>"))
         
-        self.label_cpus.setText(_translate("Form", "cpu(s) #:"))
+        self.label_cpus.setText(_translate("Form", "CPU(s) #:"))
         self.lineEdit_cpus.setPlaceholderText(_translate("Form", "8"))
         self.lineEdit_cpus.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
-            cpus # to be used in the TS generation (default 8)\
+            CPU(s) # to be used in the TS generation. Default: 8.\
             </span></p></body></html>"))
 
-        self.label_min_num_tilt.setText(_translate("Form", "Min Tilt Number:"))
+        self.label_min_num_tilt.setText(_translate("Form", "Minimum Tilts #:"))
         self.lineEdit_min_num_tilt.setPlaceholderText(_translate("Form", "30"))
         self.lineEdit_min_num_tilt.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
-            The minimum number of tilts required to generate a tomogram for later process\
-            any tomogram with less than this number will be discarded. Use the check button\
-            to the right to check how many tomograms will be generated with the current params.\
-             (default 30 )\
+            The minimum number of tilts expected to generate a tilt series for later 3D reconstruction.\
+            Any tilt series with tilts number less than this will be ignored. \
+            Please use the 'check' button (next to this) to check expected number of tilt series will be generated with the current setting.\
+            Default: 30.\
             </span></p></body></html>"))
         
         self.pushButton_check_tomo_num.setText(_translate("Form", "check"))
         
-        self.label_remove_dup.setText(_translate("Form", "Remove Dup:"))
+        self.label_remove_dup.setText(_translate("Form", "Remove Duplicates?:"))
         self.comboBox_rm_dup.setItemText(0, _translate("Form", "Yes"))
         self.comboBox_rm_dup.setItemText(1, _translate("Form", "No"))
         self.comboBox_rm_dup.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
-            Sometimes the microscope take multiple image for the same tilt \
-            because previous one failed, if you want to remove those failed ones, \
-            select Yes, otherwise No. (default Yes)\
+            Sometimes, multiple images were taken at the same tilt angle, because of the failure of previous ones. \
+            Thus, typically only the image with the latest time stamp is needed.\
+            Select Yes to exclude the failed ones, otherwise No. Default: Yes.\
             </span></p></body></html>"))
         
-        self.label_new_data.setText(_translate("Form", "Add New Data?:"))
+        self.label_new_data.setText(_translate("Form", "Only Process Unfinished Data?:"))
         self.comboBox_new_data.setItemText(0, _translate("Form", "Yes"))
         self.comboBox_new_data.setItemText(1, _translate("Form", "No"))
         self.comboBox_new_data.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
-            If you dont want to overwrite the existing tomogram, select Yes, otherwise No \
-            (default Yes)\
-            </span></p></body></html>"))
-        
-        self.label_tomo_index.setText(_translate("Form", "Select Tomo Index:"))
-        self.label_tomo_index.setToolTip(_translate("MainWindow", \
-            "<html><head/><body><p><span style=\" \
-            font-size:9pt;\">Select which tomograms to perform Aretomo operation.\
-            </span></p></body></html>"))
-        
-        self.lineEdit_tomo_index.setPlaceholderText(_translate("Form", "1-5,7-8,12"))
-        self.lineEdit_tomo_index.setToolTip(_translate("MainWindow", \
-            "<html><head/><body><p><span style=\"font-size:9pt;\"> different tomo indexes are seperated by comma, sequential indexes are connected by dash. \
+            Select Yes to skip generating tilt series that already processed.\
+            Select No to generate all tilt series and overwrite the existing output.\
+            The processed data info is recorded in file: Recon/history_record.txt, user can edit this file based on needs.\
+            Default: Yes.\
             </span></p></body></html>"))
         
         self.pushButton_run_ts_generation.setText(_translate("Form", "RUN"))
         
         self.setTabText(self.indexOf(self.tab), _translate("Form", "TS Generation"))
+        
         self.setTabText(self.indexOf(self.tab1), _translate("Form", "eTomo Reconstruction"))
 
         self.pushButton_reload.setText(_translate("Form", "Reload"))
@@ -789,6 +803,16 @@ class Recon(QTabWidget):
             Addtional parameters to be used. Follow format: -Option1 value1 -Option2 value2 ...\
             </span></p></body></html>"))
         
+        self.label_tomo_index.setText(_translate("Form", "Select Tomo Index:"))
+        self.label_tomo_index.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            font-size:9pt;\">Select which tomograms to perform Aretomo operation.\
+            </span></p></body></html>"))
+        self.lineEdit_tomo_index.setPlaceholderText(_translate("Form", "1-5,7-8,12"))
+        self.lineEdit_tomo_index.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\"font-size:9pt;\"> different tomo indexes are seperated by comma, sequential indexes are connected by dash. \
+            </span></p></body></html>"))
+        
         self.pushButton_run_aretomo.setText(_translate("Form", "RUN"))
 
     def generate_ts(self):
@@ -796,8 +820,8 @@ class Recon(QTabWidget):
             if len(self.lineEdit_corrected_image_folder.text()) > 0:
                 corrected_folder_path = self.lineEdit_corrected_image_folder.text()
             else: 
-                self.logger.error( "corrected image folder path cannot be empty!")
-                return 1        
+                self.logger.error( "The corrected image folder path cannot be empty!")
+                return -1        
             ret = QMessageBox.question(self, 'Run Tilt Series Generation!', \
                     "Generate tilt series from all images from {}. \
                     \nContinue?\n".format(corrected_folder_path)\
@@ -811,24 +835,24 @@ class Recon(QTabWidget):
                 if len(self.lineEdit_base_name.text()) >0:
                     base_name = self.lineEdit_base_name.text()
                 else: 
-                    self.cmd_finished()
-                    self.logger.error("base name cannot be empty!")
-                    return 2
+                    self.logger.warning("Filename Filter Text is not provided.")
+                    base_name = ""
 
                 if len(self.lineEdit_image_file_suffix.text()) > 0:
                     image_file_suffix = self.lineEdit_image_file_suffix.text()
                 else: 
-                    self.cmd_finished()
-                    self.logger.error("base name cannot be empty!")
-                    return 2
+                    self.logger.warning("Image Filename Suffix is empty. Use default '_ali.mrc'")
+                    image_file_suffix = "_ali.mrc"
+
                 try:
-                    file_names = "{}/*{}*{}".format(corrected_folder_path,base_name,image_file_suffix)
-                except:
+                    file_names = "{}/*{}*{}".format(corrected_folder_path, base_name, image_file_suffix)
+                    images_list = sorted([os.path.basename(x) for x in glob.glob(file_names)])
+                except Exception as err:
+                    self.logger.error(f"Unexpected {err=}, {type(err)=}")
+                    self.logger.error("Please check your corrected images fold path!")
                     self.cmd_finished()
-                    self.logger.error("Please check your corrected image fold path!")
-                    return 3
+                    return -1
                 
-                images_list = sorted([os.path.basename(x) for x in glob.glob(file_names)])
                 delimiter = self.lineEdit_delimiter.text() if len(self.lineEdit_delimiter.text()) > 0 else '_'
                 
                 if len(self.lineEdit_base_name_index.text()) > 0:
@@ -838,36 +862,33 @@ class Recon(QTabWidget):
                             key_index = [int(x) for x in base_name_index.split('-')]
                             key_index[0]-=1
                         except:
+                            self.logger.error("Tomogram Base Name Index format error!")
                             self.cmd_finished()
-                            self.logger.error("base_name_index format error!")
-                            return 3
+                            return -1
                     else:
                         try:
                             key_index = [int(base_name_index)-1, int(base_name_index)]
                         except:
+                            self.logger.error("Tomogram Base Name Index format error!")
                             self.cmd_finished()
-                            self.logger.error("base_name_index format error!")
-                            return 3
+                            return -1
                     if len(key_index) != 2:
+                        self.logger.error("Tomogram Base Name Index format error!")
                         self.cmd_finished()
-                        self.logger.error("base_name_index format error!")
-                        return 3
+                        return -1
                 else: 
-                    self.cmd_finished()
-                    self.logger.error("please provide base name index for identifying tilts for each tomogram!")
-                    return 2
+                    self.logger.error("Please provide Tomogram Base Name Index for identifying tilts for each tomogram!")
+                    self.cmd_finished()                    
+                    return -1
 
-                if len(images_list) == 0:
-                    self.logger.error("No required images detected!")
+                if len(images_list) <= 0:
+                    self.logger.error("No specified images are detected! Please make sure the images exist and the parameters are correctly set.")
                     self.cmd_finished()
-                    return 6
-        
-                tomo_lists = []
-                if len(images_list) > 0:
+                    return -1
+                else:
+                    tomo_lists = []
                     current_tomo = []
-
                     prefix = delimiter.join(images_list[0].split(delimiter)[key_index[0]:key_index[1]])
-                    
                     for im in images_list:
                         key = delimiter.join(im.split(delimiter)[key_index[0]:key_index[1]])
                         if key == prefix:
@@ -877,25 +898,25 @@ class Recon(QTabWidget):
                             tomo_lists.append(current_tomo)
                             current_tomo = [im]
                     tomo_lists.append(current_tomo)
-                else: 
-                    self.cmd_finished()
-                    self.logger.error("no images found!")
-                    return 4
                     
                 if self.lineEdit_key_index.text().isdigit():
                     key_index_sort = int(self.lineEdit_key_index.text()) - 1
                 else: 
+                    self.logger.error("Please provide a valid Tilt Info Index number!")
                     self.cmd_finished()
-                    self.logger.error("Please provide a valid index number!")
-                    return 5
+                    return -1
           
-                tomo_lists = [sorted(x, key = lambda \
-                            y:float(y.split(image_file_suffix)[0].split(delimiter)[key_index_sort])) \
-                            for x in tomo_lists]
-                
-                rawtlt_lists = [[float(x.split(image_file_suffix)[0].split(delimiter)[key_index_sort])\
+                try:
+                    tomo_lists = [sorted(x, key = lambda \
+                                y:float(y.split(image_file_suffix)[0].split(delimiter)[key_index_sort])) \
+                                for x in tomo_lists]
+                    rawtlt_lists = [[float(x.split(image_file_suffix)[0].split(delimiter)[key_index_sort])\
                                 for x in y] for y in tomo_lists]
-
+                except Exception as err:
+                    self.logger.error(f"Unexpected {err=}, {type(err)=}")
+                    self.cmd_finished()
+                    return -1
+                
                 if self.comboBox_rm_dup.currentText()== "Yes":
                     for i,tlts in enumerate(rawtlt_lists):
                         pop_list = []
@@ -908,45 +929,70 @@ class Recon(QTabWidget):
 
                 if not len(self.lineEdit_min_num_tilt.text()) > 0:
                     min_num_tilt = 30
+                    self.logger.warning("Minimum Tilts # is not provided, use 30 as default.")
                 else:
-                    min_num_tilt = int(self.lineEdit_min_num_tilt.text())
-                tomo_lists = [x for x in tomo_lists if len(x) >= min_num_tilt]
-                rawtlt_lists = [x for x in rawtlt_lists if len(x) >= min_num_tilt]
+                    min_num_tilt = string2int(self.lineEdit_min_num_tilt.text())
+                    if min_num_tilt == None:
+                        self.logger.error("The Minimum Tilts # format is invalid!")
+                        self.cmd_finished()
+                        return -1
+                    #min_num_tilt = int(self.lineEdit_min_num_tilt.text())
+                
+                try:
+                    tomo_lists = [x for x in tomo_lists if len(x) >= min_num_tilt]
+                    rawtlt_lists = [x for x in rawtlt_lists if len(x) >= min_num_tilt]
+                except Exception as err:
+                    self.logger.error(f"Unexpected {err=}, {type(err)=}")
+                    self.cmd_finished()
+                    return -1
+                
+                only_process_unfinished = self.comboBox_new_data.currentText()
+                if only_process_unfinished == "No":
+                    only_process_unfinished = 0
+                else:
+                    only_process_unfinished = 1
+                # if only_process_unfinished == "Yes":
+                #     try:
+                #         current_ts_list = sorted([os.path.basename(x) for x in glob.glob("{}/*.st".format(self.ts_folder))])
+                #         if len(current_ts_list) > 0:
+                #             indexes = [int(os.path.splitext(x)[0].split("_")[-1]) for x in current_ts_list]
+                #             indexes.sort()
+                #             last_index = indexes[-1]
+                #             start_index = int(last_index) + 1
+                #         else:
+                #             start_index = 1
+                #     except:
+                #         self.logger.error("error when check current TS info!")
+                #         return 6
+                # else:
+                    # start_index = 1
+                
+                start_index = 1
+                self.logger.info("########Total TS # detected is {} from {} tilt images, the minimum number of tilts used is {}.########".format(len(tomo_lists), len(images_list), min_num_tilt))
+                #self.logger.info("########The generated tilt series will be saved at {}. Index starts from {}.########".format(self.ts_folder, start_index))
+                self.logger.info("########The generated tilt series will be saved under {}/.########".format(self.ts_folder))
 
-                add_new_data = self.comboBox_new_data.currentText()
-                if add_new_data == "Yes":
-                    try:
-                        current_ts_list = sorted([os.path.basename(x) for x in glob.glob("{}/*.st".format(self.ts_folder))])
-                        if len(current_ts_list) > 0:
-                            indexes = [int(os.path.splitext(x)[0].split("_")[-1]) for x in current_ts_list]
-                            indexes.sort()
-                            last_index = indexes[-1]
-                            start_index = int(last_index) + 1
-                        else:
-                            start_index = 1
-                    except:
-                        self.logger.error("error when check current ts info!")
-                        return 6
-                else:
-                    start_index = 1
-                self.logger.info("########Total tomo # detected is {} from {} images: min number of tilts set as {}.########".format(len(tomo_lists), len(images_list), min_num_tilt ))
-                self.logger.info("########The generated tilt series will be save in {}. And start with index {}.########".format(self.ts_folder, start_index))
                 image_folder = self.lineEdit_corrected_image_folder.text()
+                
                 target_base_name = self.lineEdit_target_base_name.text() \
                     if not self.lineEdit_target_base_name.text() == "" else "TS"
                 
-                cpus = int(self.lineEdit_cpus.text()) if len(self.lineEdit_cpus.text()) > 0 else 8
+                cpus = string2int(self.lineEdit_cpus.text()) if len(self.lineEdit_cpus.text()) > 0 else 8
+                if cpus == None:
+                    self.logger.error("The CPUs # format is invalid!")
+                    self.cmd_finished()
+                    return -1
 
                 flip_axis = self.comboBox_flip_axis.currentIndex()
 
                 if not self.thread_gt:
                     self.thread_gt = Generate_TS(image_folder, tomo_lists,\
                         rawtlt_lists, target_base_name, start_index, delimiter,\
-                        key_index, self.ts_folder, cpus, flip_axis)
+                        key_index, self.ts_folder, cpus, flip_axis, only_process_unfinished)
                 else:
                     self.thread_gt = Generate_TS(image_folder, tomo_lists,\
                         rawtlt_lists, target_base_name, start_index, delimiter,\
-                        key_index, self.ts_folder, cpus, flip_axis)
+                        key_index, self.ts_folder, cpus, flip_axis, only_process_unfinished)
 
                 self.thread_gt.finished.connect(self.cmd_finished)
                 
@@ -1463,6 +1509,7 @@ class Recon(QTabWidget):
                 notes_i = note_dict[tomo] if tomo in note_dict.keys() else ""
                 self.tableView_aretomo.setItem(i, 7, QTableWidgetItem(notes_i))
         self.current_tomoNames_aretomo = tomoNames
+    
     @QtCore.pyqtSlot(str)
     def update_log_window(self, txt):
         in_current_page = True
@@ -1518,27 +1565,29 @@ class Recon(QTabWidget):
         if len(self.lineEdit_corrected_image_folder.text()) > 0:
                 corrected_folder_path = self.lineEdit_corrected_image_folder.text()
         else: 
-            self.logger.error( "corrected image folder path cannot be empty!")
-            return 1
-
+            self.logger.error( "The Corrected Image Folder Path cannot be empty!")
+            return -1
+        
         if len(self.lineEdit_base_name.text()) >0:
             base_name = self.lineEdit_base_name.text()
         else: 
-            self.logger.error("base name cannot be empty!")
-            return 2
+            self.logger.warning("Filename Filter Text is not provided.")
+            base_name = ""
 
         if len(self.lineEdit_image_file_suffix.text()) > 0:
             image_file_suffix = self.lineEdit_image_file_suffix.text()
         else: 
-            self.logger.error("image file suffix cannot be empty!")
-            return 2
-        try:
-            file_names = "{}/*{}*{}".format(corrected_folder_path,base_name,image_file_suffix)
-        except:
-            self.logger.error("Please check your corrected image fold path!")
-            return 3
+            self.logger.warning("Image Filename Suffix is empty. Use default '_ali.mrc'")
+            image_file_suffix = "_ali.mrc"
         
-        images_list = sorted([os.path.basename(x) for x in glob.glob(file_names)])
+        try:
+            file_names = "{}/*{}*{}".format(corrected_folder_path, base_name, image_file_suffix)
+            images_list = sorted([os.path.basename(x) for x in glob.glob(file_names)])
+        except Exception as err:
+            self.logger.error(f"Unexpected {err=}, {type(err)=}")
+            self.logger.error("Please check your corrected images fold path!")
+            return -1
+
         delimiter = self.lineEdit_delimiter.text() if len(self.lineEdit_delimiter.text()) > 0 else '_'
         
         if len(self.lineEdit_base_name_index.text()) > 0:
@@ -1548,29 +1597,28 @@ class Recon(QTabWidget):
                     key_index = [int(x) for x in base_name_index.split('-')]
                     key_index[0]-=1
                 except:
-                    self.logger.error("base_name_index format error!")
-                    return 3
+                    self.logger.error("Tomogram Base Name Index format error!")
+                    return -1
             else:
                 try:
                     key_index = [int(base_name_index)-1, int(base_name_index)]
                 except:
-                    self.logger.error("base_name_index format error!")
-                    return 3
+                    self.logger.error("Tomogram Base Name Index format error!")
+                    return -1
             if len(key_index) != 2:
-                self.logger.error("base_name_index format error!")
-                return 3
+                self.logger.error("Tomogram Base Name Index format error!")
+                return -1
         else: 
-            self.logger.error("please provide base name index for identifying tilts for each tomogram!")
-            return 2
-
-        if len(images_list) == 0:
-            self.logger.error("No required images detected!")
-            return 6
-
+            self.logger.error("Please provide Tomogram Base Name Index!")
+            return -1
+        
         tomo_lists = []
-        if len(images_list) > 0:
+        if len(images_list) <= 0:
+            self.logger.error("No specified images are detected! \
+                        Please make sure the images exist and the parameters are correctly set.")
+            return -1
+        else:
             current_tomo = []
-
             prefix = delimiter.join(images_list[0].split(delimiter)[key_index[0]:key_index[1]])
             for im in images_list:
                 key = delimiter.join(im.split(delimiter)[key_index[0]:key_index[1]])
@@ -1581,22 +1629,20 @@ class Recon(QTabWidget):
                     tomo_lists.append(current_tomo)
                     current_tomo = [im]
             tomo_lists.append(current_tomo)
-        else: 
-            self.logger.error("no images found!")
-            return 4
-            
+
         if self.lineEdit_key_index.text().isdigit():
             key_index_sort = int(self.lineEdit_key_index.text()) - 1
         else: 
-            self.logger.error("Please provide a valid index number!")
-            return 5
+            self.logger.error("Please provide a valid Tilt Info Index number!")
+            return -1
 
         try:
             tomo_lists = [sorted(x, key = lambda y:float(y.split(image_file_suffix)[0].split(delimiter)[key_index_sort])) for x in tomo_lists]
         except:
-            self.logger.error("It looks like the tilt info index info is wrong! For example, Please check the tilt info index for {} is {}".\
-                              format(tomo_lists[-1][0], key_index_sort+1))
-            return 5
+            self.logger.error("It looks like the Tilt Info Index is not correct! \
+                            Please make sure the Tilt Info Index for {} is {}".\
+                            format(tomo_lists[-1][0], key_index_sort+1))
+            return -1
 
         rawtlt_lists = [[float(x.split(image_file_suffix)[0].split(delimiter)[key_index_sort]) for x in y] for y in tomo_lists]
         if self.comboBox_rm_dup.currentText()== "Yes":
@@ -1611,12 +1657,17 @@ class Recon(QTabWidget):
 
         if not len(self.lineEdit_min_num_tilt.text()) > 0:
             min_num_tilt = 30
+            self.logger.warning("Minimum Tilts # is not provided, use 30 as default.")
         else:
-            min_num_tilt = int(self.lineEdit_min_num_tilt.text())
+            min_num_tilt = string2int(self.lineEdit_min_num_tilt.text())
+            if min_num_tilt == None:
+                self.logger.error("The Minimum Tilts # format is invalid!")
+                return -1
+
         tomo_lists = [x for x in tomo_lists if len(x) >= min_num_tilt]
         rawtlt_lists = [x for x in rawtlt_lists if len(x) >= min_num_tilt]    
 
-        self.logger.info("Check: Total tomo # is {} from {} images".format(len(tomo_lists), len(images_list)))
+        self.logger.info("Check result: Total TS # is {} from {} images".format(len(tomo_lists), len(images_list)))
 
     ############# for AreTomo tab ###########################
     def aretomo_count_tomo(self):

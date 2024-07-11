@@ -74,7 +74,7 @@ def newstack(param):
 
 class Generate_TS(QThread):
 
-    def __init__(self, image_folder,tomo_lists,rawtlt_lists,base_name,start_index,delimiter,key_index, ts_folder = "Recon/ts_tlt",cpus=8, flip_axis=0):
+    def __init__(self, image_folder, tomo_lists, rawtlt_lists, base_name, start_index, delimiter, key_index, ts_folder = "Recon/ts_tlt",cpus=8, flip_axis=0, only_process_unfinished="Yes"):
         super().__init__()
 
         self._history_record = "Recon/history_record.txt"
@@ -101,17 +101,30 @@ class Generate_TS(QThread):
         self.logger.setLevel(logging.INFO)
 
         existing_tomo = []
-        if os.path.exists(self._history_record):
-            with open(self._history_record) as file:
-                try:
-                    existing_tomo = [line.rstrip().split("->")[0] for line in file]
-                except:
-                    self.logger.warning("The history record file's format is wrong: {}".format(self._history_record))
 
+        if only_process_unfinished == 1:
+            if os.path.exists(self._history_record):
+                with open(self._history_record) as file:
+                    try:
+                        existing_tomo = [line.rstrip().split("->")[0] for line in file]
+                    except:
+                        self.logger.warning("The history record file's format is wrong: {}".format(self._history_record))
+            else:
+                self.logger.warning("The history record file is not found: {}.".format(self._history_record))
+        else:
+            try:
+                os.remove(self._history_record)
+                self.logger.warning("Only Process Unfinished Data set as No. The old history record file is removed: {}.".format(self._history_record))
+            except:
+                pass
         acc = 0
         for i in range(len(self._tomo_lists)):
-            origin_tomo = self.delimiter.join\
-                (self._tomo_lists[i][0].split(self.delimiter)[self.key_index[0]:self.key_index[1]])
+            try:
+                origin_tomo = self.delimiter.join\
+                    (self._tomo_lists[i][0].split(self.delimiter)[self.key_index[0]:self.key_index[1]])
+            except Exception as err:
+                self.logger.error(f"Unexpected {err=}, {type(err)=}")
+                continue
             if origin_tomo not in existing_tomo:
                 current_param = {}
                 current_param['image_folder'] = self._image_folder
@@ -125,12 +138,12 @@ class Generate_TS(QThread):
                 current_param['existing_tomo'] = existing_tomo
                 current_param['history_record_file'] = self._history_record
                 current_param['flip_axis'] = self.flip_axis
-                
                 acc+=1
                 self.params.append(current_param)
             else:
-                self.logger.info("{} already been processed, skip it!".format(origin_tomo))
-    def set_param(self, image_folder,tomo_lists,rawtlt_lists,base_name,start_index,ts_folder = "Recon/ts_tlt",cpus=8, flip_axis=0):
+                self.logger.info("{} already been processed, skiped!".format(origin_tomo))
+    
+    def set_param(self, image_folder, tomo_lists, rawtlt_lists, base_name, start_index, ts_folder = "Recon/ts_tlt", cpus=8, flip_axis=0):
         
         self._image_folder = image_folder
         self._ts_folder = ts_folder
@@ -140,6 +153,7 @@ class Generate_TS(QThread):
         self._start_index = start_index
         self.params = []
         self.cpus = cpus
+        self.flip_axis = flip_axis
         for i in range(len(self._tomo_lists)):
             current_param = {}
             current_param['image_folder'] = self._image_folder
