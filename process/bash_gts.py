@@ -19,6 +19,10 @@ def newstack(param):
     existing_tomo = param['existing_tomo']
     history_record_file = param['history_record_file']
     flip_axis = param['flip_axis']
+    generate_odd_even = param['generate_odd_even']
+
+    folder_ODD = "{}/ODD".format(ts_folder)
+    folder_EVN = "{}/EVN".format(ts_folder)
 
     if ts_folder[-1] == '/':
         ts_folder = ts_folder[:-1]
@@ -26,20 +30,19 @@ def newstack(param):
         image_folder = image_folder[:-1]
 
     if origin_tomo not in existing_tomo:
-        output_name = "{}/{}_{}.st".format(ts_folder,base_name,index)
-        output_tlt = "{}/{}_{}.rawtlt".format(ts_folder,base_name,index)
+        output_name = "{}/{}_{}.st".format(ts_folder, base_name, index)
+        output_tlt = "{}/{}_{}.rawtlt".format(ts_folder, base_name, index)
         input_images = ["{}/{}".format(image_folder,x) for x in tomo_lists]
         cmd = "newstack {} {} ".format(" ".join(input_images), output_name)
-                
-        subprocess.check_output(cmd, shell=True)
-        
-        try:
+
+        try:        
+            subprocess.check_output(cmd, shell=True)
             with open(output_tlt, "w") as f:
                 for i in rawtlt_lists:
                     f.write("{}\n".format(i))
-        except:
-            logger.error("write file to {} error!".format(output_tlt))
-
+        except Exception as err:
+            logger.error('Fail generating Tilt Series for {}_{}!'.format(base_name, index))
+            logger.error(f"Unexpected {err=}, {type(err)=}")
         # deal with flip
         try:
             if flip_axis in [1, 2]:
@@ -58,23 +61,91 @@ def newstack(param):
 
                 os.replace(output_name_flip, output_name)
         except:
-            logger.error("Error: unable to flip axis for {}.".format(output_name))
+            logger.error("Fail flipping axis for {}.".format(output_name))
 
-        logger.info("{}   >>>>>>>>   {}_{}"\
-            .format(origin_tomo, base_name, index))
+        if generate_odd_even == 1:
+            output_name_ODD = "{}/{}_{}_ODD.st".format(folder_ODD, base_name, index)
+            output_tlt_ODD = "{}/{}_{}_ODD.rawtlt".format(folder_ODD, base_name, index)
+            try:
+                input_images_ODD = ["{}/ODD_sums/{}_ODD{}".format(\
+                    image_folder, os.path.splitext(x)[0],os.path.splitext(x)[1]) for x in tomo_lists]
+                cmd = "newstack {} {} ".format(" ".join(input_images_ODD), output_name_ODD)
+            except Exception as err:
+                logger.error('Fail generating ODD and EVN Tilt Series for {}_{}!'.format(base_name, index))
+                logger.error(f"Unexpected {err=}, {type(err)=}")
+            try:        
+                subprocess.check_output(cmd, shell=True)
+                with open(output_tlt_ODD, "w") as f:
+                    for i in rawtlt_lists:
+                        f.write("{}\n".format(i))
+            except Exception as err:
+                logger.error('Fail generating ODD and EVN Tilt Series for {}_{}!'.format(base_name, index))
+                logger.error(f"Unexpected {err=}, {type(err)=}")
+            # deal with flip
+            try:
+                if flip_axis in [1, 2]:
+                    #flip by X or Y axis
+                    output_name_ODD_flip = "{}/{}_{}_ODD_flip.st".format(folder_ODD, base_name, index)
+                    mrc = mrcfile.open(output_name_ODD_flip)
+                    mrcdata_flip = np.flip(mrc.data, axis=flip_axis)
+                    apix = mrc.voxel_size   
+                    mrc.close()
+                    mrc_flip = mrcfile.new(output_name_ODD_flip, overwrite=True)
+                    mrc_flip.set_data(mrcdata_flip)
+                    mrc_flip.voxel_size = apix.copy()
+                    mrc_flip.close()
+                    os.replace(output_name_ODD_flip, output_name_ODD)
+            except:
+                logger.error("Fail flipping axis for {}.".format(output_name_ODD))
 
+            output_name_EVN = "{}/{}_{}_EVN.st".format(folder_EVN, base_name, index)
+            output_tlt_EVN = "{}/{}_{}_EVN.rawtlt".format(folder_EVN, base_name, index)
+            try:
+                input_images_EVN = ["{}/EVN_sums/{}_EVN{}".format(\
+                    image_folder, os.path.splitext(x)[0],os.path.splitext(x)[1]) for x in tomo_lists]
+                cmd = "newstack {} {} ".format(" ".join(input_images_EVN), output_name_EVN)
+            except Exception as err:
+                logger.error('Fail generating ODD and EVN Tilt Series for {}_{}!'.format(base_name, index))
+                logger.error(f"Unexpected {err=}, {type(err)=}")
+            try:        
+                subprocess.check_output(cmd, shell=True)
+                with open(output_tlt_EVN, "w") as f:
+                    for i in rawtlt_lists:
+                        f.write("{}\n".format(i))
+            except Exception as err:
+                logger.error('Fail generating ODD and EVN Tilt Series for {}_{}!'.format(base_name, index))
+                logger.error(f"Unexpected {err=}, {type(err)=}")
+            # deal with flip
+            try:
+                if flip_axis in [1, 2]:
+                    #flip by X or Y axis
+                    output_name_EVN_flip = "{}/{}_{}_EVN_flip.st".format(folder_EVN, base_name, index)
+                    mrc = mrcfile.open(output_name_EVN_flip)
+                    mrcdata_flip = np.flip(mrc.data, axis=flip_axis)
+                    apix = mrc.voxel_size   
+                    mrc.close()
+                    mrc_flip = mrcfile.new(output_name_EVN_flip, overwrite=True)
+                    mrc_flip.set_data(mrcdata_flip)
+                    mrc_flip.voxel_size = apix.copy()
+                    mrc_flip.close()
+                    os.replace(output_name_EVN_flip, output_name_EVN)
+            except:
+                logger.error("Fail flipping axis for {}.".format(output_name_EVN))
         try:
             with open(history_record_file, "a") as f:
                 f.write("{}->{}_{}\n".format(origin_tomo, base_name, index))
         except:
-            logger.error("Error: unable to write file to {}.".format(history_record_file))
+            logger.error("Fail to write file into {}.".format(history_record_file))
+        
+        logger.info("{}   >>>>>>>>   {}_{}"\
+            .format(origin_tomo, base_name, index))
     else:
-        logger.info("{}   >>>>>>>>   {}_{} exist, skip it!"\
+        logger.info("{}   >>>>>>>>   {}_{} was processed, skip!"\
             .format(origin_tomo, base_name, index))
 
 class Generate_TS(QThread):
 
-    def __init__(self, image_folder, tomo_lists, rawtlt_lists, base_name, start_index, delimiter, key_index, ts_folder = "Recon/ts_tlt",cpus=8, flip_axis=0, only_process_unfinished="Yes"):
+    def __init__(self, image_folder, tomo_lists, rawtlt_lists, base_name, start_index, delimiter, key_index, ts_folder = "Recon/ts_tlt",cpus=8, flip_axis=0, only_process_unfinished=1, generate_odd_even=0):
         super().__init__()
 
         self._history_record = "Recon/history_record.txt"
@@ -90,6 +161,8 @@ class Generate_TS(QThread):
         self.key_index = key_index
         self.delimiter = delimiter
         self.flip_axis = flip_axis
+        self.only_process_unfinished = only_process_unfinished
+        self.generate_odd_even = generate_odd_even
 
         self.log_file = "Recon/recon.log"
         self.logger = logging.getLogger(__name__)
@@ -99,6 +172,18 @@ class Generate_TS(QThread):
         formatter.datefmt = "%y-%m-%d %H:%M:%S"
         self.logger.handlers = [handler]
         self.logger.setLevel(logging.INFO)
+
+        folder_ODD = "{}/ODD".format(ts_folder)
+        folder_EVN = "{}/EVN".format(ts_folder)
+        if generate_odd_even == 1:
+            try:
+                if not os.path.exists(folder_ODD):
+                    os.mkdir(folder_ODD)
+                if not os.path.exists(folder_EVN):
+                    os.mkdir(folder_EVN)
+            except Exception as err:
+                self.logger.error('Fail generating ODD and EVN sub-folder!')
+                self.logger.error(f"Unexpected {err=}, {type(err)=}")
 
         existing_tomo = []
 
@@ -138,6 +223,7 @@ class Generate_TS(QThread):
                 current_param['existing_tomo'] = existing_tomo
                 current_param['history_record_file'] = self._history_record
                 current_param['flip_axis'] = self.flip_axis
+                current_param['generate_odd_even'] = self.generate_odd_even
                 acc+=1
                 self.params.append(current_param)
             else:
@@ -170,7 +256,7 @@ class Generate_TS(QThread):
         if not os.path.exists(self._ts_folder):
             os.makedirs(self._ts_folder)
             
-        self.pool =  Pool(self.cpus)
+        self.pool = Pool(self.cpus)
         self.pool.map(newstack, self.params)
 
     def stop_process(self):

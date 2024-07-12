@@ -292,7 +292,10 @@ class MotionCor(QTabWidget):
         self.lineEdit_ftbin.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\"> If the provided frames are collected in super-resolution mode, the output images are intended to be binned. Default: 1. </span></p></body></html>"))
         
         self.label_splitSum.setText(_translate("Form", "Split frames into ODD and EVEN subsets?:"))
-        self.label_splitSum.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\"> If set Yes, -SplitSum parameter will be used to generate ODD and EVEN sums. Note that earlier versions of MotionCor2 (before v.1.4.0?) does not have this option. Default: No. </span></p></body></html>"))
+        self.label_splitSum.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:9pt;\"> \
+                                                  If set Yes, -SplitSum parameter will be used to generate ODD and EVEN sums. \
+                                                  Results will be saved in subfolders corrected_images/ODD(EVN)_sums. \
+                                                  Note that earlier versions of MotionCor2 (before v.1.4.0?) does not have this option. Default: No. </span></p></body></html>"))
         self.comboBox_splitSum.setItemText(0, _translate("Form", "No"))
         self.comboBox_splitSum.setItemText(1, _translate("Form", "Yes"))
 

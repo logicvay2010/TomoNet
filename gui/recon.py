@@ -325,16 +325,40 @@ class Recon(QTabWidget):
         self.comboBox_new_data.addItem("")
         #self.comboBox_new_data.setMaximumWidth(60)
         self.horizontalLayout_3.addWidget(self.comboBox_new_data)
-
+        
         self.gridLayout_2.addLayout(self.horizontalLayout_3, 3, 0, 1, 1)
         
+        self.horizontalLayout_3_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_3_2.setContentsMargins(10, 5, 10, 5)
+        self.horizontalLayout_3_2.setObjectName("horizontalLayout_3_2")
+        
+        self.label_process_odd_evn = QtWidgets.QLabel(self.tab)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_process_odd_evn.sizePolicy().hasHeightForWidth())
+        self.label_process_odd_evn.setSizePolicy(sizePolicy)
+        self.label_process_odd_evn.setMinimumSize(QtCore.QSize(120, 0))
+        self.label_process_odd_evn.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_process_odd_evn.setObjectName("label_process_odd_evn")
+        self.horizontalLayout_3_2.addWidget(self.label_process_odd_evn)
+        self.comboBox_process_odd_evn = QtWidgets.QComboBox(self.tab)
+        self.comboBox_process_odd_evn.setObjectName("comboBox_process_odd_evn")
+        self.comboBox_process_odd_evn.addItem("")
+        self.comboBox_process_odd_evn.addItem("")
+        #self.comboBox_process_odd_evn.setMaximumWidth(60)
+        self.horizontalLayout_3_2.addWidget(self.comboBox_process_odd_evn)
+        self.gridLayout_2.addLayout(self.horizontalLayout_3_2, 4, 0, 1, 1)
+
         self.spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_2.addItem(self.spacerItem1, 4, 0, 1, 1)
+        self.gridLayout_2.addItem(self.spacerItem1, 5, 0, 1, 1)
 
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
+        
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_4.addItem(spacerItem2)
+
         self.pushButton_run_ts_generation = QtWidgets.QPushButton(self.tab)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -345,12 +369,14 @@ class Recon(QTabWidget):
         self.pushButton_run_ts_generation.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.pushButton_run_ts_generation.setObjectName("run")
         self.horizontalLayout_4.addWidget(self.pushButton_run_ts_generation)
+        
         spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_4.addItem(spacerItem3)
-        self.gridLayout_2.addLayout(self.horizontalLayout_4, 5, 0, 1, 1)
+        self.gridLayout_2.addLayout(self.horizontalLayout_4, 6, 0, 1, 1)
 
         self.addTab(self.tab, "")
         
+        # eTomo tab
         self.tab1 = QtWidgets.QWidget()
         self.tab1.setObjectName("tab")
 
@@ -724,6 +750,16 @@ class Recon(QTabWidget):
             Default: Yes.\
             </span></p></body></html>"))
         
+        self.label_process_odd_evn.setText(_translate("Form", "Generate ODD and EVN Tilt Series?:"))
+        self.comboBox_process_odd_evn.setItemText(0, _translate("Form", "No"))
+        self.comboBox_process_odd_evn.setItemText(1, _translate("Form", "Yes"))
+        self.comboBox_process_odd_evn.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" font-size:9pt;\">\
+            Select Yes to generate tilt series for ODD and EVN sums of Motion Correction frames.\
+            This requires subfolders ODD_sums and EVN_sums with the corresponding files existing under the user provided Motion Corrected Images Folder.\
+            Default: No.\
+            </span></p></body></html>"))
+        
         self.pushButton_run_ts_generation.setText(_translate("Form", "RUN"))
         
         self.setTabText(self.indexOf(self.tab), _translate("Form", "TS Generation"))
@@ -951,21 +987,12 @@ class Recon(QTabWidget):
                     only_process_unfinished = 0
                 else:
                     only_process_unfinished = 1
-                # if only_process_unfinished == "Yes":
-                #     try:
-                #         current_ts_list = sorted([os.path.basename(x) for x in glob.glob("{}/*.st".format(self.ts_folder))])
-                #         if len(current_ts_list) > 0:
-                #             indexes = [int(os.path.splitext(x)[0].split("_")[-1]) for x in current_ts_list]
-                #             indexes.sort()
-                #             last_index = indexes[-1]
-                #             start_index = int(last_index) + 1
-                #         else:
-                #             start_index = 1
-                #     except:
-                #         self.logger.error("error when check current TS info!")
-                #         return 6
-                # else:
-                    # start_index = 1
+
+                generate_odd_even = self.comboBox_process_odd_evn.currentText()
+                if generate_odd_even == "No":
+                    generate_odd_even = 0
+                else:
+                    generate_odd_even = 1
                 
                 start_index = 1
                 self.logger.info("########Total TS # detected is {} from {} tilt images, the minimum number of tilts used is {}.########".format(len(tomo_lists), len(images_list), min_num_tilt))
@@ -988,17 +1015,16 @@ class Recon(QTabWidget):
                 if not self.thread_gt:
                     self.thread_gt = Generate_TS(image_folder, tomo_lists,\
                         rawtlt_lists, target_base_name, start_index, delimiter,\
-                        key_index, self.ts_folder, cpus, flip_axis, only_process_unfinished)
+                        key_index, self.ts_folder, cpus, flip_axis, only_process_unfinished, generate_odd_even)
                 else:
                     self.thread_gt = Generate_TS(image_folder, tomo_lists,\
                         rawtlt_lists, target_base_name, start_index, delimiter,\
-                        key_index, self.ts_folder, cpus, flip_axis, only_process_unfinished)
+                        key_index, self.ts_folder, cpus, flip_axis, only_process_unfinished, generate_odd_even)
 
                 self.thread_gt.finished.connect(self.cmd_finished)
                 
                 self.thread_gt.start()
-                
-                    
+                   
         else:
             ret = QMessageBox.question(self, 'Stop Generate Tilt Series!', \
                 "Stop Generate Tilt Series! \
@@ -1032,6 +1058,7 @@ class Recon(QTabWidget):
             data['base_name_index'] = ""
             data['image_file_suffix'] = ""
             data['cpus'] = ""
+            data['process_odd_evn'] = "No"
 
             #tab 3
             data['aretomo_input_folder'] = ""
@@ -1061,6 +1088,7 @@ class Recon(QTabWidget):
                 self.lineEdit_target_base_name.setText(data['target_base_name'])
                 self.comboBox_rm_dup.setCurrentText(data['rm_dup'])
                 self.comboBox_new_data.setCurrentText(data['new_data'])
+                self.comboBox_process_odd_evn.setCurrentText(data['process_odd_evn'])
 
                 #tab 3
                 self.lineEdit_aretomo_input_folder.setText(data['aretomo_input_folder'])
@@ -1091,6 +1119,7 @@ class Recon(QTabWidget):
         param['target_base_name'] = self.lineEdit_target_base_name.text()
         param['rm_dup'] = self.comboBox_rm_dup.currentText()
         param['new_data'] = self.comboBox_new_data.currentText()
+        param['process_odd_evn'] = self.comboBox_process_odd_evn.currentText()
 
         #tab aretomo
         param['aretomo_input_folder'] = self.lineEdit_aretomo_input_folder.text()
