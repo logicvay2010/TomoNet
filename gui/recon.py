@@ -194,7 +194,7 @@ class Recon(QTabWidget):
         self.comboBox_flip_axis.addItem("")
         self.comboBox_flip_axis.addItem("")
         self.comboBox_flip_axis.addItem("")
-        self.comboBox_flip_axis.setMaximumWidth(60)
+        self.comboBox_flip_axis.setMaximumWidth(120)
         self.horizontalLayout_2.addWidget(self.comboBox_flip_axis)
 
         self.gridLayout_2.addLayout(self.horizontalLayout_2, 1, 0, 1, 1)
