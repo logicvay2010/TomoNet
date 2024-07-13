@@ -20,7 +20,9 @@ class Recon(QTabWidget):
         self.setTabShape(QtWidgets.QTabWidget.Triangular)
 
         ############### Define variables ################
-        self.ts_folder = "Recon/ts_tlt"
+        self.etomo_ts_folder = "Recon/ts_tlt"
+        self.aretomo_ts_folder = "Recon/ts_tlt"
+        self.default_ts_folder = "Recon/ts_tlt"
         self.etomo_folder = "Recon/eTomo"
         self.areTomo_folder = "Recon/AreTomo"
         self._history_record = "Recon/history_record.txt"
@@ -61,6 +63,8 @@ class Recon(QTabWidget):
         self.pushButton_reload.clicked.connect(self.reload_table)
 
         self.pushButton_run_aretomo.clicked.connect(self.run_aretomo)
+        
+        self.pushButton_etomo_input_folder.clicked.connect(lambda: browse.browseFolderSlot(self.lineEdit_etomo_input_folder)) 
 
         self.pushButton_aretomo_input_folder.clicked.connect(lambda: browse.browseFolderSlot(self.lineEdit_aretomo_input_folder)) 
         
@@ -76,7 +80,11 @@ class Recon(QTabWidget):
         for child in self.findChildren(QtWidgets.QComboBox):
             child.currentIndexChanged.connect(self.save_setting)
 
+        self.lineEdit_etomo_input_folder.textChanged.connect(self.etomo_count_tomo)
+        self.lineEdit_etomo_input_folder.textChanged.connect(self.reload_table)
+
         self.lineEdit_aretomo_input_folder.textChanged.connect(self.aretomo_count_tomo)
+        self.lineEdit_aretomo_input_folder.textChanged.connect(self.reload_table_aretomo)
 
         self.setting_file ="Recon/recon.setting"
         
@@ -325,16 +333,40 @@ class Recon(QTabWidget):
         self.comboBox_new_data.addItem("")
         #self.comboBox_new_data.setMaximumWidth(60)
         self.horizontalLayout_3.addWidget(self.comboBox_new_data)
-
+        
         self.gridLayout_2.addLayout(self.horizontalLayout_3, 3, 0, 1, 1)
         
+        self.horizontalLayout_3_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_3_2.setContentsMargins(10, 5, 10, 5)
+        self.horizontalLayout_3_2.setObjectName("horizontalLayout_3_2")
+        
+        self.label_process_odd_evn = QtWidgets.QLabel(self.tab)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_process_odd_evn.sizePolicy().hasHeightForWidth())
+        self.label_process_odd_evn.setSizePolicy(sizePolicy)
+        self.label_process_odd_evn.setMinimumSize(QtCore.QSize(120, 0))
+        self.label_process_odd_evn.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_process_odd_evn.setObjectName("label_process_odd_evn")
+        self.horizontalLayout_3_2.addWidget(self.label_process_odd_evn)
+        self.comboBox_process_odd_evn = QtWidgets.QComboBox(self.tab)
+        self.comboBox_process_odd_evn.setObjectName("comboBox_process_odd_evn")
+        self.comboBox_process_odd_evn.addItem("")
+        self.comboBox_process_odd_evn.addItem("")
+        #self.comboBox_process_odd_evn.setMaximumWidth(60)
+        self.horizontalLayout_3_2.addWidget(self.comboBox_process_odd_evn)
+        self.gridLayout_2.addLayout(self.horizontalLayout_3_2, 4, 0, 1, 1)
+
         self.spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_2.addItem(self.spacerItem1, 4, 0, 1, 1)
+        self.gridLayout_2.addItem(self.spacerItem1, 5, 0, 1, 1)
 
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
+        
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_4.addItem(spacerItem2)
+
         self.pushButton_run_ts_generation = QtWidgets.QPushButton(self.tab)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -345,16 +377,54 @@ class Recon(QTabWidget):
         self.pushButton_run_ts_generation.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.pushButton_run_ts_generation.setObjectName("run")
         self.horizontalLayout_4.addWidget(self.pushButton_run_ts_generation)
+        
         spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_4.addItem(spacerItem3)
-        self.gridLayout_2.addLayout(self.horizontalLayout_4, 5, 0, 1, 1)
+        self.gridLayout_2.addLayout(self.horizontalLayout_4, 6, 0, 1, 1)
 
         self.addTab(self.tab, "")
         
+        
+        
+        # eTomo tab
         self.tab1 = QtWidgets.QWidget()
         self.tab1.setObjectName("tab")
 
         self.gridLayout_recon = QtWidgets.QGridLayout(self.tab1)
+
+        self.horizontalLayout_eTomo_1 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_eTomo_1.setContentsMargins(10, 5, 10, 5)
+        self.horizontalLayout_eTomo_1.setObjectName("horizontalLayout_eTomo_1")
+        self.label_etomo_input_folder = QtWidgets.QLabel(self.tab1)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_etomo_input_folder.sizePolicy().hasHeightForWidth())
+        self.label_etomo_input_folder.setSizePolicy(sizePolicy)
+        self.label_etomo_input_folder.setMinimumSize(QtCore.QSize(120, 0))
+        self.label_etomo_input_folder.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_etomo_input_folder.setObjectName("label_etomo_input_folder")
+        self.horizontalLayout_eTomo_1.addWidget(self.label_etomo_input_folder)
+        
+        self.lineEdit_etomo_input_folder = QtWidgets.QLineEdit(self.tab1)
+        self.lineEdit_etomo_input_folder.setInputMask("")
+        self.lineEdit_etomo_input_folder.setObjectName("lineEdit_etomo_input_folder")
+        self.horizontalLayout_eTomo_1.addWidget(self.lineEdit_etomo_input_folder)
+
+        self.pushButton_etomo_input_folder = QtWidgets.QPushButton(self.tab1)
+        self.pushButton_etomo_input_folder.setText("")
+        self.pushButton_etomo_input_folder.setIcon(icon)
+        self.pushButton_etomo_input_folder.setIconSize(QtCore.QSize(24, 24))
+        self.pushButton_etomo_input_folder.setMaximumSize(QtCore.QSize(60, 24))
+        self.pushButton_etomo_input_folder.setObjectName("pushButton_etomo_input_folder")
+        self.horizontalLayout_eTomo_1.addWidget(self.pushButton_etomo_input_folder)
+
+        self.label_etomo_tomoNum_detect = QtWidgets.QLabel(self.tab1)
+        self.label_etomo_tomoNum_detect.setSizePolicy(sizePolicy)
+        self.label_etomo_tomoNum_detect.setMinimumSize(QtCore.QSize(120, 0))
+        self.label_etomo_tomoNum_detect.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_etomo_tomoNum_detect.setObjectName("label_etomo_tomoNum_detect")
+        self.horizontalLayout_eTomo_1.addWidget(self.label_etomo_tomoNum_detect)
 
         self.horizontalLayout_recon = QtWidgets.QHBoxLayout()
         self.horizontalLayout_recon.setContentsMargins(2, 2, 2, 2)
@@ -364,7 +434,7 @@ class Recon(QTabWidget):
         self.label_recon.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.label_recon.setAlignment(QtCore.Qt.AlignCenter)
         self.label_recon.setObjectName("label_recon")
-        self.label_recon.setText("Summary of Reconstruction")
+        self.label_recon.setText("Summary of 3D Reconstructions")
         self.horizontalLayout_recon.addWidget(self.label_recon)
         self.pushButton_reload = QtWidgets.QPushButton(self.tab1)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
@@ -374,7 +444,9 @@ class Recon(QTabWidget):
         self.pushButton_reload.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.pushButton_reload.setObjectName("pushButton_reload")
         self.horizontalLayout_recon.addWidget(self.pushButton_reload)
-        self.gridLayout_recon.addLayout(self.horizontalLayout_recon, 0, 0, 1, 1)
+        
+        self.gridLayout_recon.addLayout(self.horizontalLayout_eTomo_1, 0, 0, 1, 1)
+        self.gridLayout_recon.addLayout(self.horizontalLayout_recon, 1, 0, 1, 1)
 
         self.model = QtGui.QStandardItemModel(self)
 
@@ -389,7 +461,7 @@ class Recon(QTabWidget):
 
         self.tableView.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
         
-        self.gridLayout_recon.addWidget(self.tableView, 1, 0)
+        self.gridLayout_recon.addWidget(self.tableView, 2, 0)
         
         self.addTab(self.tab1, "")
 
@@ -724,9 +796,27 @@ class Recon(QTabWidget):
             Default: Yes.\
             </span></p></body></html>"))
         
+        self.label_process_odd_evn.setText(_translate("Form", "Generate ODD and EVN Tilt Series?:"))
+        self.comboBox_process_odd_evn.setItemText(0, _translate("Form", "No"))
+        self.comboBox_process_odd_evn.setItemText(1, _translate("Form", "Yes"))
+        self.comboBox_process_odd_evn.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" font-size:9pt;\">\
+            Select Yes to generate tilt series for ODD and EVN sums of Motion Correction frames.\
+            This requires subfolders ODD_sums and EVN_sums with the corresponding files existing under the user provided Motion Corrected Images Folder.\
+            Default: No.\
+            </span></p></body></html>"))
+        
         self.pushButton_run_ts_generation.setText(_translate("Form", "RUN"))
         
         self.setTabText(self.indexOf(self.tab), _translate("Form", "TS Generation"))
+
+        self.label_etomo_input_folder.setText(_translate("Form", "Tilt Series Folder:"))
+        self.lineEdit_etomo_input_folder.setPlaceholderText(_translate("Form", "Recon/ts_tlt"))
+        self.lineEdit_etomo_input_folder.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" font-size:9pt;\">\
+            Folder path to your tilt series and tlt files. \
+            </span></p></body></html>"))
+        self.label_etomo_tomoNum_detect.setText(_translate("Form", "< 0 Tomo(s) >"))
         
         self.setTabText(self.indexOf(self.tab1), _translate("Form", "eTomo Reconstruction"))
 
@@ -737,7 +827,7 @@ class Recon(QTabWidget):
         self.setTabText(self.indexOf(self.tab_aretomo), _translate("Form", "AreTomo Reconstruction"))
 
         self.label_aretomo_input_folder.setText(_translate("Form", "Tilt Series Folder:"))
-        self.lineEdit_aretomo_input_folder.setPlaceholderText(_translate("Form", "Root/Recon/ts_tlt"))
+        self.lineEdit_aretomo_input_folder.setPlaceholderText(_translate("Form", "Recon/ts_tlt"))
         self.lineEdit_aretomo_input_folder.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
             Folder path to your tilt series and tlt files. \
@@ -951,26 +1041,16 @@ class Recon(QTabWidget):
                     only_process_unfinished = 0
                 else:
                     only_process_unfinished = 1
-                # if only_process_unfinished == "Yes":
-                #     try:
-                #         current_ts_list = sorted([os.path.basename(x) for x in glob.glob("{}/*.st".format(self.ts_folder))])
-                #         if len(current_ts_list) > 0:
-                #             indexes = [int(os.path.splitext(x)[0].split("_")[-1]) for x in current_ts_list]
-                #             indexes.sort()
-                #             last_index = indexes[-1]
-                #             start_index = int(last_index) + 1
-                #         else:
-                #             start_index = 1
-                #     except:
-                #         self.logger.error("error when check current TS info!")
-                #         return 6
-                # else:
-                    # start_index = 1
+
+                generate_odd_even = self.comboBox_process_odd_evn.currentText()
+                if generate_odd_even == "No":
+                    generate_odd_even = 0
+                else:
+                    generate_odd_even = 1
                 
                 start_index = 1
                 self.logger.info("########Total TS # detected is {} from {} tilt images, the minimum number of tilts used is {}.########".format(len(tomo_lists), len(images_list), min_num_tilt))
-                #self.logger.info("########The generated tilt series will be saved at {}. Index starts from {}.########".format(self.ts_folder, start_index))
-                self.logger.info("########The generated tilt series will be saved under {}/.########".format(self.ts_folder))
+                self.logger.info("########The generated tilt series will be saved under {}/.########".format(self.default_ts_folder))
 
                 image_folder = self.lineEdit_corrected_image_folder.text()
                 
@@ -988,17 +1068,16 @@ class Recon(QTabWidget):
                 if not self.thread_gt:
                     self.thread_gt = Generate_TS(image_folder, tomo_lists,\
                         rawtlt_lists, target_base_name, start_index, delimiter,\
-                        key_index, self.ts_folder, cpus, flip_axis, only_process_unfinished)
+                        key_index, self.default_ts_folder, cpus, flip_axis, only_process_unfinished, generate_odd_even)
                 else:
                     self.thread_gt = Generate_TS(image_folder, tomo_lists,\
                         rawtlt_lists, target_base_name, start_index, delimiter,\
-                        key_index, self.ts_folder, cpus, flip_axis, only_process_unfinished)
+                        key_index, self.default_ts_folder, cpus, flip_axis, only_process_unfinished, generate_odd_even)
 
                 self.thread_gt.finished.connect(self.cmd_finished)
                 
                 self.thread_gt.start()
-                
-                    
+                   
         else:
             ret = QMessageBox.question(self, 'Stop Generate Tilt Series!', \
                 "Stop Generate Tilt Series! \
@@ -1032,8 +1111,10 @@ class Recon(QTabWidget):
             data['base_name_index'] = ""
             data['image_file_suffix'] = ""
             data['cpus'] = ""
+            data['process_odd_evn'] = "No"
+            data['etomo_input_folder'] = ""
 
-            #tab 3
+            #tab 3rd
             data['aretomo_input_folder'] = ""
             data['VolZ'] = ""
             data['OutBin'] = ""
@@ -1061,8 +1142,10 @@ class Recon(QTabWidget):
                 self.lineEdit_target_base_name.setText(data['target_base_name'])
                 self.comboBox_rm_dup.setCurrentText(data['rm_dup'])
                 self.comboBox_new_data.setCurrentText(data['new_data'])
+                self.comboBox_process_odd_evn.setCurrentText(data['process_odd_evn'])
+                self.lineEdit_etomo_input_folder.setText(data['etomo_input_folder'])
 
-                #tab 3
+                #tab 3rd
                 self.lineEdit_aretomo_input_folder.setText(data['aretomo_input_folder'])
                 self.lineEdit_VolZ.setText(data['VolZ'])
                 self.lineEdit_OutBin.setText(data['OutBin'])
@@ -1091,6 +1174,8 @@ class Recon(QTabWidget):
         param['target_base_name'] = self.lineEdit_target_base_name.text()
         param['rm_dup'] = self.comboBox_rm_dup.currentText()
         param['new_data'] = self.comboBox_new_data.currentText()
+        param['process_odd_evn'] = self.comboBox_process_odd_evn.currentText()
+        param['etomo_input_folder'] = self.lineEdit_etomo_input_folder.text()
 
         #tab aretomo
         param['aretomo_input_folder'] = self.lineEdit_aretomo_input_folder.text()
@@ -1113,6 +1198,7 @@ class Recon(QTabWidget):
     def tab_changed(self,i):
         if i == 1:
             self.reload_table()
+            self.etomo_count_tomo()
         if i == 2:
             self.reload_table_aretomo()
             self.aretomo_count_tomo()
@@ -1121,7 +1207,6 @@ class Recon(QTabWidget):
         return int(text.split("_")[-1]) 
 
     def read_tomo(self, folder_path):
-        #folder_path = self.ts_folder
         tomoNames1 = [os.path.basename(x).split(".")[0] for x in sorted(glob.glob("{}/*.st".format(folder_path)))]
         tomoNames2 = [os.path.basename(x).split(".")[0] for x in sorted(glob.glob("{}/*.rawtlt".format(folder_path)))]
 
@@ -1167,7 +1252,7 @@ class Recon(QTabWidget):
             self.tableView.horizontalHeader().hide()
 
     def open_tomo_recon(self, item):
-        i = item.row()
+        #i = item.row()
         j = item.column()
         if j == 1:
             tomoName = self.model.item(item.row(),0).text()
@@ -1182,8 +1267,8 @@ class Recon(QTabWidget):
             current_st_path = "{}/{}".format(current_tomo_folder,tomoName)
 
             if not os.path.exists(current_st_path):
-                current_st_link_path = "{}/{}".format(self.ts_folder,tomoName)
-                current_rawtlt_link_path = "{}/{}.rawtlt".format(self.ts_folder,baseName)
+                current_st_link_path = "{}/{}".format(self.etomo_ts_folder, tomoName)
+                current_rawtlt_link_path = "{}/{}.rawtlt".format(self.etomo_ts_folder, baseName)
                 cmd = "cd {} ; ln -s ../../../{} ./ ; ln -s ../../../{} ./ ; etomo".format(current_tomo_folder, current_st_link_path,current_rawtlt_link_path)
                 subprocess.check_output(cmd, shell=True)
 
@@ -1202,7 +1287,7 @@ class Recon(QTabWidget):
         j = item.column()
         tomoName = self.tableView.item(i, 0).text()
         if j == 1:
-            current_st_link_path = "{}/{}.st".format(self.ts_folder, tomoName)
+            current_st_link_path = "{}/{}.st".format(self.etomo_ts_folder, tomoName)
             cmd = "3dmod -b 8,1 {}".format(current_st_link_path)
             os.system(cmd)
         elif j == 2:
@@ -1213,8 +1298,8 @@ class Recon(QTabWidget):
             edfName = "{}/{}.edf".format(current_tomo_folder,tomoName)
             current_st_path = "{}/{}.st".format(current_tomo_folder,tomoName)
             if not os.path.exists(current_st_path):
-                current_st_link_path = "{}/{}.st".format(self.ts_folder,tomoName)
-                current_rawtlt_link_path = "{}/{}.rawtlt".format(self.ts_folder,tomoName)
+                current_st_link_path = "{}/{}.st".format(self.etomo_ts_folder,tomoName)
+                current_rawtlt_link_path = "{}/{}.rawtlt".format(self.etomo_ts_folder,tomoName)
                 cmd = "cd {} ; ln -s ../../../{} ./ ; ln -s ../../../{} ./ ; etomo".format(current_tomo_folder, current_st_link_path, current_rawtlt_link_path)
                 
                 subprocess.check_output(cmd, shell=True)
@@ -1231,8 +1316,8 @@ class Recon(QTabWidget):
                 current_tomo_folder = "{}/{}".format(self.etomo_folder,tomoName)
                 mkfolder(current_tomo_folder)
 
-                current_st_link_path = "{}/{}.st".format(self.ts_folder,tomoName)
-                current_rawtlt_link_path = "{}/{}.rawtlt".format(self.ts_folder,tomoName)
+                current_st_link_path = "{}/{}.st".format(self.etomo_ts_folder,tomoName)
+                current_rawtlt_link_path = "{}/{}.rawtlt".format(self.etomo_ts_folder,tomoName)
                 cmd = "cd {} ; ln -s ../../../{} ./ ; ln -s ../../../{} ./ ; etomo".format(current_tomo_folder, current_st_link_path, current_rawtlt_link_path)
                 
                 subprocess.check_output(cmd, shell=True)
@@ -1241,14 +1326,14 @@ class Recon(QTabWidget):
         elif j == 4:
             ret = QMessageBox.question(self, 'Risky Action!', "Do you want to move {} to trash?".format(tomoName), QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if ret == QMessageBox.Yes:
-                trash_ts_tlt = "{}/{}".format(self.ts_folder, "Trash")
+                trash_ts_tlt = "{}/{}".format(self.etomo_ts_folder, "Trash")
                 trash_ts_etomo = "{}/{}".format(self.etomo_folder, "Trash")
                 if not os.path.exists(trash_ts_tlt):
                     os.makedirs(trash_ts_tlt)
                 if not os.path.exists(trash_ts_etomo):
                     os.makedirs(trash_ts_etomo)
-                ts_path = "{}/{}.st".format(self.ts_folder,tomoName)
-                tlt_path = "{}/{}.rawtlt".format(self.ts_folder,tomoName)
+                ts_path = "{}/{}.st".format(self.etomo_ts_folder,tomoName)
+                tlt_path = "{}/{}.rawtlt".format(self.etomo_ts_folder,tomoName)
                 try:
                     if os.path.exists("{}/{}.st".format(trash_ts_tlt, tomoName)):
                         os.remove("{}/{}.st".format(trash_ts_tlt, tomoName))
@@ -1311,7 +1396,7 @@ class Recon(QTabWidget):
         j = item.column()
         tomoName = self.tableView_aretomo.item(i, 0).text()
         if j == 1:
-            current_st_link_path = "{}/{}.st".format(self.ts_folder, tomoName)
+            current_st_link_path = "{}/{}.st".format(self.aretomo_ts_folder, tomoName)
             cmd = "3dmod -b 8,1 {}".format(current_st_link_path)
             os.system(cmd)
         elif j == 2:
@@ -1356,7 +1441,7 @@ class Recon(QTabWidget):
 
         tiltcom_path = "{}/{}".format(etomo_path, "tilt.com")
         #st_path = "{}/{}.st".format(etomo_path, tomoName)
-        st_path = "{}/{}.st".format(self.ts_folder, tomoName)
+        st_path = "{}/{}.st".format(self.etomo_ts_folder, tomoName)
         rec_path = "{}/{}.rec".format(etomo_path, tomoName)
         mrc_path = "{}/{}_rec.mrc".format(etomo_path, tomoName)
         final_rec_path = ""
@@ -1391,11 +1476,13 @@ class Recon(QTabWidget):
                         self.logger.warning("cannot reading RE mean error !")
                 
                 with open(tiltcom_path) as f:
+                    skipped_view = ''
                     for line in f:
                         if "EXCLUDELIST" in line:
-                            skipped_view = line.split()[-1]
-                        elif "EXCLUDELIST2" in line:
-                            skipped_view = line.split()[-1]      
+                            skipped_view = line.split('EXCLUDELIST')[-1].strip().replace(' ','')
+                        if "EXCLUDELIST2" in line:
+                            skipped_view2 = line.split('EXCLUDELIST2')[-1].strip().replace(' ','')
+                    skipped_view = skipped_view2 if len(skipped_view2) > len(skipped_view) else skipped_view
             except:
                 pass                                
         return [tilt_num, re_mean, re_range, binning, thickness_nm, skipped_view, final_rec_path]
@@ -1416,7 +1503,7 @@ class Recon(QTabWidget):
         return d
     
     def reload_table(self):
-        tomoNames = self.read_tomo(self.ts_folder)
+        tomoNames = self.read_tomo(self.etomo_ts_folder)
         self.tableView.setRowCount(0)
         self.tableView.setRowCount(len(tomoNames))
         
@@ -1428,7 +1515,7 @@ class Recon(QTabWidget):
         if len(tomoNames) > 0:
             for i, tomo in enumerate(tomoNames):
                 self.tableView.setItem(i, 0, QTableWidgetItem(tomo))                
-                action_check = QTableWidgetItem("View ST")
+                action_check = QTableWidgetItem("View Binned ST")
                 action_check.setBackground(QtGui.QColor("#a0d2eb"))
                 action_check.setFont(QFont("sans-serif", 8, QFont.Bold))
                 self.tableView.setItem(i, 1, action_check)
@@ -1472,7 +1559,8 @@ class Recon(QTabWidget):
                 self.tableView.setItem(i, 12, QTableWidgetItem(notes_i))
 
     def reload_table_aretomo(self):
-        tomoNames = self.read_tomo(self.lineEdit_aretomo_input_folder.text())
+        self.aretomo_ts_folder = self.lineEdit_aretomo_input_folder.text() if len(self.lineEdit_aretomo_input_folder.text().strip()) > 0 else self.default_ts_folder
+        tomoNames = self.read_tomo(self.aretomo_ts_folder)
         self.tableView_aretomo.setRowCount(0)
         self.tableView_aretomo.setRowCount(len(tomoNames))
         try:
@@ -1483,7 +1571,7 @@ class Recon(QTabWidget):
         if len(tomoNames) > 0:
             for i, tomo in enumerate(tomoNames):
                 self.tableView_aretomo.setItem(i, 0, QTableWidgetItem(tomo))                
-                action_check = QTableWidgetItem("View ST")
+                action_check = QTableWidgetItem("View Binned ST")
                 action_check.setBackground(QtGui.QColor("#a0d2eb"))
                 action_check.setFont(QFont("sans-serif", 8, QFont.Bold))
                 self.tableView_aretomo.setItem(i, 1, action_check)
@@ -1671,30 +1759,40 @@ class Recon(QTabWidget):
 
     ############# for AreTomo tab ###########################
     def aretomo_count_tomo(self):
-        folder_path = self.lineEdit_aretomo_input_folder.text()
-        if os.path.exists(folder_path):
-            self.current_ts_list = sorted([os.path.basename(x) for x in glob.glob("{}/*.st".format(folder_path))])
+        self.aretomo_ts_folder = self.lineEdit_aretomo_input_folder.text() if len(self.lineEdit_aretomo_input_folder.text().strip()) > 0 else self.default_ts_folder
+
+        if os.path.exists(self.aretomo_ts_folder):
+            self.current_ts_list = sorted([os.path.basename(x) for x in glob.glob("{}/*.st".format(self.aretomo_ts_folder))])
             if self.current_ts_list and len(self.current_ts_list) > 0:
                 self.label_aretomo_tomoNum_detect.setText("< {} Tomo(s)>".format(len(self.current_ts_list)))
             else:
                 self.label_aretomo_tomoNum_detect.setText("< 0 Tomo(s)>")
         else:
             self.label_aretomo_tomoNum_detect.setText("< 0 Tomo(s)>")
-            try:
-                if len(self.lineEdit_aretomo_input_folder.text()) > 0:
-                    self.logger.warning("The input folder path is not found!")
-            except:
-                pass
+
+    def etomo_count_tomo(self):
+        self.etomo_ts_folder = self.lineEdit_etomo_input_folder.text() if len(self.lineEdit_etomo_input_folder.text().strip()) > 0 else self.default_ts_folder
+
+        if os.path.exists(self.etomo_ts_folder):
+            self.current_ts_list = sorted([os.path.basename(x) for x in glob.glob("{}/*.st".format(self.etomo_ts_folder))])
+            if self.current_ts_list and len(self.current_ts_list) > 0:
+                self.label_etomo_tomoNum_detect.setText("< {} Tomo(s)>".format(len(self.current_ts_list)))
+            else:
+                self.label_etomo_tomoNum_detect.setText("< 0 Tomo(s)>")
+        else:
+            self.label_etomo_tomoNum_detect.setText("< 0 Tomo(s)>")
 
     def get_aretomo_param(self):
         params = {}
 
-        if not len(self.lineEdit_aretomo_input_folder.text()) > 0:
-            return "Please specify the tilt series folder as input!"
+        if not len(self.lineEdit_aretomo_input_folder.text().strip()) > 0:
+            #return "Please specify the tilt series folder as input!"
+            aretomo_input_folder = self.default_ts_folder
         elif not os.path.exists(self.lineEdit_aretomo_input_folder.text()):
             return "The input folder path is not found!"
         else:
             aretomo_input_folder = self.lineEdit_aretomo_input_folder.text()
+        
         params['aretomo_input_folder'] = aretomo_input_folder
 
         if len(self.lineEdit_VolZ.text()) > 0:
@@ -1761,10 +1859,9 @@ class Recon(QTabWidget):
         aretomo_addtional_param = self.lineEdit_aretomo_addtional_param.text()
         params['aretomo_addtional_param'] = aretomo_addtional_param
         
-
-        if len(self.lineEdit_tomo_index.text()) > 0:
+        if len(self.lineEdit_tomo_index.text().strip()) > 0:
             try:
-                tomo_index = list(set([string2int(x) for x in idx2list(self.lineEdit_tomo_index.text())]))
+                tomo_index = list(set([string2int(x) for x in idx2list(self.lineEdit_tomo_index.text().strip())]))
                 
                 for i in tomo_index:
                     if not i or i <=0:
@@ -1785,6 +1882,7 @@ class Recon(QTabWidget):
                 return "Please use valid format for the select tomo index!"
         else: 
             self.current_ts_list_selected = []
+            return "No tomo index provided!"
 
         params['current_ts_list_selected'] = self.current_ts_list_selected
         

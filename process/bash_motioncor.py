@@ -6,6 +6,7 @@ import logging
 import torch
 from multiprocessing import Pool
 from PyQt5.QtCore import QThread
+#from TomoNet.util.io import mkfolder
 
 def check_output(output_file):
     with open(output_file, 'r') as f:
@@ -116,6 +117,18 @@ class MotionCor2(QThread):
 
                 if self.d['splitSum'] == 'Yes':
                     cmd_4 = '-SplitSum 1 '
+                    try:
+                        ODD_folder = "{}/ODD_sums".format(self.corrected_folder)
+                        EVN_folder = "{}/EVN_sums".format(self.corrected_folder)
+                        if not os.path.exists(ODD_folder):
+                            os.mkdir(ODD_folder)
+                        if not os.path.exists(EVN_folder):
+                            os.mkdir(EVN_folder)
+                        #mkdir directory for ODD and EVN tilts
+                    except Exception as err:
+                        self.logger.error('Creating ODD and EVN subfolder failed!')
+                        self.logger.error(f"Unexpected {err=}, {type(err)=}")
+                        break
                 else:
                     cmd_4 = '-SplitSum 0 '
 
@@ -123,7 +136,7 @@ class MotionCor2(QThread):
                     for image in raw_images:
                         
                         basename = image[:-t-1]
-                        cmd_2 = '{}/{} -OutMrc {}/{}_ali.mrc '.format(self.d['raw_image_folder'],image,self.corrected_folder,basename)
+                        cmd_2 = '{}/{} -OutMrc {}/{}_ali.mrc '.format(self.d['raw_image_folder'], image, self.corrected_folder, basename)
                         cmd_last = '-Gpu {} -LogFile {}/{}.log > {}/{}_MotionCor2_output.log 2>&1 '\
                                 '\" > {}/{}_MotionCor2_cmd.log'.format(gpu_ID[0], self.corrected_folder, basename, self.corrected_folder,\
                                 basename, self.corrected_folder, basename)
@@ -144,13 +157,21 @@ class MotionCor2(QThread):
                             break
 
                         if check_output("{}/{}_MotionCor2_output.log".format(self.corrected_folder, basename)):
-                            cmd = 'mv {}/{} {}/'.format(self.d['raw_image_folder'], image, self.processed_folder,image)
-                            subprocess.check_output(cmd, shell=True)
-
-                            self.logger.info('Done processing on GPU {}: {}'.format(gpu_ID[0], image))
+                            try:
+                                cmd = 'mv {}/{} {}/'.format(self.d['raw_image_folder'], image, self.processed_folder)
+                                subprocess.check_output(cmd, shell=True)
+                                self.logger.info('Done processing on GPU {}: {}'.format(gpu_ID[0], image))
+                                corrected_images_ODD = "{}/{}_ali_ODD.mrc".format(self.corrected_folder, basename)
+                                corrected_images_EVN = "{}/{}_ali_EVN.mrc".format(self.corrected_folder, basename)
+                                if self.d['splitSum'] == 'Yes':
+                                    cmd = "mv {} {}/; mv {} {}/;".format(corrected_images_ODD, ODD_folder, corrected_images_EVN, EVN_folder)
+                                    subprocess.check_output(cmd, shell=True)
+                            except Exception as err:
+                                self.logger.error('failed move raw frames into {}!'.format(self.processed_folder))
+                                self.logger.error(f"Unexpected {err=}, {type(err)=}")
+                                #break
                         else:
                             self.logger.warning('processing on GPU {} error: {}. Will try it later.'.format(gpu_ID[0], image))
-                        
                 elif batch_size > 1:
                     TIMEOUT = 120
                     while len(raw_images) > 0:
@@ -165,7 +186,14 @@ class MotionCor2(QThread):
                                 '\" > {}/{}_MotionCor2_cmd.log'.format(gpu_ID[i], self.corrected_folder, basename, self.corrected_folder,\
                                 basename, self.corrected_folder, basename)
                             cmd_5 = 'sh {}/{}_MotionCor2_cmd.log'.format(self.corrected_folder, basename)
-                            cmd_6 = 'mv {}/{} {}/'.format(self.d['raw_image_folder'], image, self.processed_folder)
+                            if self.d['splitSum'] == 'Yes':
+                                corrected_images_ODD = "{}/{}_ali_ODD.mrc".format(self.corrected_folder, basename)
+                                corrected_images_EVN = "{}/{}_ali_EVN.mrc".format(self.corrected_folder, basename)
+                                cmd_6 = 'mv {}/{} {}/; mv {} {}/; mv {} {}/;'.format(\
+                                    self.d['raw_image_folder'], image, self.processed_folder, \
+                                    corrected_images_ODD, ODD_folder, corrected_images_EVN, EVN_folder)
+                            else:
+                                cmd_6 = 'mv {}/{} {}/'.format(self.d['raw_image_folder'], image, self.processed_folder)
                             param['cmd_1'] = cmd_1
                             param['cmd_2'] = cmd_2
                             param['cmd_3'] = cmd_3
