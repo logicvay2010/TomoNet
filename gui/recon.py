@@ -384,8 +384,6 @@ class Recon(QTabWidget):
 
         self.addTab(self.tab, "")
         
-        
-        
         # eTomo tab
         self.tab1 = QtWidgets.QWidget()
         self.tab1.setObjectName("tab")
@@ -478,7 +476,7 @@ class Recon(QTabWidget):
         self.gridLayout_3.setObjectName("gridLayout_3")
         
         self.horizontalLayout_6 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_6.setContentsMargins(10, 5, 10, 5)
+        self.horizontalLayout_6.setContentsMargins(10, 1, 10, 1)
         self.horizontalLayout_6.setObjectName("horizontalLayout_6")
         self.label_aretomo_input_folder = QtWidgets.QLabel(self.tab_aretomo)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
@@ -512,7 +510,7 @@ class Recon(QTabWidget):
         self.horizontalLayout_6.addWidget(self.label_aretomo_tomoNum_detect)
         
         self.horizontalLayout_7 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_7.setContentsMargins(10, 5, 10, 5)
+        self.horizontalLayout_7.setContentsMargins(10, 1, 10, 1)
         self.horizontalLayout_7.setObjectName("horizontalLayout_7")
         
         self.label_VolZ = QtWidgets.QLabel(self.tab_aretomo)
@@ -553,7 +551,7 @@ class Recon(QTabWidget):
         self.horizontalLayout_7.addWidget(self.lineEdit_TiltAxis)        
 
         self.horizontalLayout_8 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_8.setContentsMargins(10, 5, 10, 5)
+        self.horizontalLayout_8.setContentsMargins(10, 1, 10, 1)
         self.horizontalLayout_8.setObjectName("horizontalLayout_8")
         
         self.label_OutImod = QtWidgets.QLabel(self.tab_aretomo)
@@ -606,7 +604,7 @@ class Recon(QTabWidget):
         self.horizontalLayout_8.addWidget(self.lineEdit_GPU_ID) 
         
         self.horizontalLayout_9 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_9.setContentsMargins(10, 5, 10, 5)
+        self.horizontalLayout_9.setContentsMargins(10, 1, 10, 1)
         self.horizontalLayout_9.setObjectName("horizontalLayout_9")
 
         self.label_aretomo_addtional_param = QtWidgets.QLabel(self.tab_aretomo)
@@ -645,7 +643,7 @@ class Recon(QTabWidget):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.pushButton_run_aretomo.sizePolicy().hasHeightForWidth())
         self.pushButton_run_aretomo.setSizePolicy(sizePolicy)
-        self.pushButton_run_aretomo.setMinimumSize(QtCore.QSize(98, 50))
+        self.pushButton_run_aretomo.setMinimumSize(QtCore.QSize(72, 36))
         self.pushButton_run_aretomo.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.pushButton_run_aretomo.setObjectName("run")
         self.horizontalLayout_10.addWidget(self.pushButton_run_aretomo)
@@ -1251,36 +1249,51 @@ class Recon(QTabWidget):
             self.model.appendRow(items)
             self.tableView.horizontalHeader().hide()
 
-    def open_tomo_recon(self, item):
-        #i = item.row()
-        j = item.column()
-        if j == 1:
-            tomoName = self.model.item(item.row(),0).text()
-            baseName = tomoName.split('.')[0]
+    # def open_tomo_recon(self, item):
+    #     #i = item.row()
+    #     j = item.column()
+    #     if j == 1:
+    #         tomoName = self.model.item(item.row(),0).text()
+    #         baseName = tomoName.split('.')[0]
             
-            current_tomo_folder = "{}/{}".format(self.etomo_folder,baseName)
+    #         current_tomo_folder = "{}/{}".format(self.etomo_folder,baseName)
 
-            if not os.path.exists(current_tomo_folder):
-                os.makedirs(current_tomo_folder)
+    #         if not os.path.exists(current_tomo_folder):
+    #             os.makedirs(current_tomo_folder)
             
-            edfName = "{}/{}.edf".format(current_tomo_folder,baseName)
-            current_st_path = "{}/{}".format(current_tomo_folder,tomoName)
+    #         edfName = "{}/{}.edf".format(current_tomo_folder,baseName)
+    #         current_st_path = "{}/{}".format(current_tomo_folder,tomoName)
 
-            if not os.path.exists(current_st_path):
-                current_st_link_path = "{}/{}".format(self.etomo_ts_folder, tomoName)
-                current_rawtlt_link_path = "{}/{}.rawtlt".format(self.etomo_ts_folder, baseName)
-                cmd = "cd {} ; ln -s ../../../{} ./ ; ln -s ../../../{} ./ ; etomo".format(current_tomo_folder, current_st_link_path,current_rawtlt_link_path)
-                subprocess.check_output(cmd, shell=True)
+    #         if not os.path.exists(current_st_path):
+    #             current_st_link_path = "{}/{}".format(self.etomo_ts_folder, tomoName)
+    #             current_rawtlt_link_path = "{}/{}.rawtlt".format(self.etomo_ts_folder, baseName)
+    #             linked_st_path = "{}/{}".format(current_tomo_folder, tomoName)
+    #             linked_rawtlt_path = "{}/{}.rawtlt".format(current_tomo_folder, baseName)
+    #             if os.path.exists(linked_st_path):
+    #                 try:
+    #                     os.remove(linked_st_path)
+    #                 except:
+    #                     pass
+    #             if os.path.exists(linked_rawtlt_path):
+    #                 try:
+    #                     os.remove(linked_rawtlt_path)
+    #                 except:
+    #                     pass
+    #             if self.etomo_ts_folder == self.default_ts_folder:
+    #                 cmd = "cd {} ; ln -s ../../../{} ./ ; ln -s ../../../{} ./ ; etomo".format(current_tomo_folder, current_st_link_path,current_rawtlt_link_path)
+    #             else:
+    #                 cmd = "cd {} ; ln -s {} ./ ; ln -s {} ./; etomo".format(current_tomo_folder, current_st_link_path, current_rawtlt_link_path)
+    #             subprocess.check_output(cmd, shell=True)
 
-            elif not os.path.exists(edfName):
-                cmd = "cd {}; etomo".format(current_tomo_folder)
-                subprocess.check_output(cmd, shell=True)
-            else:
-                cmd = "cd {};etomo *edf".format(current_tomo_folder)
-                subprocess.check_output(cmd, shell=True)
+    #         elif not os.path.exists(edfName):
+    #             cmd = "cd {}; etomo".format(current_tomo_folder)
+    #             subprocess.check_output(cmd, shell=True)
+    #         else:
+    #             cmd = "cd {};etomo *edf".format(current_tomo_folder)
+    #             subprocess.check_output(cmd, shell=True)
 
-        elif j == 2:
-            pass
+    #     elif j == 2:
+    #         pass
 
     def table_click(self, item):
         i = item.row()
@@ -1295,18 +1308,34 @@ class Recon(QTabWidget):
             if not os.path.exists(current_tomo_folder):
                 os.makedirs(current_tomo_folder)
             
-            edfName = "{}/{}.edf".format(current_tomo_folder,tomoName)
-            current_st_path = "{}/{}.st".format(current_tomo_folder,tomoName)
-            if not os.path.exists(current_st_path):
+            edfName = "{}/{}.edf".format(current_tomo_folder, tomoName)
+            current_st_path = "{}/{}.st".format(current_tomo_folder, tomoName)
+            if not os.path.exists(edfName):
                 current_st_link_path = "{}/{}.st".format(self.etomo_ts_folder,tomoName)
                 current_rawtlt_link_path = "{}/{}.rawtlt".format(self.etomo_ts_folder,tomoName)
-                cmd = "cd {} ; ln -s ../../../{} ./ ; ln -s ../../../{} ./ ; etomo".format(current_tomo_folder, current_st_link_path, current_rawtlt_link_path)
                 
+                linked_st_path = "{}/{}.st".format(current_tomo_folder, tomoName)
+                linked_rawtlt_path = "{}/{}.rawtlt".format(current_tomo_folder, tomoName)
+                try:
+                    os.remove(linked_st_path)
+                    os.remove(linked_rawtlt_path)
+                except:
+                    pass
+                if self.etomo_ts_folder == self.default_ts_folder:
+                    cmd = "cd {} ; ln -s ../../../{} ./ ; ln -s ../../../{} ./ ; etomo".format(current_tomo_folder, current_st_link_path, current_rawtlt_link_path)
+                else:
+                    cmd = "cd {} ; ln -s {} ./ ; ln -s {} ./; etomo".format(current_tomo_folder, current_st_link_path, current_rawtlt_link_path)
                 subprocess.check_output(cmd, shell=True)
-            elif not os.path.exists(edfName):
-                
-                cmd = "cd {}; etomo".format(current_tomo_folder)
-                subprocess.check_output(cmd, shell=True)
+            # elif not os.path.exists(edfName):
+            #     linked_st_path = "{}/{}.st".format(current_tomo_folder, tomoName)
+            #     linked_rawtlt_path = "{}/{}.rawtlt".format(current_tomo_folder, tomoName)
+            #     try:
+            #         os.remove(linked_st_path)
+            #         os.remove(linked_rawtlt_path)
+            #     except:
+            #         pass
+            #     cmd = "cd {}; etomo".format(current_tomo_folder)
+            #     subprocess.check_output(cmd, shell=True)
             else:
                 cmd = "cd {};etomo *edf".format(current_tomo_folder)
                 subprocess.check_output(cmd, shell=True)
@@ -1318,10 +1347,12 @@ class Recon(QTabWidget):
 
                 current_st_link_path = "{}/{}.st".format(self.etomo_ts_folder,tomoName)
                 current_rawtlt_link_path = "{}/{}.rawtlt".format(self.etomo_ts_folder,tomoName)
-                cmd = "cd {} ; ln -s ../../../{} ./ ; ln -s ../../../{} ./ ; etomo".format(current_tomo_folder, current_st_link_path, current_rawtlt_link_path)
                 
+                if self.etomo_ts_folder == self.default_ts_folder:
+                    cmd = "cd {} ; ln -s ../../../{} ./ ; ln -s ../../../{} ./ ; etomo".format(current_tomo_folder, current_st_link_path, current_rawtlt_link_path)
+                else:
+                    cmd = "cd {} ; ln -s {} ./ ; ln -s {} ./; etomo".format(current_tomo_folder, current_st_link_path, current_rawtlt_link_path)
                 subprocess.check_output(cmd, shell=True)
-
                 self.reload_table()
         elif j == 4:
             ret = QMessageBox.question(self, 'Risky Action!', "Do you want to move {} to trash?".format(tomoName), QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
@@ -1332,8 +1363,8 @@ class Recon(QTabWidget):
                     os.makedirs(trash_ts_tlt)
                 if not os.path.exists(trash_ts_etomo):
                     os.makedirs(trash_ts_etomo)
-                ts_path = "{}/{}.st".format(self.etomo_ts_folder,tomoName)
-                tlt_path = "{}/{}.rawtlt".format(self.etomo_ts_folder,tomoName)
+                ts_path = "{}/{}.st".format(self.etomo_ts_folder, tomoName)
+                tlt_path = "{}/{}.rawtlt".format(self.etomo_ts_folder, tomoName)
                 try:
                     if os.path.exists("{}/{}.st".format(trash_ts_tlt, tomoName)):
                         os.remove("{}/{}.st".format(trash_ts_tlt, tomoName))
@@ -1350,7 +1381,6 @@ class Recon(QTabWidget):
                     shutil.move(etomo_folder, trash_ts_etomo)
                 except:
                     pass
-
                 existing_tomo = []
                 existing_record = []
                 if os.path.exists(self._history_record):
