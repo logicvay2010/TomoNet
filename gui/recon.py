@@ -2,13 +2,14 @@ import os, glob, subprocess, shutil
 import logging
 import json
 import numpy as np
+from shutil import which
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QTabWidget, QTableWidgetItem, QHeaderView, QMessageBox, QInputDialog, QLineEdit
 
 from TomoNet.util import browse, metadata
-from TomoNet.util.io import mkfolder
+from TomoNet.util.io import mkfolder, mkfolder_ifnotexist
 from TomoNet.util.utils import string2float, string2int, idx2list
 from TomoNet.process.bash_gts import Generate_TS
 from TomoNet.process.bash_aretomo import AreTomo
@@ -1249,52 +1250,6 @@ class Recon(QTabWidget):
             self.model.appendRow(items)
             self.tableView.horizontalHeader().hide()
 
-    # def open_tomo_recon(self, item):
-    #     #i = item.row()
-    #     j = item.column()
-    #     if j == 1:
-    #         tomoName = self.model.item(item.row(),0).text()
-    #         baseName = tomoName.split('.')[0]
-            
-    #         current_tomo_folder = "{}/{}".format(self.etomo_folder,baseName)
-
-    #         if not os.path.exists(current_tomo_folder):
-    #             os.makedirs(current_tomo_folder)
-            
-    #         edfName = "{}/{}.edf".format(current_tomo_folder,baseName)
-    #         current_st_path = "{}/{}".format(current_tomo_folder,tomoName)
-
-    #         if not os.path.exists(current_st_path):
-    #             current_st_link_path = "{}/{}".format(self.etomo_ts_folder, tomoName)
-    #             current_rawtlt_link_path = "{}/{}.rawtlt".format(self.etomo_ts_folder, baseName)
-    #             linked_st_path = "{}/{}".format(current_tomo_folder, tomoName)
-    #             linked_rawtlt_path = "{}/{}.rawtlt".format(current_tomo_folder, baseName)
-    #             if os.path.exists(linked_st_path):
-    #                 try:
-    #                     os.remove(linked_st_path)
-    #                 except:
-    #                     pass
-    #             if os.path.exists(linked_rawtlt_path):
-    #                 try:
-    #                     os.remove(linked_rawtlt_path)
-    #                 except:
-    #                     pass
-    #             if self.etomo_ts_folder == self.default_ts_folder:
-    #                 cmd = "cd {} ; ln -s ../../../{} ./ ; ln -s ../../../{} ./ ; etomo".format(current_tomo_folder, current_st_link_path,current_rawtlt_link_path)
-    #             else:
-    #                 cmd = "cd {} ; ln -s {} ./ ; ln -s {} ./; etomo".format(current_tomo_folder, current_st_link_path, current_rawtlt_link_path)
-    #             subprocess.check_output(cmd, shell=True)
-
-    #         elif not os.path.exists(edfName):
-    #             cmd = "cd {}; etomo".format(current_tomo_folder)
-    #             subprocess.check_output(cmd, shell=True)
-    #         else:
-    #             cmd = "cd {};etomo *edf".format(current_tomo_folder)
-    #             subprocess.check_output(cmd, shell=True)
-
-    #     elif j == 2:
-    #         pass
-
     def table_click(self, item):
         i = item.row()
         j = item.column()
@@ -1304,15 +1259,18 @@ class Recon(QTabWidget):
             cmd = "3dmod -b 8,1 {}".format(current_st_link_path)
             os.system(cmd)
         elif j == 2:
-            current_tomo_folder = "{}/{}".format(self.etomo_folder,tomoName)
+            if which('etomo') is None:
+                self.logger.error("'etomo' cmd is not detected in the current system. Please check the 'etomo' installation!")
+                return -1
+            current_tomo_folder = "{}/{}".format(self.etomo_folder, tomoName)
             if not os.path.exists(current_tomo_folder):
                 os.makedirs(current_tomo_folder)
             
             edfName = "{}/{}.edf".format(current_tomo_folder, tomoName)
-            current_st_path = "{}/{}.st".format(current_tomo_folder, tomoName)
+            #current_st_path = "{}/{}.st".format(current_tomo_folder, tomoName)
             if not os.path.exists(edfName):
-                current_st_link_path = "{}/{}.st".format(self.etomo_ts_folder,tomoName)
-                current_rawtlt_link_path = "{}/{}.rawtlt".format(self.etomo_ts_folder,tomoName)
+                current_st_link_path = "{}/{}.st".format(self.etomo_ts_folder, tomoName)
+                current_rawtlt_link_path = "{}/{}.rawtlt".format(self.etomo_ts_folder, tomoName)
                 
                 linked_st_path = "{}/{}.st".format(current_tomo_folder, tomoName)
                 linked_rawtlt_path = "{}/{}.rawtlt".format(current_tomo_folder, tomoName)
@@ -1337,12 +1295,15 @@ class Recon(QTabWidget):
             #     cmd = "cd {}; etomo".format(current_tomo_folder)
             #     subprocess.check_output(cmd, shell=True)
             else:
-                cmd = "cd {};etomo *edf".format(current_tomo_folder)
+                cmd = "cd {}; etomo *edf".format(current_tomo_folder)
                 subprocess.check_output(cmd, shell=True)
         elif j == 3:
+            if which('etomo') is None:
+                self.logger.error("'etomo' cmd is not detected in the current system. Please check the 'etomo' installation!")
+                return -1
             ret = QMessageBox.question(self, 'Risky Action!', "Do you want to star over for {}? All progresses will be reset.".format(tomoName), QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if ret == QMessageBox.Yes:
-                current_tomo_folder = "{}/{}".format(self.etomo_folder,tomoName)
+                current_tomo_folder = "{}/{}".format(self.etomo_folder, tomoName)
                 mkfolder(current_tomo_folder)
 
                 current_st_link_path = "{}/{}.st".format(self.etomo_ts_folder,tomoName)
@@ -1402,6 +1363,39 @@ class Recon(QTabWidget):
                                 f.write("{}\n".format(record))
                 self.reload_table()
         elif j == 5:
+            if which('newstack') is None:
+                self.logger.error("'newstack' cmd is not detected in the current system. Please check the 'newstack' or IMOD installation!")
+                return -1
+            if which('tilt') is None:
+                self.logger.error("'tilt' cmd is not detected in the current system. Please check the 'tilt' or IMOD installation!")
+                return -1
+            if which('clip') is None:
+                self.logger.error("'clip' cmd is not detected in the current system. Please check the 'clip' or IMOD installation!")
+                return -1
+            #for generate ODD and EVN
+            current_ODD_st_link_path = "{}/ODD/{}_ODD.st".format(self.etomo_ts_folder, tomoName)
+            current_EVN_st_link_path = "{}/EVN/{}_EVN.st".format(self.etomo_ts_folder, tomoName)
+            current_tomo_folder = "{}/{}".format(self.etomo_folder, tomoName)
+
+            if os.path.exists(current_ODD_st_link_path) and os.path.exists(current_EVN_st_link_path):
+                ret = QMessageBox.question(self, 'ODD & EVN', "generate 3D reconstruction for ODD and EVN frames of {}?".format(tomoName), QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                if ret == QMessageBox.Yes:
+                    result_ODD = self.run_ODD_EVN_Recon(current_ODD_st_link_path, current_tomo_folder, tomoName, "ODD")
+                    if not (result_ODD == 'Success'):
+                        self.logger.error(result_ODD)
+                        return
+                    result_EVN = self.run_ODD_EVN_Recon(current_EVN_st_link_path, current_tomo_folder, tomoName, "EVN")
+                    if not (result_EVN == 'Success'):
+                        self.logger.error(result_EVN)
+                        return
+                    if result_ODD == 'Success' and result_EVN == 'Success':
+                        self.logger.info("ODD & EVN Recons were performed for {}".format(tomoName))
+            else:
+                self.logger.warning('either ODD ({}) or EVN ({}) TS file was not detected!'.format(current_ODD_st_link_path, current_EVN_st_link_path))
+        elif j == 6:
+            if which('3dmod') is None:
+                self.logger.error("'3dmod' cmd is not detected in the current system. Please check the '3dmod' or IMOD installation!")
+                return -1
             if self.tableView.item(i, j).text().strip() == "NA":
                 pass
             else:
@@ -1410,7 +1404,7 @@ class Recon(QTabWidget):
                 cmd = "3dmod {}".format(rec_path)
                 os.system(cmd)
                 #subprocess.check_output(cmd, shell=True)
-        elif j == 12:
+        elif j == 13:
             previous_text = self.tableView.item(i, j).text()
             text, ok = QInputDialog.getText(self, 'Take notes!', 'Confirm changes?', QLineEdit.Normal, previous_text)
             if ok:
@@ -1426,10 +1420,16 @@ class Recon(QTabWidget):
         j = item.column()
         tomoName = self.tableView_aretomo.item(i, 0).text()
         if j == 1:
+            if which('3dmod') is None:
+                self.logger.error("'3dmod' cmd is not detected in the current system. Please check the '3dmod' or IMOD installation!")
+                return -1
             current_st_link_path = "{}/{}.st".format(self.aretomo_ts_folder, tomoName)
             cmd = "3dmod -b 8,1 {}".format(current_st_link_path)
             os.system(cmd)
         elif j == 2:
+            if which('3dmod') is None:
+                self.logger.error("'3dmod' cmd is not detected in the current system. Please check the '3dmod' or IMOD installation!")
+                return -1
             try:
                 if self.tableView_aretomo.item(i, j).text().strip() == "NA":
                     pass
@@ -1459,7 +1459,7 @@ class Recon(QTabWidget):
         
         row_count = tableView.rowCount()
         params = {}
-        index = 12 if code == 1 else 7
+        index = 13 if code == 1 else 7
         for i in range(row_count):
             params[tableView.item(i, 0).text()] = tableView.item(i, index).text()
         return params
@@ -1545,7 +1545,7 @@ class Recon(QTabWidget):
         if len(tomoNames) > 0:
             for i, tomo in enumerate(tomoNames):
                 self.tableView.setItem(i, 0, QTableWidgetItem(tomo))                
-                action_check = QTableWidgetItem("View Binned ST")
+                action_check = QTableWidgetItem("View Binned TS")
                 action_check.setBackground(QtGui.QColor("#a0d2eb"))
                 action_check.setFont(QFont("sans-serif", 8, QFont.Bold))
                 self.tableView.setItem(i, 1, action_check)
@@ -1564,6 +1564,11 @@ class Recon(QTabWidget):
                 action_delete.setBackground(QtGui.QColor("#f44336"))
                 action_delete.setFont(QFont("sans-serif", 8, QFont.Bold))
                 self.tableView.setItem(i, 4, action_delete)
+
+                action_ODD_EVN = QTableWidgetItem("ODD & EVN")
+                action_ODD_EVN.setBackground(QtGui.QColor("#ffb7b2"))
+                action_ODD_EVN.setFont(QFont("sans-serif", 8, QFont.Bold))
+                self.tableView.setItem(i, 5, action_ODD_EVN)
                 
                 items = self.read_recon_folder(tomo, self.etomo_folder)
 
@@ -1574,19 +1579,19 @@ class Recon(QTabWidget):
                 
                 action_view.setBackground(QtGui.QColor("#d0bdf4"))
                 action_view.setFont(QFont("sans-serif", 8, QFont.Bold))
-                self.tableView.setItem(i, 5, action_view)
+                self.tableView.setItem(i, 6, action_view)
 
-                self.tableView.setItem(i, 6, QTableWidgetItem(items[0]))
-                self.tableView.setItem(i, 7, QTableWidgetItem(items[1]))
-                self.tableView.setItem(i, 8, QTableWidgetItem(items[2]))
-                self.tableView.setItem(i, 9, QTableWidgetItem(items[3]))
+                self.tableView.setItem(i, 7, QTableWidgetItem(items[0]))
+                self.tableView.setItem(i, 8, QTableWidgetItem(items[1]))
+                self.tableView.setItem(i, 9, QTableWidgetItem(items[2]))
+                self.tableView.setItem(i, 10, QTableWidgetItem(items[3]))
                 if len(items[4]) > 0:
-                    self.tableView.setItem(i, 10, QTableWidgetItem("{} nm".format(str(int(items[4])/10))))
+                    self.tableView.setItem(i, 11, QTableWidgetItem("{} nm".format(str(int(items[4])/10))))
                 else:
-                    self.tableView.setItem(i, 10, QTableWidgetItem(""))
-                self.tableView.setItem(i, 11, QTableWidgetItem(items[5]))
+                    self.tableView.setItem(i, 11, QTableWidgetItem(""))
+                self.tableView.setItem(i, 12, QTableWidgetItem(items[5]))
                 notes_i = note_dict[tomo] if tomo in note_dict.keys() else ""
-                self.tableView.setItem(i, 12, QTableWidgetItem(notes_i))
+                self.tableView.setItem(i, 13, QTableWidgetItem(notes_i))
 
     def reload_table_aretomo(self):
         self.aretomo_ts_folder = self.lineEdit_aretomo_input_folder.text() if len(self.lineEdit_aretomo_input_folder.text().strip()) > 0 else self.default_ts_folder
@@ -1601,7 +1606,7 @@ class Recon(QTabWidget):
         if len(tomoNames) > 0:
             for i, tomo in enumerate(tomoNames):
                 self.tableView_aretomo.setItem(i, 0, QTableWidgetItem(tomo))                
-                action_check = QTableWidgetItem("View Binned ST")
+                action_check = QTableWidgetItem("View Binned TS")
                 action_check.setBackground(QtGui.QColor("#a0d2eb"))
                 action_check.setFont(QFont("sans-serif", 8, QFont.Bold))
                 self.tableView_aretomo.setItem(i, 1, action_check)
@@ -1960,3 +1965,127 @@ class Recon(QTabWidget):
         self.pushButton_run_aretomo.setText("RUN")
         self.pushButton_run_aretomo.setStyleSheet("QPushButton {color: black;}")
         self.reload_table_aretomo()
+
+    def run_ODD_EVN_Recon(self, path_ts, target_folder, tomoName, type):
+        # check if newst.com exist and valid
+        newst_com_file = "{}/newst.com".format(target_folder)
+        if not os.path.exists(newst_com_file):
+            return "{} was not found!".format(newst_com_file)
+                
+        ODD_EVN_folder_path = "{}/{}".format(target_folder, type)
+
+        output_mrc = "{}/{}_{}_ali.mrc".format(type, tomoName, type)
+        newst_cmd = self.get_newst_cmd(newst_com_file, target_folder, tomoName, path_ts, output_mrc)
+        
+        mkfolder_ifnotexist(ODD_EVN_folder_path)
+        # if not newst_cmd == None:
+        #     try:
+        #         subprocess.check_output(newst_cmd, shell=True)
+        #         #subprocess.run(newst_cmd, capture_output=True)
+        #     except Exception as err:
+        #         self.logger.error(f"Unexpected {err=}, {type(err)=}")
+        #         return "Fail"
+        
+        tilt_com_file = "{}/tilt.com".format(target_folder)
+        if not os.path.exists(tilt_com_file):
+            return "{} was not found!".format(tilt_com_file)
+        
+        inputProjection = output_mrc
+        output_recon_mrc = "{}/{}_{}_full_rec.mrc".format(type, tomoName, type)
+        tilt_cmd = self.get_tilt_cmd(tilt_com_file, target_folder, tomoName, inputProjection, output_recon_mrc)
+
+        # if not (tilt_cmd == None):
+        #     try:
+        #         subprocess.check_output(tilt_cmd, shell=True)
+        #         #subprocess.run(tilt_cmd, capture_output=True)
+        #     except Exception as err:
+        #         self.logger.error(f"Unexpected {err=}, {type(err)=}")
+        #         return "Fail"
+        
+        output_recon_rotx_mrc = "{}/{}_{}_rec.mrc".format(type, tomoName, type)
+        
+        edf_file = "{}/{}.edf".format(target_folder, tomoName)
+        clip_cmd = 'clip rotx {} {}'.format(output_recon_mrc, output_recon_rotx_mrc)
+        if os.path.exists(edf_file):
+            with open(edf_file, 'r') as f:
+                lines = f.readlines()
+                for line in lines:
+                    if line.startswith('Setup.Post.Trimvol.RotateX') and 'false' in line.strip().split('=')[-1]:
+                        clip_cmd = 'clip flipyz {} {}'.format(output_recon_mrc, output_recon_rotx_mrc)
+
+        ODD_EVN_folder_path_log = "{}/run_recon.log".format(type)
+        ODD_EVN_folder_path_cmd = "{}/run_recon.cmd".format(ODD_EVN_folder_path)
+        
+        combined_cmd = "{} > {} ; {} >> {} ; {} >> {}".format(newst_cmd, ODD_EVN_folder_path_log, tilt_cmd, ODD_EVN_folder_path_log, clip_cmd, ODD_EVN_folder_path_log)
+        with open(ODD_EVN_folder_path_cmd, 'w') as w:
+            w.write(combined_cmd)
+        #self.logger.info(combined_cmd)
+        try:
+            cmd = 'sh {} &'.format(ODD_EVN_folder_path_cmd)
+            #subprocess.check_output(combined_cmd, shell=True)
+            #subprocess.run(combined_cmd, shell=True)
+            os.system(cmd)
+        except Exception as err:
+            self.logger.info(err)
+            self.logger.error(f"Unexpected {err=}, {type(err)=}")
+            return "Fail"
+        
+        return "Success"
+
+    def get_newst_cmd(self, newst_com_file, target_folder, tomoName, path_ts, output_mrc):
+        params_list = metadata.newst_com_params
+        inputFile = path_ts
+        outputFile = output_mrc
+        newst_cmd = 'cd {}; newstack -InputFile {} -OutputFile {}'.format(target_folder, inputFile, outputFile)
+        try:
+            with open(newst_com_file, 'r') as f:
+                lines = f.readlines()
+        
+            for line in lines:
+                if (not line.startswith('#')) and (not line.startswith('$')):
+                    seg = line.split()
+                    if seg[0] in params_list:
+                        if len(seg) == 1:
+                            newst_cmd = "{} -{}".format(newst_cmd, seg[0])
+                        elif len(seg) == 2:
+                            newst_cmd = "{} -{} {}".format(newst_cmd, seg[0], seg[1])
+                            if seg[1].endswith('.xf'):
+                                xf_file = "{}/{}".format(target_folder, seg[1])
+                                if not os.path.exists(xf_file):
+                                    self.logger.error("Missing alignment file {} for TS {}".format(xf_file, tomoName))
+                                    return None
+                        else:
+                            combine_param = line.split(seg[0])[-1].strip()
+                            newst_cmd = "{} -{} '{}'".format(newst_cmd, seg[0], combine_param)
+            return newst_cmd
+        except:
+            return None
+    
+    def get_tilt_cmd(self, newst_com_file, target_folder, tomoName, path_align_ts, output_recon_mrc):
+        params_list = metadata.tilt_com_params
+        inputProjections = path_align_ts
+        outputFile = output_recon_mrc
+        #newst_cmd = 'cd {}; tilt -InputProjections {} -OutputFile {}'.format(target_folder, inputProjections, outputFile)
+        newst_cmd = 'tilt -InputProjections {} -OutputFile {}'.format(inputProjections, outputFile)
+        try:
+            with open(newst_com_file, 'r') as f:
+                lines = f.readlines()
+            for line in lines:
+                if (not line.startswith('#')) and (not line.startswith('$')):
+                    seg = line.split()
+                    if seg[0] in params_list:
+                        if len(seg) == 1:
+                            newst_cmd = "{} -{}".format(newst_cmd, seg[0])
+                        elif len(seg) == 2:
+                            newst_cmd = "{} -{} {}".format(newst_cmd, seg[0], seg[1])
+                            if seg[1].endswith(('.tlt', '.xf', 'xtilt')):
+                                align_file = "{}/{}".format(target_folder, seg[1])
+                                if not os.path.exists(align_file):
+                                    self.logger.error("Missing alignment file {} for TS {}".format(align_file, tomoName))
+                                    return None
+                        else:
+                            combine_param = line.split(seg[0])[-1].strip()
+                            newst_cmd = "{} -{} '{}'".format(newst_cmd, seg[0], combine_param)
+            return newst_cmd
+        except:
+            return None

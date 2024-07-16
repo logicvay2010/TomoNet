@@ -13,6 +13,12 @@ def mkfolder(folder):
         os.system('mv {} {}'.format(folder, folder+'~'))
         os.makedirs(folder)
 
+def mkfolder_ifnotexist(folder):
+    try:
+        os.makedirs(folder)
+    except FileExistsError:
+        pass
+
 def update_log_window(log_window, txt):
     log_window.setText(getLogContent(txt).strip())
     log_window.moveCursor(QtGui.QTextCursor.End)
