@@ -198,6 +198,7 @@ QComboBox{
     font: 14px;
 }
 """
+
 class MyWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()

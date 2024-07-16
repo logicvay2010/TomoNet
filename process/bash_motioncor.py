@@ -94,8 +94,8 @@ class MotionCor2(QThread):
             except:
                 raw_images = []
             if len(raw_images) > 0:
-                self.logger.info("\n########Processing {} images on GPU {}########".format(len(raw_images), self.d["gpu_ID"]))
-                self.logger.info("\n########The results will be saved in {}########".format(self.corrected_folder))
+                self.logger.info("########Processing {} images on GPU {}########".format(len(raw_images), self.d["gpu_ID"]))
+                self.logger.info("########The results will be saved in {}########".format(self.corrected_folder))
 
                 if self.d['input_file_type'] == 'mrc':
                     input_file_type = '-InMrc'
