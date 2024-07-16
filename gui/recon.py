@@ -44,10 +44,8 @@ class Recon(QTabWidget):
         self.logger.addHandler(handler)
         self.logger.setLevel(logging.INFO)
 
-                
         self.setupUi()
         self.setupUi_aretomo()
-
 
         self.retranslateUi()
         self.retranslateUi_aretomo()
@@ -549,22 +547,48 @@ class Recon(QTabWidget):
         self.lineEdit_TiltAxis = QtWidgets.QLineEdit(self.tab_aretomo)
         self.lineEdit_TiltAxis.setInputMask("")
         self.lineEdit_TiltAxis.setObjectName("lineEdit_TiltAxis")
-        self.horizontalLayout_7.addWidget(self.lineEdit_TiltAxis)        
+        self.horizontalLayout_7.addWidget(self.lineEdit_TiltAxis)  
+
+        self.label_process_odd_evn_aretomo = QtWidgets.QLabel(self.tab_aretomo)
+        self.label_process_odd_evn_aretomo.setSizePolicy(sizePolicy)
+        self.label_process_odd_evn_aretomo.setMinimumSize(QtCore.QSize(120, 0))
+        self.label_process_odd_evn_aretomo.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_process_odd_evn_aretomo.setObjectName("label_process_odd_evn_aretomo")
+        self.horizontalLayout_7.addWidget(self.label_process_odd_evn_aretomo)
+        self.comboBox_process_odd_evn_aretomo = QtWidgets.QComboBox(self.tab_aretomo)
+        self.comboBox_process_odd_evn_aretomo.setObjectName("comboBox_process_odd_evn_aretomo")
+        self.comboBox_process_odd_evn_aretomo.addItem("")
+        self.comboBox_process_odd_evn_aretomo.addItem("")
+        self.comboBox_process_odd_evn_aretomo.setMaximumWidth(60)
+        self.horizontalLayout_7.addWidget(self.comboBox_process_odd_evn_aretomo)      
 
         self.horizontalLayout_8 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_8.setContentsMargins(10, 1, 10, 1)
         self.horizontalLayout_8.setObjectName("horizontalLayout_8")
         
+        self.label_PixelSize_aretomo = QtWidgets.QLabel(self.tab_aretomo)
+        self.label_PixelSize_aretomo.setSizePolicy(sizePolicy)
+        self.label_PixelSize_aretomo.setMinimumSize(QtCore.QSize(60, 0))
+        self.label_PixelSize_aretomo.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_PixelSize_aretomo.setObjectName("label_PixelSize_aretomo")
+        self.horizontalLayout_8.addWidget(self.label_PixelSize_aretomo)
+        
+        self.lineEdit_PixelSize_aretomo = QtWidgets.QLineEdit(self.tab_aretomo)
+        self.lineEdit_PixelSize_aretomo.setInputMask("")
+        #self.lineEdit_PixelSize_aretomo.setMinimumSize(QtCore.QSize(160, 0))
+        self.lineEdit_PixelSize_aretomo.setObjectName("lineEdit_PixelSize_aretomo")
+        self.horizontalLayout_8.addWidget(self.lineEdit_PixelSize_aretomo)
+
         self.label_OutImod = QtWidgets.QLabel(self.tab_aretomo)
         self.label_OutImod.setSizePolicy(sizePolicy)
-        self.label_OutImod.setMinimumSize(QtCore.QSize(60, 0))
+        self.label_OutImod.setMinimumSize(QtCore.QSize(80, 0))
         self.label_OutImod.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_OutImod.setObjectName("label_OutImod")
         self.horizontalLayout_8.addWidget(self.label_OutImod)
         
         self.lineEdit_OutImod = QtWidgets.QLineEdit(self.tab_aretomo)
         self.lineEdit_OutImod.setInputMask("")
-        self.lineEdit_OutImod.setMinimumSize(QtCore.QSize(160, 0))
+        #self.lineEdit_OutImod.setMinimumSize(QtCore.QSize(160, 0))
         self.lineEdit_OutImod.setObjectName("lineEdit_OutImod")
         self.horizontalLayout_8.addWidget(self.lineEdit_OutImod)
         
@@ -582,7 +606,7 @@ class Recon(QTabWidget):
         
         self.label_UseAlnFile = QtWidgets.QLabel(self.tab_aretomo)
         self.label_UseAlnFile.setSizePolicy(sizePolicy)
-        self.label_UseAlnFile.setMinimumSize(QtCore.QSize(60, 0))
+        self.label_UseAlnFile.setMinimumSize(QtCore.QSize(80, 0))
         self.label_UseAlnFile.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_UseAlnFile.setObjectName("label_UseAlnFile")
         self.horizontalLayout_8.addWidget(self.label_UseAlnFile)
@@ -629,9 +653,22 @@ class Recon(QTabWidget):
 
         self.lineEdit_tomo_index = QtWidgets.QLineEdit(self.tab_aretomo)
         self.lineEdit_tomo_index.setInputMask("")
-        self.lineEdit_tomo_index.setMaximumSize(QtCore.QSize(100, 30))
+        self.lineEdit_tomo_index.setMaximumSize(QtCore.QSize(80, 30))
         self.lineEdit_tomo_index.setObjectName("lineEdit_tomo_index")
         self.horizontalLayout_9.addWidget(self.lineEdit_tomo_index)
+
+        self.label_correct_ImodFile_format = QtWidgets.QLabel(self.tab_aretomo)
+        self.label_correct_ImodFile_format.setSizePolicy(sizePolicy)
+        self.label_correct_ImodFile_format.setMinimumSize(QtCore.QSize(120, 0))
+        self.label_correct_ImodFile_format.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_correct_ImodFile_format.setObjectName("label_correct_ImodFile_format")
+        self.horizontalLayout_9.addWidget(self.label_correct_ImodFile_format)
+        self.comboBox_correct_ImodFile_format = QtWidgets.QComboBox(self.tab_aretomo)
+        self.comboBox_correct_ImodFile_format.setObjectName("comboBox_correct_ImodFile_format")
+        self.comboBox_correct_ImodFile_format.addItem("")
+        self.comboBox_correct_ImodFile_format.addItem("")
+        self.comboBox_correct_ImodFile_format.setMaximumWidth(60)
+        self.horizontalLayout_9.addWidget(self.comboBox_correct_ImodFile_format) 
 
         ############################# Run button ###########################
         self.horizontalLayout_10 = QtWidgets.QHBoxLayout()
@@ -854,6 +891,22 @@ class Recon(QTabWidget):
             tilt axis is relative to the y-axis (vertical axis of tilt image) and rotates counter-clockwise. (default: 0)\
             </span></p></body></html>"))
         
+        self.label_process_odd_evn_aretomo.setText(_translate("Form", "Generate ODD and EVN Recons?:"))
+        self.comboBox_process_odd_evn_aretomo.setItemText(0, _translate("Form", "No"))
+        self.comboBox_process_odd_evn_aretomo.setItemText(1, _translate("Form", "Yes"))
+        self.comboBox_process_odd_evn_aretomo.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" font-size:9pt;\">\
+            Select Yes to generate 3D Reconstructions for ODD and EVN tilt series if detected under sub-folder ODD and EVN.\
+            Default: No.\
+            </span></p></body></html>"))
+        
+        self.label_PixelSize_aretomo.setText(_translate("Form", "-PixSize:"))
+        self.lineEdit_PixelSize_aretomo.setPlaceholderText(_translate("Form", ""))
+        self.lineEdit_PixelSize_aretomo.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" font-size:9pt;\">\
+            The pixel size of input TS. If not provied, the value in the image header will be used.\
+            </span></p></body></html>"))
+        
         self.label_OutImod.setText(_translate("Form", "-OutImod:"))
         self.lineEdit_OutImod.setPlaceholderText(_translate("Form", "1"))
         self.lineEdit_OutImod.setToolTip(_translate("MainWindow", \
@@ -900,6 +953,19 @@ class Recon(QTabWidget):
         self.lineEdit_tomo_index.setPlaceholderText(_translate("Form", "1-5,7-8,12"))
         self.lineEdit_tomo_index.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\"font-size:9pt;\"> different tomo indexes are seperated by comma, sequential indexes are connected by dash. \
+            </span></p></body></html>"))
+        
+        self.label_correct_ImodFile_format.setText(_translate("Form", "Correct Imod File Format?:"))
+        self.comboBox_correct_ImodFile_format.setItemText(0, _translate("Form", "Yes"))
+        self.comboBox_correct_ImodFile_format.setItemText(1, _translate("Form", "No"))
+        self.comboBox_correct_ImodFile_format.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" font-size:9pt;\">\
+            The Version 1.3.4 Aretomo has Imod file formating issue when use -OutImod 1, and may cause improper data processing when exported to Relion4.\
+            Set this to Yes to accommodate the following 3 issues. 1. '.tlt' file has a extra empty line \
+                2. In tilt.com file, if exclude view, the view's index starts from 0, but should be 1 in Imod convention.\
+                3. In tilt.com file, when the images been rotate ~90 degree (related -TiltAxis), the X, Y dimensions are not consistent with the recomstruction generated.\
+                If you found these issues been addressed in the newer versions, please set it to No.\
+            Default: Yes.\
             </span></p></body></html>"))
         
         self.pushButton_run_aretomo.setText(_translate("Form", "RUN"))
@@ -1121,12 +1187,15 @@ class Recon(QTabWidget):
             data['VolZ'] = ""
             data['OutBin'] = ""
             data['TiltAxis'] = ""
+            data['process_odd_evn_aretomo'] = "No"
+            data['PixelSize_aretomo'] = ""
             data['OutImod'] = ""
             data['FlipVol'] = ""
             data['UseAlnFile'] = ""
             data['GPU_ID'] = ""
             data['aretomo_addtional_param'] = ""
             data['lineEdit_tomo_index'] = ""
+            data['correct_ImodFile_format'] = "Yes"
             try:
                 with open(self.setting_file) as f:
                     for line in f:
@@ -1152,12 +1221,15 @@ class Recon(QTabWidget):
                 self.lineEdit_VolZ.setText(data['VolZ'])
                 self.lineEdit_OutBin.setText(data['OutBin'])
                 self.lineEdit_TiltAxis.setText(data['TiltAxis'])
+                self.comboBox_process_odd_evn_aretomo.setCurrentText(data['process_odd_evn_aretomo'])
+                self.lineEdit_PixelSize_aretomo.setText(data['PixelSize_aretomo'])
                 self.lineEdit_OutImod.setText(data['OutImod'])
                 self.lineEdit_FlipVol.setText(data['FlipVol'])
                 self.lineEdit_UseAlnFile.setText(data['UseAlnFile'])
                 self.lineEdit_GPU_ID.setText(data['GPU_ID'])
                 self.lineEdit_aretomo_addtional_param.setText(data['aretomo_addtional_param'])
                 self.lineEdit_tomo_index.setText(data['lineEdit_tomo_index'])
+                self.comboBox_correct_ImodFile_format.setCurrentText(data['correct_ImodFile_format'])
                 
             except:
                 self.logger.error("error reading {}!".format(self.setting_file))
@@ -1184,12 +1256,15 @@ class Recon(QTabWidget):
         param['VolZ'] = self.lineEdit_VolZ.text()
         param['OutBin'] = self.lineEdit_OutBin.text()
         param['TiltAxis'] = self.lineEdit_TiltAxis.text()
+        param['process_odd_evn_aretomo'] = self.comboBox_process_odd_evn_aretomo.currentText()
+        param['PixelSize_aretomo'] = self.lineEdit_PixelSize_aretomo.text()
         param['OutImod'] = self.lineEdit_OutImod.text()
         param['FlipVol'] = self.lineEdit_FlipVol.text()
         param['UseAlnFile'] = self.lineEdit_UseAlnFile.text()
         param['GPU_ID'] = self.lineEdit_GPU_ID.text()
         param['aretomo_addtional_param'] = self.lineEdit_aretomo_addtional_param.text()
         param['lineEdit_tomo_index'] = self.lineEdit_tomo_index.text()
+        param['correct_ImodFile_format'] = self.comboBox_correct_ImodFile_format.currentText()
         try:
             with open(self.setting_file, 'w') as f: 
                 for key, value in param.items(): 
@@ -1470,13 +1545,14 @@ class Recon(QTabWidget):
     def read_recon_folder(self, tomoName, rec_root):
 
         tilt_num, re_mean, re_range, binning, thickness_nm, skipped_view = ["", "", "", "", "", ""]
-        etomo_path = "{}/{}".format(rec_root, tomoName)
+        recon_path = "{}/{}".format(rec_root, tomoName)
 
-        tiltcom_path = "{}/{}".format(etomo_path, "tilt.com")
-        #st_path = "{}/{}.st".format(etomo_path, tomoName)
-        st_path = "{}/{}.st".format(self.etomo_ts_folder, tomoName)
-        rec_path = "{}/{}.rec".format(etomo_path, tomoName)
-        mrc_path = "{}/{}_rec.mrc".format(etomo_path, tomoName)
+        tiltcom_path = "{}/{}".format(recon_path, "tilt.com")
+        #st_path = "{}/{}.st".format(recon_path, tomoName)
+        st_path = "{}/{}.st".format(self.aretomo_ts_folder, tomoName)
+        rec_path = "{}/{}.rec".format(recon_path, tomoName)
+        mrc_path = "{}/{}_rec.mrc".format(recon_path, tomoName)
+
         final_rec_path = ""
         if os.path.exists(rec_path) or os.path.exists(mrc_path):
             try:                
@@ -1490,7 +1566,7 @@ class Recon(QTabWidget):
 
                 tilt_num = str(d_st["sections"])
                 
-                taError_path = "{}/{}".format(etomo_path, "taError.log")
+                taError_path = "{}/{}".format(recon_path, "taError.log")
                 
                 binning = str(int(np.round(d_rec["apix"]/d_st["apix"], 0)))
 
@@ -1859,8 +1935,25 @@ class Recon(QTabWidget):
                 return "error reading -TiltAxis value!"   
         else:
             TiltAxis = 0
-        params['TiltAxis'] = TiltAxis      
+        params['TiltAxis'] = TiltAxis  
 
+        generate_odd_even_aretomo = self.comboBox_process_odd_evn_aretomo.currentText()
+        if generate_odd_even_aretomo == "No":
+            generate_odd_even_aretomo = 0
+        else:
+            generate_odd_even_aretomo = 1    
+        
+        params['generate_odd_even_aretomo'] = generate_odd_even_aretomo 
+
+        if len(self.lineEdit_PixelSize_aretomo.text()) > 0 :
+            pixelSize_aretomo = string2float(self.lineEdit_PixelSize_aretomo.text(), 5)
+            if pixelSize_aretomo == None or pixelSize_aretomo < 0:
+                return "please use correct format for pixel size (positive real number)!"
+        else: 
+            pixelSize_aretomo = -1
+        
+        params['pixelSize_aretomo'] = pixelSize_aretomo 
+        
         if len(self.lineEdit_OutImod.text()) > 0:
             OutImod = string2int(self.lineEdit_OutImod.text())
             if OutImod == None:
@@ -1896,6 +1989,13 @@ class Recon(QTabWidget):
 
         aretomo_addtional_param = self.lineEdit_aretomo_addtional_param.text()
         params['aretomo_addtional_param'] = aretomo_addtional_param
+
+        correct_ImodFile_format = self.comboBox_correct_ImodFile_format.currentText()
+        if correct_ImodFile_format == "No":
+            correct_ImodFile_format = 0
+        else:
+            correct_ImodFile_format = 1    
+        params['correct_ImodFile_format'] = correct_ImodFile_format 
         
         if len(self.lineEdit_tomo_index.text().strip()) > 0:
             try:
@@ -1927,10 +2027,43 @@ class Recon(QTabWidget):
         return params
     
     def run_aretomo(self):
+        
         d = self.get_aretomo_param()
+        
         if (not self.current_ts_list) or len(self.current_ts_list) == 0:
             self.logger.error("No Tomogram has detected yet! Please adjust your tilt series folder!")
         elif type(d) is dict:
+            
+            if not (which('AreTomo2') is None):
+                d['aretomo_name'] = 'AreTomo2'
+                cmd = '{} --version'.format(d['aretomo_name'])
+                try:
+                    result_output = subprocess.check_output(cmd, shell=True).decode()
+                    try: 
+                        result_output = result_output.split('\n')[0]
+                    except:
+                        pass
+
+                    self.logger.info("{} detected: {}.\n Note that if you want to use AreTomo instead, you need to disable AreTomo2 first.".format(d['aretomo_name'], result_output))
+                except:
+                    self.logger.error("AreTomo2 is detected, but is not working properly.")
+                    return -1
+            elif not (which('AreTomo') is None):
+                d['aretomo_name'] = 'AreTomo'
+                cmd = '{} --version'.format(d['aretomo_name'])
+                try:
+                    result_output = subprocess.check_output(cmd, shell=True).decode()
+                    try: 
+                        result_output = result_output.split('\n')[0]
+                    except:
+                        pass
+                    self.logger.info("{} detected: {}".format(d['aretomo_name'], result_output))
+                except:
+                    self.logger.error("AreTomo is detected, but is not working properly.")
+                    return -1
+            else:
+                self.logger.error("Either AreTomo or AreTomo2 is detected, Please check the installation and make sure `which AreTomo` gives right print out.")
+                return -1
             if self.pushButton_run_aretomo.text() == "RUN":
                 ret = QMessageBox.question(self, 'Run AreTomo Reconstruction!', \
                     "Run AreTomo for all the image from {}. \
@@ -2064,23 +2197,23 @@ class Recon(QTabWidget):
         except:
             return None
     
-    def get_tilt_cmd(self, newst_com_file, target_folder, tomoName, path_align_ts, output_recon_mrc):
+    def get_tilt_cmd(self, tilt_com_file, target_folder, tomoName, path_align_ts, output_recon_mrc):
         params_list = metadata.tilt_com_params
         inputProjections = path_align_ts
         outputFile = output_recon_mrc
-        #newst_cmd = 'cd {}; tilt -InputProjections {} -OutputFile {}'.format(target_folder, inputProjections, outputFile)
-        newst_cmd = 'tilt -InputProjections {} -OutputFile {}'.format(inputProjections, outputFile)
+        #tilt_cmd = 'cd {}; tilt -InputProjections {} -OutputFile {}'.format(target_folder, inputProjections, outputFile)
+        tilt_cmd = 'tilt -InputProjections {} -OutputFile {}'.format(inputProjections, outputFile)
         try:
-            with open(newst_com_file, 'r') as f:
+            with open(tilt_com_file, 'r') as f:
                 lines = f.readlines()
             for line in lines:
                 if (not line.startswith('#')) and (not line.startswith('$')):
                     seg = line.split()
                     if seg[0] in params_list:
                         if len(seg) == 1:
-                            newst_cmd = "{} -{}".format(newst_cmd, seg[0])
+                            tilt_cmd = "{} -{}".format(tilt_cmd, seg[0])
                         elif len(seg) == 2:
-                            newst_cmd = "{} -{} {}".format(newst_cmd, seg[0], seg[1])
+                            tilt_cmd = "{} -{} {}".format(tilt_cmd, seg[0], seg[1])
                             if seg[1].endswith(('.tlt', '.xf', 'xtilt')):
                                 align_file = "{}/{}".format(target_folder, seg[1])
                                 if not os.path.exists(align_file):
@@ -2088,7 +2221,7 @@ class Recon(QTabWidget):
                                     return None
                         else:
                             combine_param = line.split(seg[0])[-1].strip()
-                            newst_cmd = "{} -{} '{}'".format(newst_cmd, seg[0], combine_param)
-            return newst_cmd
+                            tilt_cmd = "{} -{} '{}'".format(tilt_cmd, seg[0], combine_param)
+            return tilt_cmd
         except:
             return None

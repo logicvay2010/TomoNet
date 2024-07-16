@@ -334,7 +334,7 @@ class MotionCor(QTabWidget):
             #return "please provide your gain reference image!"
 
         if len(self.lineEdit_pixel_size.text()) > 0 :
-            pixel_size = string2float(self.lineEdit_pixel_size.text())
+            pixel_size = string2float(self.lineEdit_pixel_size.text(), 5)
             if pixel_size == None or pixel_size < 0:
                 return "please use correct format for pixel size (positive real number)!"
         else: 
@@ -342,7 +342,7 @@ class MotionCor(QTabWidget):
             return "please provide pixel size!"
         
         if len(self.lineEdit_frame_dose.text()) > 0:
-            frame_dose = string2float(self.lineEdit_frame_dose.text())
+            frame_dose = string2float(self.lineEdit_frame_dose.text(), 5)
             if frame_dose == None or frame_dose < 0:
                 return "please use correct format for frame dose (positive real number)!"
         else: 
