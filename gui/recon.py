@@ -906,6 +906,9 @@ class Recon(QTabWidget):
 
     def generate_ts(self):
         if self.pushButton_run_ts_generation.text() == "RUN":
+            if which('newstack') is None:
+                self.logger.error("'newstack' cmd is not detected in the current system. Please check the 'newstack' or IMOD installation!")
+                return -1
             if len(self.lineEdit_corrected_image_folder.text()) > 0:
                 corrected_folder_path = self.lineEdit_corrected_image_folder.text()
             else: 
@@ -1545,7 +1548,7 @@ class Recon(QTabWidget):
         if len(tomoNames) > 0:
             for i, tomo in enumerate(tomoNames):
                 self.tableView.setItem(i, 0, QTableWidgetItem(tomo))                
-                action_check = QTableWidgetItem("View Binned TS")
+                action_check = QTableWidgetItem("View TS (Bin8)")
                 action_check.setBackground(QtGui.QColor("#a0d2eb"))
                 action_check.setFont(QFont("sans-serif", 8, QFont.Bold))
                 self.tableView.setItem(i, 1, action_check)
@@ -1606,7 +1609,7 @@ class Recon(QTabWidget):
         if len(tomoNames) > 0:
             for i, tomo in enumerate(tomoNames):
                 self.tableView_aretomo.setItem(i, 0, QTableWidgetItem(tomo))                
-                action_check = QTableWidgetItem("View Binned TS")
+                action_check = QTableWidgetItem("View TS (Bin8)")
                 action_check.setBackground(QtGui.QColor("#a0d2eb"))
                 action_check.setFont(QFont("sans-serif", 8, QFont.Bold))
                 self.tableView_aretomo.setItem(i, 1, action_check)
