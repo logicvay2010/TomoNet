@@ -91,6 +91,8 @@ class Ui_TomoNet(object):
         ctffind = Ctffind()
         self.stackedWidget.addWidget(ctffind)
 
+        self.listWidget.currentRowChanged.connect(ctffind.reload_table)
+
         manual = Manual()
         self.stackedWidget.addWidget(manual)
 

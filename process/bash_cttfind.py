@@ -66,12 +66,13 @@ def ctffind4_single(param):
                 logger.error("Error: unable to write file to {}.".format(history_record_file))
             
         else:
-            logger.info("ctf estimation for {} exist, skip it!\nIf you want to redo it, please edit the history txt file {}."\
-            .format(tomoName, history_record_file))
+            #logger.info("ctf estimation for {} exist, skip it!\nIf you want to redo it, please edit the history txt file {}."\
+            #.format(tomoName, history_record_file))
+            logger.info("ctf estimation for {} was done, skip it!.".format(tomoName))
 
 class Ctffind4(QThread):
 
-    def __init__(self,d):
+    def __init__(self, d):
         super().__init__()
         self.d = d
 
@@ -91,12 +92,19 @@ class Ctffind4(QThread):
         self.logger.setLevel(logging.INFO)
 
         existing_ctf = []
-        if os.path.exists(self._history_record):
-            with open(self._history_record) as file:
+        if d['only_unfinished'] == 1:
+            if os.path.exists(self._history_record):
+                with open(self._history_record) as file:
+                    try:
+                        existing_ctf = [line.strip() for line in file]
+                    except:
+                        self.logger.warning("The history record file's format is wrong: {}".format(self._history_record))     
+        else:
+            if os.path.exists(self._history_record):
                 try:
-                    existing_ctf = [line.strip() for line in file]
+                    os.remove(self._history_record)
                 except:
-                    self.logger.warning("The history record file's format is wrong: {}".format(self._history_record))        
+                    pass   
 
         tomoName_list, st_list = self.get_ts_list(self.d['ts_tlt_folder'])
                 

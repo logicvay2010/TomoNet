@@ -48,6 +48,7 @@ class Ctffind(QTabWidget):
         self.fileSystemWatcher.fileChanged.connect(self.update_log_window)
 
         self.setupUi()
+
         self.read_settting()
 
     def setupUi(self):
@@ -61,7 +62,7 @@ class Ctffind(QTabWidget):
         
         #horizontalLayout_1
         self.horizontalLayout_1 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_1.setContentsMargins(10, 5, 10, 5)
+        self.horizontalLayout_1.setContentsMargins(10, 0, 10, 1)
 
         self.label_ts_tlt_folder = QtWidgets.QLabel(self.tab)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
@@ -90,7 +91,7 @@ class Ctffind(QTabWidget):
         self.horizontalLayout_1.addWidget(self.pushButton_ts_tlt_folder)
         
         self.horizontalLayout_1_2 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_1_2.setContentsMargins(10, 5, 10, 5)
+        self.horizontalLayout_1_2.setContentsMargins(10, 0, 10, 1)
         self.label_ctffind_exe = QtWidgets.QLabel(self.tab)
         self.label_ctffind_exe.setSizePolicy(sizePolicy)
         self.label_ctffind_exe.setMinimumSize(QtCore.QSize(120, 0))
@@ -115,7 +116,7 @@ class Ctffind(QTabWidget):
 
         self.label_cpu_num = QtWidgets.QLabel(self.tab)
         self.label_cpu_num.setSizePolicy(sizePolicy)
-        self.label_cpu_num.setMinimumSize(QtCore.QSize(60, 0))
+        self.label_cpu_num.setMinimumSize(QtCore.QSize(50, 0))
         self.label_cpu_num.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_cpu_num.setObjectName("label_cpu_num")
         self.horizontalLayout_1_2.addWidget(self.label_cpu_num)
@@ -125,15 +126,27 @@ class Ctffind(QTabWidget):
         self.lineEdit_cpu_num.setObjectName("lineEdit_cpu_num")
         self.horizontalLayout_1_2.addWidget(self.lineEdit_cpu_num)
 
+        self.label_only_unfinished = QtWidgets.QLabel(self.tab)
+        self.label_only_unfinished.setSizePolicy(sizePolicy)
+        self.label_only_unfinished.setMinimumSize(QtCore.QSize(120, 0))
+        self.label_only_unfinished.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_only_unfinished.setObjectName("label_only_unfinished")
+        self.horizontalLayout_1_2.addWidget(self.label_only_unfinished)
+        self.comboBox_only_unfinished = QtWidgets.QComboBox(self.tab)
+        self.comboBox_only_unfinished.setObjectName("comboBox_only_unfinished")
+        self.comboBox_only_unfinished.addItem("")
+        self.comboBox_only_unfinished.addItem("")
+        self.horizontalLayout_1_2.addWidget(self.comboBox_only_unfinished)
+
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_2.setContentsMargins(10, 5, 10, 5)
+        self.horizontalLayout_2.setContentsMargins(10, 0, 10, 1)
         self.label_apix = QtWidgets.QLabel(self.tab)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_apix.sizePolicy().hasHeightForWidth())
         self.label_apix.setSizePolicy(sizePolicy)
-        self.label_apix.setMinimumSize(QtCore.QSize(70, 0))
+        self.label_apix.setMinimumSize(QtCore.QSize(100, 0))
         self.label_apix.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_apix.setObjectName("label_apix")
         self.horizontalLayout_2.addWidget(self.label_apix)
@@ -203,7 +216,7 @@ class Ctffind(QTabWidget):
         self.horizontalLayout_2.addWidget(self.lineEdit_pow_size)
 
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_3.setContentsMargins(10, 5, 10, 5)
+        self.horizontalLayout_3.setContentsMargins(10, 0, 10, 1)
 
         self.label_min_res = QtWidgets.QLabel(self.tab)
         self.label_min_res.setSizePolicy(sizePolicy)
@@ -270,7 +283,7 @@ class Ctffind(QTabWidget):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.pushButton_run_ctffind.sizePolicy().hasHeightForWidth())
         self.pushButton_run_ctffind.setSizePolicy(sizePolicy)
-        self.pushButton_run_ctffind.setMinimumSize(QtCore.QSize(98, 50))
+        self.pushButton_run_ctffind.setMinimumSize(QtCore.QSize(72, 36))
         self.pushButton_run_ctffind.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.pushButton_run_ctffind.setObjectName("run")
         self.horizontalLayout_last.addWidget(self.pushButton_run_ctffind)
@@ -284,27 +297,27 @@ class Ctffind(QTabWidget):
         self.gridLayout_ctffind4.addLayout(self.horizontalLayout_2, 2, 0, 1, 1)
         self.gridLayout_ctffind4.addLayout(self.horizontalLayout_3, 3, 0, 1, 1)
 
-        self.spacerItem3 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_ctffind4.addItem(self.spacerItem3, 4, 0, 1, 1)
+        #self.spacerItem3 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        #self.gridLayout_ctffind4.addItem(self.spacerItem3, 4, 0, 1, 1)
 
-        self.gridLayout_ctffind4.addLayout(self.horizontalLayout_last, 5, 0, 1, 1)
+        self.gridLayout_ctffind4.addLayout(self.horizontalLayout_last, 4, 0, 1, 1)
 
         self.addTab(self.tab, "Ctffind4")
 
-        self.tab2 = QtWidgets.QWidget()
-        self.tab2.setObjectName("tab")
+        #self.tab2 = QtWidgets.QWidget()
+        #self.tab2.setObjectName("tab")
 
         self.horizontalLayout_summary = QtWidgets.QHBoxLayout()
         self.horizontalLayout_summary.setContentsMargins(2, 2, 2, 2)
         self.horizontalLayout_summary.setObjectName("horizontalLayout_summary")
 
-        self.label_recon = QtWidgets.QLabel(self.tab2)
+        self.label_recon = QtWidgets.QLabel(self.tab)
         self.label_recon.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.label_recon.setAlignment(QtCore.Qt.AlignCenter)
         self.label_recon.setObjectName("label_recon")
-        self.label_recon.setText("Summary of Reconstruction")
+        self.label_recon.setText("Summary of CTFFIND Defocus Estimation")
         self.horizontalLayout_summary.addWidget(self.label_recon)
-        self.pushButton_reload = QtWidgets.QPushButton(self.tab2)
+        self.pushButton_reload = QtWidgets.QPushButton(self.tab)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
 
         self.pushButton_reload.setSizePolicy(sizePolicy)
@@ -324,12 +337,12 @@ class Ctffind(QTabWidget):
 
         self.tableView.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
 
-        self.gridLayout_result = QtWidgets.QGridLayout(self.tab2)
+        #self.gridLayout_result = QtWidgets.QGridLayout(self.tab)
 
-        self.gridLayout_result.addLayout(self.horizontalLayout_summary, 0, 0, 1, 1)
-        self.gridLayout_result.addWidget(self.tableView, 1, 0)
+        self.gridLayout_ctffind4.addLayout(self.horizontalLayout_summary, 5, 0, 1, 1)
+        self.gridLayout_ctffind4.addWidget(self.tableView, 6, 0)
 
-        self.addTab(self.tab2, "Results")
+        #self.addTab(self.tab, "Results")
 
         self.lineEdit_ts_tlt_folder.textChanged.connect(self.save_setting)
         self.lineEdit_ctffind_exe.textChanged.connect(self.save_setting)
@@ -356,9 +369,11 @@ class Ctffind(QTabWidget):
         self.currentChanged.connect(self.tab_changed)
 
         self.tableView.doubleClicked.connect(self.table_click)
-        self.read_settting()
         self.setTabShape(QtWidgets.QTabWidget.Triangular)
         self.retranslateUi()
+
+        for child in self.findChildren(QtWidgets.QComboBox):
+            child.currentIndexChanged.connect(self.save_setting)
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
@@ -378,28 +393,36 @@ class Ctffind(QTabWidget):
             font-size:9pt;\">Your/Path/To/ctffind/bin/ctffind\
             </span></p></body></html>"))
         
-        self.label_cpu_num.setText(_translate("Form", "cpu #:"))
-        self.lineEdit_cpu_num.setPlaceholderText(_translate("Form", \
-            "8"))
+        self.label_cpu_num.setText(_translate("Form", "CPU #:"))
+        self.lineEdit_cpu_num.setPlaceholderText(_translate("Form", "8"))
         self.lineEdit_cpu_num.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
-            font-size:9pt;\">cpu number to be used.\
+            font-size:9pt;\">CPU(s) # to be used. Default: 8.\
             </span></p></body></html>"))
         
-        self.label_apix.setText(_translate("Form", "Pixel Size:"))
-        self.lineEdit_apix.setPlaceholderText(_translate("Form", \
-            "1.0"))
+        self.label_apix.setText(_translate("Form", "Pixel Size (Å):"))
+        #self.lineEdit_apix.setPlaceholderText(_translate("Form", "1.0"))
         self.lineEdit_apix.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
-            font-size:9pt;\">Pixel size(A).\
+            font-size:9pt;\">Pixel size (Å).\
+            </span></p></body></html>"))
+        
+        self.label_only_unfinished.setText(_translate("Form", "Only Process Unfinished Data?:"))
+        self.comboBox_only_unfinished.setItemText(0, _translate("Form", "Yes"))
+        self.comboBox_only_unfinished.setItemText(1, _translate("Form", "No"))
+        self.comboBox_only_unfinished.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" font-size:9pt;\">\
+            Select Yes to skip generating CTFFIND result that already processed.\
+            Select No to generate all CTFFIND result and overwrite the existing output.\
+            The processed data info is recorded in file: Ctffind/history_record.txt, user can edit this file based on needs.\
+            Default: Yes.\
             </span></p></body></html>"))
         
         self.label_voltage.setText(_translate("Form", "Voltage:"))
-        self.lineEdit_voltage.setPlaceholderText(_translate("Form", \
-            "300"))
+        self.lineEdit_voltage.setPlaceholderText(_translate("Form","300"))
         self.lineEdit_voltage.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
-            font-size:9pt;\">Voltage(kv).\
+            font-size:9pt;\">Voltage (kv). Default: 300.\
             </span></p></body></html>"))
         
         self.label_cs.setText(_translate("Form", "CS:"))
@@ -407,7 +430,7 @@ class Ctffind(QTabWidget):
             "2.7"))
         self.lineEdit_cs.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
-            font-size:9pt;\">Spherical aberration.\
+            font-size:9pt;\">Spherical aberration. Default: 2.7.\
             </span></p></body></html>"))
         
         self.label_amp.setText(_translate("Form", "Amplitude contrast:"))
@@ -415,7 +438,7 @@ class Ctffind(QTabWidget):
             "0.1"))
         self.lineEdit_amp.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
-            font-size:9pt;\">Amplitude contrast.\
+            font-size:9pt;\">Amplitude contrast.Default: 0.1.\
             </span></p></body></html>"))
         
         self.label_pow_size.setText(_translate("Form", "Size:"))
@@ -423,7 +446,7 @@ class Ctffind(QTabWidget):
             "512"))
         self.lineEdit_pow_size.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
-            font-size:9pt;\">Size of power spectrum.\
+            font-size:9pt;\">Size of power spectrum. Default: 512.\
             </span></p></body></html>"))
         
         self.label_min_res.setText(_translate("Form", "Min res:"))
@@ -431,7 +454,7 @@ class Ctffind(QTabWidget):
             "50.0"))
         self.lineEdit_min_res.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
-            font-size:9pt;\">Min resolution.\
+            font-size:9pt;\">Min resolution. Default: 50.0.\
             </span></p></body></html>"))
         
         self.label_max_res.setText(_translate("Form", "Max res:"))
@@ -439,7 +462,7 @@ class Ctffind(QTabWidget):
             "5.0"))
         self.lineEdit_max_res.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
-            font-size:9pt;\">Max resolution.\
+            font-size:9pt;\">Max resolution. Default: 5.0.\
             </span></p></body></html>"))
         
         self.label_min_defocus.setText(_translate("Form", "Min defocus:"))
@@ -447,7 +470,7 @@ class Ctffind(QTabWidget):
             "5000.0"))
         self.lineEdit_min_defocus.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
-            font-size:9pt;\">Min defocus.\
+            font-size:9pt;\">Min defocus. Default: 5000.0.\
             </span></p></body></html>"))
         
         self.label_max_defocus.setText(_translate("Form", "Max defocus:"))
@@ -455,7 +478,7 @@ class Ctffind(QTabWidget):
             "50000.0"))
         self.lineEdit_max_defocus.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
-            font-size:9pt;\">Max defocus.\
+            font-size:9pt;\">Max defocus. Default: 50000.0.\
             </span></p></body></html>"))
         
         self.label_defocus_step.setText(_translate("Form", "Defocus step:"))
@@ -463,11 +486,9 @@ class Ctffind(QTabWidget):
             "500.0"))
         self.lineEdit_defocus_step.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
-            font-size:9pt;\">Defocus search step.\
+            font-size:9pt;\">Defocus search step. Default: 500.0.\
             </span></p></body></html>"))
 
-        
-        
         self.pushButton_run_ctffind.setText(_translate("Form", "RUN"))
 
         self.pushButton_reload.setText(_translate("Form", "Reload"))
@@ -499,6 +520,7 @@ class Ctffind(QTabWidget):
         data['lineEdit_ts_tlt_folder'] = ""
         data['lineEdit_ctffind_exe'] = ""
         data['lineEdit_cpu_num'] = ""
+        data['only_unfinished'] = "Yes"
         data['lineEdit_apix'] = "" 
         data['lineEdit_voltage'] = ""
         data['lineEdit_cs'] = ""         
@@ -525,6 +547,7 @@ class Ctffind(QTabWidget):
         self.lineEdit_ts_tlt_folder.setText(data['lineEdit_ts_tlt_folder'])
         self.lineEdit_ctffind_exe.setText(data['lineEdit_ctffind_exe'])
         self.lineEdit_cpu_num.setText(data['lineEdit_cpu_num'])
+        self.comboBox_only_unfinished.setCurrentText(data['only_unfinished'])
         self.lineEdit_apix.setText(data['lineEdit_apix'])
         self.lineEdit_cs.setText(data['lineEdit_cs'])
         self.lineEdit_voltage.setText(data['lineEdit_voltage'])
@@ -541,6 +564,7 @@ class Ctffind(QTabWidget):
         param['lineEdit_ts_tlt_folder'] = self.lineEdit_ts_tlt_folder.text()
         param['lineEdit_ctffind_exe'] = self.lineEdit_ctffind_exe.text()
         param['lineEdit_cpu_num'] = self.lineEdit_cpu_num.text()
+        param['only_unfinished'] = self.comboBox_only_unfinished.currentText()
         param['lineEdit_apix'] = self.lineEdit_apix.text()
         param['lineEdit_cs'] = self.lineEdit_cs.text()
         param['lineEdit_voltage'] = self.lineEdit_voltage.text()
@@ -672,12 +696,20 @@ class Ctffind(QTabWidget):
         else: 
             cpu_num = 8
 
+        only_unfinished = self.comboBox_only_unfinished.currentText()
+        if only_unfinished == "No":
+            only_unfinished = 0
+        else:
+            only_unfinished = 1
+        
+
         if len(self.lineEdit_apix.text()) > 0:
             apix = string2float(self.lineEdit_apix.text(),3)
             if not apix:
                 return "pixel size should be in decimal format!"
         else: 
-            apix = 1.0
+            return "Please provide the pixel size of input TS!"
+            #apix = 1.0
 
         if len(self.lineEdit_voltage.text()) > 0:
             voltage = string2int(self.lineEdit_voltage.text())
@@ -746,6 +778,8 @@ class Ctffind(QTabWidget):
         params['ts_tlt_folder'] = ts_tlt_folder
         params['ctffind_exe'] = ctffind_exe
         params['cpu_num'] = cpu_num
+        params['only_unfinished'] = only_unfinished
+        only_unfinished
         params['apix'] = apix
         params['voltage'] = voltage
         params['cs'] = cs
@@ -762,6 +796,7 @@ class Ctffind(QTabWidget):
     def cmd_finished(self):
         self.pushButton_run_ctffind.setText("RUN")
         self.pushButton_run_ctffind.setStyleSheet("QPushButton {color: black;}")
+        self.reload_table()
 
     def ctffind4(self):
         params = self.get_params()
@@ -803,7 +838,7 @@ class Ctffind(QTabWidget):
                     self.pushButton_run_ctffind.setText("RUN")
                     self.pushButton_run_ctffind.setStyleSheet("QPushButton {color: black;}")
                     self.thread_ctffind.stop_process()
-            
+        
         self.save_setting()
 
     def tab_changed(self, i):
@@ -861,9 +896,7 @@ class Ctffind(QTabWidget):
             searchPath = self.ctffind4_path
             ctf_mrc_file = "{}/{}/{}_ctf.mrc".format(searchPath, tomoName, tomoName)
             cmd = "3dmod {}".format(ctf_mrc_file)
-            os.system(cmd)
-            #subprocess.check_output(cmd, shell=True)
-            
+            os.system(cmd)            
         else:
             pass
 

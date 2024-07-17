@@ -5,8 +5,8 @@ import numpy as np
 from shutil import which
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QTabWidget, QTableWidgetItem, QHeaderView, QMessageBox, QInputDialog, QLineEdit
+from PyQt5.QtGui import QFont, QColor, QPalette
+from PyQt5.QtWidgets import QTabWidget, QTableWidgetItem, QHeaderView, QMessageBox, QInputDialog, QLineEdit, QWidget
 
 from TomoNet.util import browse, metadata
 from TomoNet.util.io import mkfolder, mkfolder_ifnotexist
@@ -14,6 +14,15 @@ from TomoNet.util.utils import string2float, string2int, idx2list
 from TomoNet.process.bash_gts import Generate_TS
 from TomoNet.process.bash_aretomo import AreTomo
 
+class Color(QWidget):
+
+    def __init__(self, color):
+        super(Color, self).__init__()
+        self.setAutoFillBackground(True)
+
+        palette = self.palette()
+        palette.setColor(QPalette.Window, QColor(color))
+        self.setPalette(palette)
 
 class Recon(QTabWidget):
     def __init__(self):
@@ -96,7 +105,7 @@ class Recon(QTabWidget):
         self.fileSystemWatcher = QtCore.QFileSystemWatcher(self)
         self.fileSystemWatcher.addPath(self.log_file)
         self.fileSystemWatcher.fileChanged.connect(self.update_log_window)  
-        
+                
     def setupUi(self):
         
         self.tab = QtWidgets.QWidget()
@@ -426,10 +435,11 @@ class Recon(QTabWidget):
         self.label_etomo_tomoNum_detect.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_etomo_tomoNum_detect.setObjectName("label_etomo_tomoNum_detect")
         self.horizontalLayout_eTomo_1.addWidget(self.label_etomo_tomoNum_detect)
-
+        
         self.horizontalLayout_recon = QtWidgets.QHBoxLayout()
         self.horizontalLayout_recon.setContentsMargins(2, 2, 2, 2)
         self.horizontalLayout_recon.setObjectName("horizontalLayout_recon")
+        #self.horizontalLayout_recon.addWidget(Color('white'))
 
         self.label_recon = QtWidgets.QLabel(self.tab1)
         self.label_recon.setLayoutDirection(QtCore.Qt.LeftToRight)
@@ -447,6 +457,7 @@ class Recon(QTabWidget):
         self.horizontalLayout_recon.addWidget(self.pushButton_export_recon_etomo)
         
         self.gridLayout_recon.addLayout(self.horizontalLayout_eTomo_1, 0, 0, 1, 1)
+
         self.gridLayout_recon.addLayout(self.horizontalLayout_recon, 1, 0, 1, 1)
 
         self.model = QtGui.QStandardItemModel(self)
@@ -891,7 +902,7 @@ class Recon(QTabWidget):
         self.lineEdit_aretomo_input_folder.setPlaceholderText(_translate("Form", "Recon/ts_tlt"))
         self.lineEdit_aretomo_input_folder.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
-            Folder path to your tilt series and tlt files. \
+            Folder path to your tilt series (*.st) and rawtlt files (*.rawtlt). \
             </span></p></body></html>"))
         self.label_aretomo_tomoNum_detect.setText(_translate("Form", "< 0 Tomo(s) >"))
         
@@ -899,21 +910,21 @@ class Recon(QTabWidget):
         self.lineEdit_VolZ.setPlaceholderText(_translate("Form", "2000"))
         self.lineEdit_VolZ.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
-            volume height or the z dimension to unbinned voxels (default: 2000) \
+            Volume height or the Z dimension to unbinned voxels. Default: 2000. \
             </span></p></body></html>"))
         
         self.label_OutBin.setText(_translate("Form", "-OutBin:"))
         self.lineEdit_OutBin.setPlaceholderText(_translate("Form", "4"))
         self.lineEdit_OutBin.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
-            Binning of final output reconstruction map (default: 4) \
+            Binning of final output reconstruction map. Default: 4. \
             </span></p></body></html>"))
         
         self.label_TiltAxis.setText(_translate("Form", "-TiltAxis:"))
         self.lineEdit_TiltAxis.setPlaceholderText(_translate("Form", "0"))
         self.lineEdit_TiltAxis.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
-            tilt axis is relative to the y-axis (vertical axis of tilt image) and rotates counter-clockwise. (default: 0)\
+            Tilt axis is relative to the Y-axis (vertical axis of tilt image) and rotates counter-clockwise. Default: 0.\
             </span></p></body></html>"))
         
         self.label_process_odd_evn_aretomo.setText(_translate("Form", "Generate ODD and EVN Recons?:"))
@@ -929,14 +940,14 @@ class Recon(QTabWidget):
         self.lineEdit_PixelSize_aretomo.setPlaceholderText(_translate("Form", ""))
         self.lineEdit_PixelSize_aretomo.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
-            The pixel size of input TS. If not provied, the value in the image header will be used.\
+            The pixel size of the input TS. If not provied, the value in the image header will be used.\
             </span></p></body></html>"))
         
         self.label_OutImod.setText(_translate("Form", "-OutImod:"))
         self.lineEdit_OutImod.setPlaceholderText(_translate("Form", "1"))
         self.lineEdit_OutImod.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
-            0: Disabled; 1: for Relion4; 2: Warp; 3: Global- and local-aligned tilt series (default: 1)\
+            0: Disabled; 1: for Relion4; 2: Warp; 3: Global- and local-aligned tilt series. Default: 1.\
             </span></p></body></html>"))
         
         self.label_FlipVol.setText(_translate("Form", "-FlipVol:"))
@@ -944,7 +955,7 @@ class Recon(QTabWidget):
         self.lineEdit_FlipVol.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
             By default, the x-z slices of the reconstructed volume are saved according to their y coordinates\
-            in the output MRC file. -FlipVol 1 saves x-y slices instead according to their z coordinates.(default: 1)\
+            in the output MRC file. -FlipVol 1 saves x-y slices instead according to their z coordinates. Default: 1.\
             </span></p></body></html>"))
         
         self.label_UseAlnFile.setText(_translate("Form", "-UseAlnFile?"))
@@ -953,14 +964,14 @@ class Recon(QTabWidget):
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
             Should users decide to reconstruct the volume with a different setting, \
             the corresponding aln file can be loaded by means of -AlnFile to bypass the lengthy alignment process. \
-            1: use Aln file if found, 0: redo the alignment (default: 0)\
+            1: use Aln file if found, 0: redo the alignment. Default: 0.\
             </span></p></body></html>"))
         
         self.label_GPU_ID.setText(_translate("Form", "GPUs ID:"))
         self.lineEdit_GPU_ID.setPlaceholderText(_translate("Form", "0"))
         self.lineEdit_GPU_ID.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" font-size:9pt;\">\
-            use format like 0,1,2,3 to use multiple GPUs for parallel processing\
+            Use format like '0,1,2,3' to use multiple GPUs for parallel processing. Default: 0\
             </span></p></body></html>"))
         
         self.label_aretomo_addtional_param.setText(_translate("Form", "Other Parameters:"))
@@ -973,11 +984,11 @@ class Recon(QTabWidget):
         self.label_tomo_index.setText(_translate("Form", "Select Tomo Index:"))
         self.label_tomo_index.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
-            font-size:9pt;\">Select which tomograms to perform Aretomo operation.\
+            font-size:9pt;\">Select which tomograms to perform AreTomo operation.\
             </span></p></body></html>"))
         self.lineEdit_tomo_index.setPlaceholderText(_translate("Form", "1-5,7-8,12"))
         self.lineEdit_tomo_index.setToolTip(_translate("MainWindow", \
-            "<html><head/><body><p><span style=\"font-size:9pt;\"> different tomo indexes are seperated by comma, sequential indexes are connected by dash. \
+            "<html><head/><body><p><span style=\"font-size:9pt;\"> Different tomo indexes are seperated by comma (','); Sequential indexes are connected by hyphen ('-'). \
             </span></p></body></html>"))
         
         self.label_correct_ImodFile_format.setText(_translate("Form", "Correct Imod File Format?:"))
