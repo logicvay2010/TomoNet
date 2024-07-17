@@ -30,10 +30,11 @@ class Ctffind(QTabWidget):
 
         self.ctffind4_path = "Ctffind"
 
+        self.ts_tlt_folder ="Recon/ts_tlt"
+
         self.thread_ctffind = None
 
         self.ctf_results = None
-
 
         self.logger = logging.getLogger(__name__)
         handler = logging.FileHandler(filename=self.log_file, mode='a')
@@ -381,10 +382,10 @@ class Ctffind(QTabWidget):
         
         self.label_ts_tlt_folder.setText(_translate("Form", "Tilt series folder:"))
         self.lineEdit_ts_tlt_folder.setPlaceholderText(_translate("Form", \
-            "The folder stores stacked tilt series. (such as Recon/ts_tlt)"))
+            "Recon/ts_tlt"))
         self.lineEdit_ts_tlt_folder.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
-            font-size:9pt;\">Path to the folder stores stacked tilt series.\
+            font-size:9pt;\">Path to the folder stores stacked tilt series. Default: 'Recon/ts_tlt'.\
             </span></p></body></html>"))
         
         self.label_ctffind_exe.setText(_translate("Form", "Ctffind Executable:"))
@@ -680,7 +681,8 @@ class Ctffind(QTabWidget):
     def get_params(self):
         
         if not len(self.lineEdit_ts_tlt_folder.text()) > 0:
-            return "Please provide path to your tilt series folder!"
+            #return "Please provide path to your tilt series folder!"
+            ts_tlt_folder = self.ts_tlt_folder
         else:
             ts_tlt_folder = self.lineEdit_ts_tlt_folder.text()
 
