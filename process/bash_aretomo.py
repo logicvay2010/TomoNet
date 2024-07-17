@@ -5,6 +5,7 @@ import logging
 import torch
 import shutil
 from multiprocessing import Pool
+from TomoNet.util.io import mkfolder_ifnotexist
 
 from PyQt5.QtCore import QThread
 
@@ -135,9 +136,9 @@ def aretomo_single(param):
         path_ODD_st = "{}/ODD/{}_ODD.st".format(param['aretomo_input_folder'], tomoName)
         path_EVN_st = "{}/EVN/{}_EVN.st".format(param['aretomo_input_folder'], tomoName)
         if os.path.exists(path_ODD_st) and os.path.exists(path_EVN_st):
-            
+            mkfolder_ifnotexist("{}/{}/ODD".format(processed_folder, tomoName))
             cmd_2 = "-InMrc {}".format(path_ODD_st)
-            output_path = "{}/{}/{}_ODD.rec".format(processed_folder, tomoName, tomoName) 
+            output_path = "{}/{}/ODD/{}_ODD.rec".format(processed_folder, tomoName, tomoName) 
             cmd_3 = "-OutMrc {}".format(output_path)
 
             full_path_AlnFile = "{}/{}/{}.aln".format(processed_folder, tomoName, tomoName)
@@ -148,7 +149,7 @@ def aretomo_single(param):
             else:
                 param['logger'].warning('AlnFile is not detected for ODD Recon of {}'.format(tomoName))
                 cmd_5 = ""
-            cmd_7_ODD = param['cmd_list'][6].replace("{}.log".format(tomoName), "{}/{}_ODD.log".format(tomoName, tomoName))
+            cmd_7_ODD = param['cmd_list'][6].replace("{}.log".format(tomoName), "{}/ODD/{}_ODD.log".format(tomoName, tomoName))
             cmd_7_ODD = cmd_7_ODD.replace("-OutImod 1", "-OutImod 0")
             cmd_7_ODD = cmd_7_ODD.replace("-OutImod 2", "-OutImod 0")
             cmd_7_ODD = cmd_7_ODD.replace("-OutImod 3", "-OutImod 0")
@@ -157,8 +158,9 @@ def aretomo_single(param):
             #param['logger'].info(cmd_ODD)
             subprocess.check_output(cmd_ODD, shell=True)
 
+            mkfolder_ifnotexist("{}/{}/EVN".format(processed_folder, tomoName))
             cmd_2 = "-InMrc {}".format(path_EVN_st)
-            output_path = "{}/{}/{}_EVN.rec".format(processed_folder, tomoName, tomoName) 
+            output_path = "{}/{}/EVN/{}_EVN.rec".format(processed_folder, tomoName, tomoName) 
             cmd_3 = "-OutMrc {}".format(output_path)
 
             #full_path_AlnFile_1 = "{}/{}/{}.aln".format(processed_folder, tomoName, tomoName)
@@ -170,7 +172,7 @@ def aretomo_single(param):
             else:
                 param['logger'].warning('AlnFile is not detected for EVN Recon of {}'.format(tomoName))
                 cmd_5 = ""
-            cmd_7_EVN = param['cmd_list'][6].replace("{}.log".format(tomoName), "{}/{}_EVN.log".format(tomoName, tomoName))
+            cmd_7_EVN = param['cmd_list'][6].replace("{}.log".format(tomoName), "{}/EVN/{}_EVN.log".format(tomoName, tomoName))
             cmd_7_EVN = cmd_7_EVN.replace("-OutImod 1", "-OutImod 0")
             cmd_7_EVN = cmd_7_EVN.replace("-OutImod 2", "-OutImod 0")
             cmd_7_EVN = cmd_7_EVN.replace("-OutImod 3", "-OutImod 0")
