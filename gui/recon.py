@@ -26,6 +26,8 @@ class Recon(QTabWidget):
         self.default_ts_folder = "Recon/ts_tlt"
         self.etomo_folder = "Recon/eTomo"
         self.areTomo_folder = "Recon/AreTomo"
+        self.etomo_recon_folder = "Recon/etomo_Recons"
+        self.aretomo_recon_folder = "Recon/aretomo_Recons"
         self._history_record = "Recon/history_record.txt"
         self.current_ts_list = None
         self.current_ts_list_selected = []
@@ -59,7 +61,7 @@ class Recon(QTabWidget):
         
         self.pushButton_run_ts_generation.clicked.connect(self.generate_ts)
 
-        self.pushButton_reload.clicked.connect(self.reload_table)
+        self.pushButton_export_recon_etomo.clicked.connect(self.export_recon_etomo)
 
         self.pushButton_run_aretomo.clicked.connect(self.run_aretomo)
         
@@ -433,14 +435,14 @@ class Recon(QTabWidget):
         self.label_recon.setObjectName("label_recon")
         self.label_recon.setText("Summary of 3D Reconstructions")
         self.horizontalLayout_recon.addWidget(self.label_recon)
-        self.pushButton_reload = QtWidgets.QPushButton(self.tab1)
+        self.pushButton_export_recon_etomo = QtWidgets.QPushButton(self.tab1)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
 
-        self.pushButton_reload.setSizePolicy(sizePolicy)
-        self.pushButton_reload.setMinimumSize(QtCore.QSize(50, 20))
-        self.pushButton_reload.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.pushButton_reload.setObjectName("pushButton_reload")
-        self.horizontalLayout_recon.addWidget(self.pushButton_reload)
+        self.pushButton_export_recon_etomo.setSizePolicy(sizePolicy)
+        self.pushButton_export_recon_etomo.setMinimumSize(QtCore.QSize(50, 20))
+        self.pushButton_export_recon_etomo.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.pushButton_export_recon_etomo.setObjectName("pushButton_export_recon_etomo")
+        self.horizontalLayout_recon.addWidget(self.pushButton_export_recon_etomo)
         
         self.gridLayout_recon.addLayout(self.horizontalLayout_eTomo_1, 0, 0, 1, 1)
         self.gridLayout_recon.addLayout(self.horizontalLayout_recon, 1, 0, 1, 1)
@@ -856,7 +858,7 @@ class Recon(QTabWidget):
         
         self.setTabText(self.indexOf(self.tab1), _translate("Form", "eTomo Reconstruction"))
 
-        self.pushButton_reload.setText(_translate("Form", "Reload"))
+        self.pushButton_export_recon_etomo.setText(_translate("Form", "Export Reconstructions"))
 
     def retranslateUi_aretomo(self):
         _translate = QtCore.QCoreApplication.translate
@@ -2225,3 +2227,69 @@ class Recon(QTabWidget):
             return tilt_cmd
         except:
             return None
+        
+    def export_recon_etomo(self):
+        ret = QMessageBox.question(self, 'Export eTomo Reconstruction', \
+                    "Linking all Reconstruction maps to folder {}?".format(self.etomo_recon_folder)\
+                    , QMessageBox.Yes | QMessageBox.No, \
+                    QMessageBox.No)
+        if ret == QMessageBox.Yes:
+            self.logger.info("Linking processed reconstructions to folder {}, links already exist will not be changed."\
+                             .format(self.etomo_recon_folder))
+            etomo_folder_path = "{}/*".format(self.etomo_folder)
+            mkfolder_ifnotexist(self.etomo_recon_folder)
+            etomo_recon_folder_ODD = "{}/ODD".format(self.etomo_recon_folder)
+            etomo_recon_folder_EVN = "{}/EVN".format(self.etomo_recon_folder)
+            mkfolder_ifnotexist(etomo_recon_folder_ODD)
+            mkfolder_ifnotexist(etomo_recon_folder_EVN)
+            list_dir = [ x for x in glob.glob(etomo_folder_path) if os.path.isdir(x)]
+            for f in list_dir:
+                basename = os.path.basename(f)
+                recon_name_1 = "{}.rec".format(basename)
+                recon_name_ODD_1 = "{}_ODD.rec".format(basename)
+                recon_name_EVN_1 = "{}_EVN.rec".format(basename)
+                recon_name_2 = "{}_rec.mrc".format(basename)
+                recon_name_ODD_2 = "{}_ODD_rec.mrc".format(basename)
+                recon_name_EVN_2 = "{}_EVN_rec.mrc".format(basename)
+                if os.path.exists("{}/{}".format(f, recon_name_1)):
+                    if not os.path.exists("{}/{}".format(self.etomo_recon_folder, recon_name_1)):
+                        try:
+                            cmd = "cd {}; ln -s ../../{}/{} .".format(self.etomo_recon_folder, f, recon_name_1)
+                            subprocess.check_output(cmd, shell=True)
+                        except:
+                            pass
+                    if os.path.exists("{}/ODD/{}".format(f, recon_name_ODD_1)) \
+                                        and not os.path.exists("{}/{}".format(etomo_recon_folder_ODD, recon_name_ODD_1)):
+                        try:
+                            cmd = "cd {}; ln -s ../../../{}/ODD/{} .".format(etomo_recon_folder_ODD, f, recon_name_ODD_1)
+                            subprocess.check_output(cmd, shell=True)
+                        except:
+                            pass
+                    if os.path.exists("{}/EVN/{}".format(f, recon_name_EVN_1)) \
+                                        and not os.path.exists("{}/{}".format(etomo_recon_folder_EVN, recon_name_EVN_1)):
+                        try:
+                            cmd = "cd {}; ln -s ../../../{}/EVN/{} .".format(etomo_recon_folder_EVN, f, recon_name_EVN_1)
+                            subprocess.check_output(cmd, shell=True)
+                        except:
+                            pass
+                if os.path.exists("{}/{}".format(f, recon_name_2)):
+                    if not os.path.exists("{}/{}".format(self.etomo_recon_folder, recon_name_2)):
+                        try:
+                            cmd = "cd {}; ln -s ../../{}/{} .".format(self.etomo_recon_folder, f, recon_name_2)
+                            subprocess.check_output(cmd, shell=True)
+                        except:
+                            pass
+                    if os.path.exists("{}/ODD/{}".format(f, recon_name_ODD_2)) \
+                                        and not os.path.exists("{}/{}".format(etomo_recon_folder_ODD, recon_name_ODD_2)):
+                        try:
+                            cmd = "cd {}; ln -s ../../../{}/ODD/{} .".format(etomo_recon_folder_ODD, f, recon_name_ODD_2)
+                            subprocess.check_output(cmd, shell=True)
+                        except:
+                            pass
+                    if os.path.exists("{}/EVN/{}".format(f, recon_name_EVN_2)) \
+                                        and not os.path.exists("{}/{}".format(etomo_recon_folder_EVN, recon_name_EVN_2)):
+                        try:
+                            cmd = "cd {}; ln -s ../../../{}/EVN/{} .".format(etomo_recon_folder_EVN, f, recon_name_EVN_2)
+                            subprocess.check_output(cmd, shell=True)
+                        except:
+                            pass
