@@ -105,7 +105,7 @@ class Recon(QTabWidget):
         self.fileSystemWatcher = QtCore.QFileSystemWatcher(self)
         self.fileSystemWatcher.addPath(self.log_file)
         self.fileSystemWatcher.fileChanged.connect(self.update_log_window)  
-                
+
     def setupUi(self):
         
         self.tab = QtWidgets.QWidget()
@@ -1100,11 +1100,24 @@ class Recon(QTabWidget):
                     self.logger.error("Please provide a valid Tilt Info Index number!")
                     self.cmd_finished()
                     return -1
-          
+
+                tomo_lists_tmp = []
+                for x in tomo_lists:
+                    count_tmp = len(x)
+                    if count_tmp > 0:
+                        try:
+                            tomo_tmp = sorted(x, key = lambda y: float(y.split(image_file_suffix)[0].split(delimiter)[key_index_sort]))
+                            tomo_lists_tmp.append(tomo_tmp)
+                        #tomo_lists = [sorted(x, key = lambda y:float(y.split(image_file_suffix)[0].split(delimiter)[key_index_sort])) for x in tomo_lists]
+                        except:
+                            self.logger.error("It looks like the Tilt Info Index is not correct! Please make sure the Tilt Info Index for {} is {}. Skip {} images.".\
+                                            format(x[0], key_index_sort+1, count_tmp))
+                tomo_lists = tomo_lists_tmp
+
                 try:
-                    tomo_lists = [sorted(x, key = lambda \
-                                y:float(y.split(image_file_suffix)[0].split(delimiter)[key_index_sort])) \
-                                for x in tomo_lists]
+                    # tomo_lists = [sorted(x, key = lambda \
+                    #             y:float(y.split(image_file_suffix)[0].split(delimiter)[key_index_sort])) \
+                    #             for x in tomo_lists]
                     rawtlt_lists = [[float(x.split(image_file_suffix)[0].split(delimiter)[key_index_sort])\
                                 for x in y] for y in tomo_lists]
                 except Exception as err:
@@ -1853,8 +1866,7 @@ class Recon(QTabWidget):
         
         tomo_lists = []
         if len(images_list) <= 0:
-            self.logger.error("No specified images are detected! \
-                        Please make sure the images exist and the parameters are correctly set.")
+            self.logger.error("No specified images are detected! Please make sure the images exist and the parameters are correctly set.")
             return -1
         else:
             current_tomo = []
@@ -1874,16 +1886,30 @@ class Recon(QTabWidget):
         else: 
             self.logger.error("Please provide a valid Tilt Info Index number!")
             return -1
+        
+        tomo_lists_tmp = []
+        for x in tomo_lists:
+            count_tmp = len(x)
+            if count_tmp > 0:
+                try:
+                    tomo_tmp = sorted(x, key = lambda y: float(y.split(image_file_suffix)[0].split(delimiter)[key_index_sort]))
+                    tomo_lists_tmp.append(tomo_tmp)
+                #tomo_lists = [sorted(x, key = lambda y:float(y.split(image_file_suffix)[0].split(delimiter)[key_index_sort])) for x in tomo_lists]
+                except:
+                    self.logger.error("It looks like the Tilt Info Index is not correct! Please make sure the Tilt Info Index for {} is {}. Skip {} images.".\
+                                    format(x[0], key_index_sort+1, count_tmp))
+        tomo_lists = tomo_lists_tmp
 
-        try:
-            tomo_lists = [sorted(x, key = lambda y:float(y.split(image_file_suffix)[0].split(delimiter)[key_index_sort])) for x in tomo_lists]
-        except:
-            self.logger.error("It looks like the Tilt Info Index is not correct! \
-                            Please make sure the Tilt Info Index for {} is {}".\
-                            format(tomo_lists[-1][0], key_index_sort+1))
+        if len(tomo_lists) > 0:
+            try:
+                rawtlt_lists = [[float(x.split(image_file_suffix)[0].split(delimiter)[key_index_sort]) for x in y] for y in tomo_lists]
+            except Exception as err:
+                self.logger.error(f"Unexpected {err=}, {type(err)=}")
+                return -1
+        else:
+            self.logger.error("No specified images are detected! Please make sure the images exist and the parameters are correctly set.")
             return -1
-
-        rawtlt_lists = [[float(x.split(image_file_suffix)[0].split(delimiter)[key_index_sort]) for x in y] for y in tomo_lists]
+        
         if self.comboBox_rm_dup.currentText()== "Yes":
             for i,tlts in enumerate(rawtlt_lists):
                 pop_list = []
