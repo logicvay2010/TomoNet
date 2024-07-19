@@ -1110,8 +1110,9 @@ class Recon(QTabWidget):
                             tomo_lists_tmp.append(tomo_tmp)
                         #tomo_lists = [sorted(x, key = lambda y:float(y.split(image_file_suffix)[0].split(delimiter)[key_index_sort])) for x in tomo_lists]
                         except:
-                            self.logger.error("It looks like the Tilt Info Index is not correct! Please make sure the Tilt Info Index for {} is {}. Skip {} images.".\
-                                            format(x[0], key_index_sort+1, count_tmp))
+                            
+                            self.logger.error("It looks like the Tilt Info Index ({}) is not correct for {}. Skiped {} images.".\
+                                            format(key_index_sort+1, x[0], count_tmp))
                 tomo_lists = tomo_lists_tmp
 
                 try:
@@ -1166,7 +1167,24 @@ class Recon(QTabWidget):
                 else:
                     generate_odd_even = 1
                 
-                start_index = 1
+                if only_process_unfinished == "Yes":
+                    try:
+                        current_ts_list = sorted([os.path.basename(x) for x in glob.glob("{}/*.st".format(self.ts_folder))])
+                        if len(current_ts_list) > 0:
+                            indexes = [int(os.path.splitext(x)[0].split("_")[-1]) for x in current_ts_list]
+                            indexes.sort()
+                            last_index = indexes[-1]
+                            start_index = int(last_index) + 1
+                        else:
+                            start_index = 1
+                    except Exception as err:
+                        self.logger.error("Failed reading the Recon/ts_tlt folder!")
+                        self.logger.error(f"Unexpected {err=}, {type(err)=}")
+                        self.cmd_finished()
+                        return -1
+                else:
+                    start_index = 1
+
                 self.logger.info("########Total TS # detected is {} from {} tilt images, the minimum number of tilts used is {}.########".format(len(tomo_lists), len(images_list), min_num_tilt))
                 self.logger.info("########The generated tilt series will be saved under {}/.########".format(self.default_ts_folder))
 
