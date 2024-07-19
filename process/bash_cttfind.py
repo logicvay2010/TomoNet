@@ -131,8 +131,7 @@ class Ctffind4(QThread):
         self.pool.map(ctffind4_single, self.params)
 
     def get_ts_list(self, path):
-        tomoName_list1 = [os.path.basename(x).split(".")[0] for x in glob.glob("{}/*.st".format(path))]
-        tomoName_list = tomoName_list1
+        tomoName_list = [os.path.basename(x).split(".")[0] for x in glob.glob("{}/*.st".format(path))]
         st_list = ["{}/{}.st".format(path,x) for x in tomoName_list]
 
         return [tomoName_list, st_list]
