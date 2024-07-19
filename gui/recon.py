@@ -1167,14 +1167,26 @@ class Recon(QTabWidget):
                 else:
                     generate_odd_even = 1
                 
-                if only_process_unfinished == "Yes":
+                if only_process_unfinished == 1:
                     try:
-                        current_ts_list = sorted([os.path.basename(x) for x in glob.glob("{}/*.st".format(self.ts_folder))])
-                        if len(current_ts_list) > 0:
-                            indexes = [int(os.path.splitext(x)[0].split("_")[-1]) for x in current_ts_list]
-                            indexes.sort()
-                            last_index = indexes[-1]
-                            start_index = int(last_index) + 1
+                        #current_ts_list = sorted([os.path.basename(x) for x in glob.glob("{}/*.st".format(self.default_ts_folder))])
+                        if os.path.exists(self._history_record):
+                            with open(self._history_record, 'r') as f:
+                                lines = f.readlines()
+                                current_ts_list = []
+                                for line in lines:
+                                    seg = line.strip().split("->")
+                                    self.logger.info(seg[-1])
+                                    if len(seg) == 2:
+                                        current_ts_list.append(seg[-1])
+                                if len(current_ts_list) > 0:
+                                    indexes = [int(os.path.splitext(x)[0].split("_")[-1]) for x in current_ts_list]
+                                    indexes = [int(x.split("_")[-1]) for x in current_ts_list]
+                                    indexes.sort()
+                                    last_index = indexes[-1]
+                                    start_index = int(last_index) + 1
+                                else:
+                                    start_index = 1
                         else:
                             start_index = 1
                     except Exception as err:
@@ -1185,7 +1197,7 @@ class Recon(QTabWidget):
                 else:
                     start_index = 1
 
-                self.logger.info("########Total TS # detected is {} from {} tilt images, the minimum number of tilts used is {}.########".format(len(tomo_lists), len(images_list), min_num_tilt))
+                self.logger.info("########Total TS # detected is {} from {} tilt images, the minimum number of tilts used is {}. Index starts from {}.########".format(len(tomo_lists), len(images_list), min_num_tilt, start_index))
                 self.logger.info("########The generated tilt series will be saved under {}/.########".format(self.default_ts_folder))
 
                 image_folder = self.lineEdit_corrected_image_folder.text()
