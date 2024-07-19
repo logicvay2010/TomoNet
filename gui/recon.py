@@ -1176,7 +1176,6 @@ class Recon(QTabWidget):
                                 current_ts_list = []
                                 for line in lines:
                                     seg = line.strip().split("->")
-                                    self.logger.info(seg[-1])
                                     if len(seg) == 2:
                                         current_ts_list.append(seg[-1])
                                 if len(current_ts_list) > 0:
