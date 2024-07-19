@@ -1896,8 +1896,8 @@ class Recon(QTabWidget):
                     tomo_lists_tmp.append(tomo_tmp)
                 #tomo_lists = [sorted(x, key = lambda y:float(y.split(image_file_suffix)[0].split(delimiter)[key_index_sort])) for x in tomo_lists]
                 except:
-                    self.logger.error("It looks like the Tilt Info Index is not correct! Please make sure the Tilt Info Index for {} is {}. Skip {} images.".\
-                                    format(x[0], key_index_sort+1, count_tmp))
+                    self.logger.warning("It looks like the Tilt Info Index ({}) is not correct for {}. Skiped {} images.".\
+                                    format(key_index_sort+1, x[0], count_tmp))
         tomo_lists = tomo_lists_tmp
 
         if len(tomo_lists) > 0:
