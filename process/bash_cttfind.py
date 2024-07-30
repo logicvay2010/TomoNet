@@ -82,6 +82,7 @@ class Ctffind4(QThread):
         self.ctf_folder = "Ctffind"
         self.ctffind_exe = d['ctffind_exe']
         self.log_file = "Ctffind/ctffind.log"
+        self.default_ts_tlt_folder ="Recon/ts_tlt"
         
         self.logger = logging.getLogger(__name__)
         handler = logging.FileHandler(filename=self.log_file, mode='a')
@@ -132,7 +133,10 @@ class Ctffind4(QThread):
 
     def get_ts_list(self, path):
         tomoName_list = [os.path.basename(x).split(".")[0] for x in glob.glob("{}/*.st".format(path))]
-        st_list = ["{}/{}.st".format(path,x) for x in tomoName_list]
+        if path == self.default_ts_tlt_folder:
+            st_list = ["../../{}/{}.st".format(path, x) for x in tomoName_list]
+        else:
+            st_list = ["{}/{}.st".format(path, x) for x in tomoName_list]
 
         return [tomoName_list, st_list]
 

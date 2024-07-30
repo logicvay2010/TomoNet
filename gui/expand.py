@@ -1318,18 +1318,19 @@ class Expand(QTabWidget):
     
     def get_tomo_list(self, folder):
         tomoName_mod = set([ os.path.basename(x).split(".")[0] for x in glob.glob("{}/*.mod".format(folder))])
+        #self.logger.info(tomoName_mod)
         rec_files = set(glob.glob("{}/*.rec".format(folder)))
         tomo_files = set(glob.glob("{}/*.mrc".format(folder)))
         tomo_files.update(rec_files)
         tomoName_tomo = set([ os.path.basename(x).split(".")[0] for x in list(tomo_files)])
-
+        #self.logger.info(tomoName_tomo)
         intersection_tomoName = sorted(list(tomoName_mod.intersection(tomoName_tomo)))
-
-        try:
-            intersection_tomoName.sort(key=natural_keys)
-        except:
-            pass
-
+        #self.logger.info(intersection_tomoName)
+        #try:
+        #    intersection_tomoName.sort(key=natural_keys)
+        #except:
+        #    pass
+        #self.logger.info(intersection_tomoName)
         return intersection_tomoName
 
     def prepare_star_file(self):
