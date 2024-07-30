@@ -335,6 +335,7 @@ class Manual(QTabWidget):
                     self.stalkInit(tomoName,tomoPath, 1)
                 else:
                     self.stalkInit(tomoName,tomoPath, 0)
+                self.reload_table()
             else:
                 pass
         elif j == 6:
