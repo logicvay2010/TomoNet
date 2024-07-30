@@ -1111,7 +1111,7 @@ class Recon(QTabWidget):
                         #tomo_lists = [sorted(x, key = lambda y:float(y.split(image_file_suffix)[0].split(delimiter)[key_index_sort])) for x in tomo_lists]
                         except:
                             
-                            self.logger.error("It looks like the Tilt Info Index ({}) is not correct for {}. Skiped {} images.".\
+                            self.logger.warning("It looks like the Tilt Info Index ({}) is not correct for {}. Skiped {} images.".\
                                             format(key_index_sort+1, x[0], count_tmp))
                 tomo_lists = tomo_lists_tmp
 
@@ -1520,35 +1520,41 @@ class Recon(QTabWidget):
                                 f.write("{}\n".format(record))
                 self.reload_table()
         elif j == 5:
-            if which('newstack') is None:
-                self.logger.error("'newstack' cmd is not detected in the current system. Please check the 'newstack' or IMOD installation!")
-                return -1
-            if which('tilt') is None:
-                self.logger.error("'tilt' cmd is not detected in the current system. Please check the 'tilt' or IMOD installation!")
-                return -1
-            if which('clip') is None:
-                self.logger.error("'clip' cmd is not detected in the current system. Please check the 'clip' or IMOD installation!")
-                return -1
-            #for generate ODD and EVN
-            current_ODD_st_link_path = "{}/ODD/{}_ODD.st".format(self.etomo_ts_folder, tomoName)
-            current_EVN_st_link_path = "{}/EVN/{}_EVN.st".format(self.etomo_ts_folder, tomoName)
-            current_tomo_folder = "{}/{}".format(self.etomo_folder, tomoName)
+            self.logger.warning("This function is disabled before issues get fixed. Please use newst.com and tilt.com to generate ODD and EVN reconstructions manually. Or using Aretomo option.")
+            # if which('newstack') is None:
+            #     self.logger.error("'newstack' cmd is not detected in the current system. Please check the 'newstack' or IMOD installation!")
+            #     return -1
+            # if which('tilt') is None:
+            #     self.logger.error("'tilt' cmd is not detected in the current system. Please check the 'tilt' or IMOD installation!")
+            #     return -1
+            # if which('clip') is None:
+            #     self.logger.error("'clip' cmd is not detected in the current system. Please check the 'clip' or IMOD installation!")
+            #     return -1
+            # #for generate ODD and EVN
+            # current_ODD_st_link_path = "{}/ODD/{}_ODD.st".format(self.etomo_ts_folder, tomoName)
+            # current_EVN_st_link_path = "{}/EVN/{}_EVN.st".format(self.etomo_ts_folder, tomoName)
+            # current_tomo_folder = "{}/{}".format(self.etomo_folder, tomoName)
 
-            if os.path.exists(current_ODD_st_link_path) and os.path.exists(current_EVN_st_link_path):
-                ret = QMessageBox.question(self, 'ODD & EVN', "generate 3D reconstruction for ODD and EVN frames of {}?".format(tomoName), QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-                if ret == QMessageBox.Yes:
-                    result_ODD = self.run_ODD_EVN_Recon(current_ODD_st_link_path, current_tomo_folder, tomoName, "ODD")
-                    if not (result_ODD == 'Success'):
-                        self.logger.error(result_ODD)
-                        return
-                    result_EVN = self.run_ODD_EVN_Recon(current_EVN_st_link_path, current_tomo_folder, tomoName, "EVN")
-                    if not (result_EVN == 'Success'):
-                        self.logger.error(result_EVN)
-                        return
-                    if result_ODD == 'Success' and result_EVN == 'Success':
-                        self.logger.info("ODD & EVN Recons were performed for {}".format(tomoName))
-            else:
-                self.logger.warning('either ODD ({}) or EVN ({}) TS file was not detected!'.format(current_ODD_st_link_path, current_EVN_st_link_path))
+            # if self.etomo_ts_folder == self.default_ts_folder:
+            #     pwd = os.getcwd()
+            #     current_ODD_st_link_path = "{}/{}".format(pwd, current_ODD_st_link_path)
+            #     current_EVN_st_link_path = "{}/{}".format(pwd, current_EVN_st_link_path)
+
+            # if os.path.exists(current_ODD_st_link_path) and os.path.exists(current_EVN_st_link_path):
+            #     ret = QMessageBox.question(self, 'ODD & EVN', "generate 3D reconstruction for ODD and EVN frames of {}?".format(tomoName), QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            #     if ret == QMessageBox.Yes:
+            #         result_ODD = self.run_ODD_EVN_Recon(current_ODD_st_link_path, current_tomo_folder, tomoName, "ODD")
+            #         if not (result_ODD == 'Success'):
+            #             self.logger.error(result_ODD)
+            #             return
+            #         result_EVN = self.run_ODD_EVN_Recon(current_EVN_st_link_path, current_tomo_folder, tomoName, "EVN")
+            #         if not (result_EVN == 'Success'):
+            #             self.logger.error(result_EVN)
+            #             return
+            #         if result_ODD == 'Success' and result_EVN == 'Success':
+            #             self.logger.info("ODD & EVN Recons were performed for {}".format(tomoName))
+            # else:
+            #     self.logger.warning('either ODD ({}) or EVN ({}) TS file was not detected!'.format(current_ODD_st_link_path, current_EVN_st_link_path))
         elif j == 6:
             if which('3dmod') is None:
                 self.logger.error("'3dmod' cmd is not detected in the current system. Please check the '3dmod' or IMOD installation!")
@@ -2264,6 +2270,7 @@ class Recon(QTabWidget):
         params_list = metadata.newst_com_params
         inputFile = path_ts
         outputFile = output_mrc
+        
         newst_cmd = 'cd {}; newstack -InputFile {} -OutputFile {}'.format(target_folder, inputFile, outputFile)
         try:
             with open(newst_com_file, 'r') as f:
