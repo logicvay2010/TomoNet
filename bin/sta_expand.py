@@ -168,7 +168,7 @@ search_param = SearchParam(param_file)
 repeat_unit = round(search_param.repeating_unit/tomo.apix, 1)
 particle_dup_ratio = 0.8
 patch_dis_ratio = 1.5
-print(points)
+#print(points)
 clusters = hcluster.fclusterdata(points, repeat_unit*particle_dup_ratio, criterion="distance")
 points_rmdup = []
 motls_rmdup = []

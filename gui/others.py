@@ -379,7 +379,7 @@ class OtherUtils(QTabWidget):
         self.lineEdit_recenter_x.setPlaceholderText(_translate("Form", "0"))
         self.lineEdit_recenter_x.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
-            font-size:9pt;\">Recenter Shifts on X-axis after rotation.\
+            font-size:9pt;\">Recenter Shifts on X-axis before rotation.\
             </span></p></body></html>"))
         
         self.label_recenter_y.setText(_translate("Form", "Y-axis:"))
@@ -390,7 +390,7 @@ class OtherUtils(QTabWidget):
         self.lineEdit_recenter_y.setPlaceholderText(_translate("Form", "0"))
         self.lineEdit_recenter_y.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
-            font-size:9pt;\">Recenter Shifts on Y-axis after rotation.\
+            font-size:9pt;\">Recenter Shifts on Y-axis before rotation.\
             </span></p></body></html>"))
         
         self.label_recenter_z.setText(_translate("Form", "Z-axis:"))
@@ -401,7 +401,7 @@ class OtherUtils(QTabWidget):
         self.lineEdit_recenter_z.setPlaceholderText(_translate("Form", "0"))
         self.lineEdit_recenter_z.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
-            font-size:9pt;\">Recenter Shifts on Z-axis after rotation.\
+            font-size:9pt;\">Recenter Shifts on Z-axis before rotation.\
             </span></p></body></html>"))
         
         self.label_rotation.setText(_translate("Form", "Rotation (degree) apply on "))

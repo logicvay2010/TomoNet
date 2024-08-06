@@ -44,7 +44,7 @@ class Tomogram:
     
     if os.path.exists(self.modPath):
       actual_particle_num = len(np.array(imodmodel.read(self.modPath))[:,2:])
-      print(self.max_seed_num )
+      #print(self.max_seed_num )
       if self.max_seed_num > actual_particle_num:
         less = False
         self.max_seed_num = actual_particle_num
@@ -162,7 +162,7 @@ class Tomogram:
       self.apix = round(mrc.voxel_size.x*1,2)
   
   def updateAlignmentFile(self, latest_round, latest_cache_folder_path):
-    print(latest_round)
+    #print(latest_round)
     if latest_round < 0:
       self.setInitialParams()
     else:
