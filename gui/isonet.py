@@ -580,7 +580,7 @@ class IsoNet(QTabWidget):
         self.setWindowTitle(_translate("Form", "Form"))
         
         self.pushButton_open_star.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">Open a saved star file.</span></p></body></html>"))
-        self.pushButton_open_star.setText(_translate("Form", "Open star"))
+        self.pushButton_open_star.setText(_translate("Form", "Open STAR file"))
         self.pushButton_insert.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">Add new items to the star file.</span></p></body></html>"))
         self.pushButton_insert.setText(_translate("Form", "Insert"))
         self.pushButton_delete.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">Delete items from the star file</span></p></body></html>"))

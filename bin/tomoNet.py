@@ -5,6 +5,7 @@ import socket
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtWidgets import QListWidgetItem, QListWidget
 from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtGui import QColor
 
 from TomoNet.util import metadata
 from TomoNet.gui.motioncor import MotionCor
@@ -78,6 +79,7 @@ class Ui_TomoNet(object):
             item = QListWidgetItem(name, self.listWidget)
             # Set the default width and height of the item (only height is useful here)
             item.setSizeHint(QSize(16777215, 35))
+            #item.setBackground(QColor("lightgray"))
             # Text centered
             item.setTextAlignment(Qt.AlignCenter)
 
@@ -179,12 +181,24 @@ QGroupBox{
 }
 
 QListWidget {
-    outline: 0px;
+    outline: 1px;
     font: 14px;
     font-weight:bold;
-    background: #e5eaf5
 }
-
+QListWidget::item {
+        border-bottom: 2px solid black;
+        background-color: #e5eaf5;
+        opacity: 1
+    }
+QListWidget::item:selected {
+        background-color: #1569C7;
+        opacity: 0.75
+    }
+QListWidget::item:hover {
+        background-color: #48AAAD;
+        opacity: 0.5
+    }
+    
 QTabWidget{
     font: 16px;
     background: rgb(144,160,187)
