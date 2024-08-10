@@ -142,7 +142,7 @@ class Manual(QTabWidget):
         in_current_page = True
         for x in self.parentWidget().parentWidget().children():
             if x.objectName() == "listWidget":
-                if not x.currentRow() == 3:
+                if not x.currentRow() == 4:
                     in_current_page = False
             elif x.objectName() == "log_window":
                 if in_current_page:

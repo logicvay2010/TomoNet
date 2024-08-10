@@ -1,4 +1,4 @@
-LIST_NAMES = ["Motion Correction", "3D Reconstruction", "CTF Estimation", "Manual Picking", "Auto Expansion", "AI AutoPicking", "Other Utilities"]
+LIST_NAMES = ["Motion Correction", "3D Reconstruction", "CTF Estimation", "IsoNet", "Manual Picking", "Auto Expansion", "AI AutoPicking", "Other Utilities"]
 
 header_labels_recon = ['Tomo Name', 'Action', 'Action', 'Action', 'Action', 'Action', 'Recon Map', 'Tilts #', \
     'RE mean', 'RE range', 'Binning', 'Thickness', 'Skipped view(s)', 'Notes']
@@ -12,6 +12,8 @@ header_labels_manual = ['Tomo Name', 'Top(one point)', 'Bottom(one point)', \
                         'Side(two points)', 'Action', 'Action', 'Action','Action']
 
 header_labels_ctffind = ['Tomo Name', 'Tilt #', 'defocus (Å)', 'Best CTF ring fit at (Å)', 'Action', 'Action']
+
+header_labels_IsoNet = ['Tomo Name', 'Rounds # ', 'Final Particle #', 'Action', 'Action']
 
 header_labels_expand = ['Tomo Name', 'Rounds # ', 'Final Particle #', 'Action', 'Action']
 
@@ -198,9 +200,12 @@ class MetaData():
         output_file.write('\n')
 
     def write(self, output_star):
-        output_file = open(output_star, 'w')
-        self._write(output_file)
-        output_file.close()
+        try:
+            output_file = open(output_star, 'w')
+            self._write(output_file)
+            output_file.close()
+        except:
+            pass
 
     def printStar(self):
         self._write(sys.stdout)

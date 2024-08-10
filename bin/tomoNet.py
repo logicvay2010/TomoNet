@@ -9,6 +9,7 @@ from PyQt5.QtCore import Qt, QSize
 from TomoNet.util import metadata
 from TomoNet.gui.motioncor import MotionCor
 from TomoNet.gui.ctffind import Ctffind
+from TomoNet.gui.isonet import IsoNet
 from TomoNet.gui.manual import Manual
 from TomoNet.gui.recon import Recon
 from TomoNet.gui.expand import Expand
@@ -93,6 +94,9 @@ class Ui_TomoNet(object):
 
         self.listWidget.currentRowChanged.connect(ctffind.reload_table)
 
+        isonet = IsoNet()
+        self.stackedWidget.addWidget(isonet)
+
         manual = Manual()
         self.stackedWidget.addWidget(manual)
 
@@ -105,7 +109,7 @@ class Ui_TomoNet(object):
         otherUtils = OtherUtils()
         self.stackedWidget.addWidget(otherUtils)
 
-        self.log_file = ["MotionCorrection/motion.log", "Recon/recon.log", "Ctffind/ctffind.log",\
+        self.log_file = ["MotionCorrection/motion.log", "Recon/recon.log", "Ctffind/ctffind.log", "IsoNet/isonet.log",\
             "ManualPick/manual.log", "Expand/expand.log", "Autopick/autopick.log", "OtherUtils/otherUtils.log"]
         self.log_window.setText(self.getLogContent(self.log_file[0]))
         self.log_window.moveCursor(QtGui.QTextCursor.End)
@@ -170,7 +174,8 @@ QPushButton#run {
 }
 
 QGroupBox{
-    font: 12px;
+    font: 14px;
+    font-weight: bold;
 }
 
 QListWidget {
@@ -220,10 +225,11 @@ class MyWindow(QtWidgets.QMainWindow):
         if result == QtWidgets.QMessageBox.No:
             pass
             #kill the old process
+
 def check_root():
     directory = os.getcwd()
     folders = os.listdir(directory)
-    return "MotionCorrection" in folders and "Recon" in folders and "Ctffind" in folders and "Expand" in folders and "Autopick" in folders and "OtherUtils" in folders
+    return "MotionCorrection" in folders and "Recon" in folders and "Ctffind" in folders and "IsoNet" in folders and "Expand" in folders and "Autopick" in folders and "OtherUtils" in folders
 
 from PyQt5.QtWidgets import QMessageBox
 
