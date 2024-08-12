@@ -1035,10 +1035,56 @@ class IsoNet(QTabWidget):
         }
         return switcher.get(label, "None")
     
-    def deconvolve(self):
+    def get_deconv_params(self):
+        tomogram_star = self.tomogram_star
 
-        #params = self.get_placeback_params()
+        if self.lineEdit_deconv_dir.text():
+            deconv_folder = "{}/{}".format(self.isonet_folder, self.lineEdit_deconv_dir.text())
+        else:
+            deconv_folder = "{}/{}".format(self.isonet_folder, "deconv")
+        if self.lineEdit_tomo_index_deconv.text():
+            tomo_idx = self.lineEdit_tomo_index_deconv.text()
+        else:
+            return "Please define tomo index for Ctf deconvolution."
+        if self.lineEdit_ncpu.text():
+            ncpu = int(self.lineEdit_ncpu.text())
+        else:
+            ncpu = 6
+        if self.lineEdit_highpassnyquist.text():
+            highpassnyquist = float(self.lineEdit_highpassnyquist.text())
+        else:
+            highpassnyquist = 0.02
+        if self.lineEdit_chunk_size.text():
+            chunk_size = float(self.lineEdit_chunk_size.text())
+        else:
+            chunk_size = 200
+        if self.lineEdit_overlap.text():
+            overlap_rate = float(self.lineEdit_overlap.text())
+        else:
+            overlap_rate = 0.25
+        
+        snrfalloff = 1.0
+        deconvstrength = 1.0
+        voltage = 300.0
+        cs = 2.7
+
         params = {}
+        params['tomogram_star'] = tomogram_star
+        params['deconv_folder'] = deconv_folder
+        params['tomo_idx'] = tomo_idx
+        params['ncpu'] = ncpu
+        params['highpassnyquist'] = highpassnyquist
+        params['chunk_size'] = chunk_size
+        params['overlap_rate'] = overlap_rate
+        params['snrfalloff'] = snrfalloff
+        params['deconvstrength'] = deconvstrength
+        params['voltage'] = voltage
+        params['cs'] = cs
+
+        return params
+    
+    def deconvolve(self):
+        params = self.get_deconv_params()
         if type(params) is str:
             self.logger.error(params)
         elif type(params) is dict:
@@ -1047,36 +1093,19 @@ class IsoNet(QTabWidget):
                     , QMessageBox.Yes | QMessageBox.No, \
                     QMessageBox.No)   
             if ret == QMessageBox.Yes:
-                tomogram_star = self.tomogram_star
-                cmd = "isonet_deconv.py {} ".format(tomogram_star)
                 
-                if self.lineEdit_deconv_dir.text():
-                    deconv_folder = "{}/{}".format(self.isonet_folder, self.lineEdit_deconv_dir.text())
-                    cmd = "{} --deconv_folder {}".format(cmd, self.lineEdit_deconv_dir.text())
-                if self.lineEdit_tomo_index_deconv.text():
-                    tomo_idx = self.lineEdit_tomo_index_deconv.text()
-                    cmd = "{} --tomo_idx {}".format(cmd, self.lineEdit_tomo_index_deconv.text())
-                if self.lineEdit_ncpu.text():
-                    ncpu = int(self.lineEdit_ncpu.text())
-                    cmd = "{} --ncpu {}".format(cmd, self.lineEdit_ncpu.text())
-                if self.lineEdit_highpassnyquist.text():
-                    highpassnyquist = float(self.lineEdit_highpassnyquist.text())
-                    cmd = "{} --highpassnyquist {}".format(cmd, self.lineEdit_highpassnyquist.text())
-                if self.lineEdit_chunk_size.text():
-                    chunk_size = float(self.lineEdit_chunk_size.text())
-                    cmd = "{} --chunk_size {}".format(cmd, self.lineEdit_chunk_size.text())
-                else:
-                    chunk_size = 200
-                if self.lineEdit_overlap.text():
-                    overlap_rate = float(self.lineEdit_overlap.text())
-                    cmd = "{} --overlap {}".format(cmd, self.lineEdit_overlap.text())
+                tomogram_star = params['tomogram_star']
+                deconv_folder = params['deconv_folder'] 
+                tomo_idx = params['tomo_idx']
+                ncpu = params['ncpu'] 
+                highpassnyquist  = params['highpassnyquist']
+                chunk_size = params['chunk_size']
+                overlap_rate = params['overlap_rate'] 
+                snrfalloff = params['snrfalloff'] 
+                deconvstrength = params['deconvstrength'] 
+                voltage = params['voltage'] 
+                cs = params['cs'] 
                 
-                snrfalloff = 1.0
-                deconvstrength = 1.0
-                voltage = 300.0
-                cs = 2.7
-                
-                highpassnyquist 
                 try:
                     md = MetaData()
                     md.read(tomogram_star)
@@ -1107,14 +1136,14 @@ class IsoNet(QTabWidget):
                                         highpassnyquist=highpassnyquist, chunk_size=chunk_size, overlap_rate=overlap_rate, ncpu=ncpu)
                             md._setItemValue(it,Label('rlnDeconvTomoName'),deconv_tomo_name)
                         md.write(tomogram_star)
-                    logging.info('\n######Isonet done ctf deconvolve######\n')
+                    self.logger.info('\n######Isonet done ctf deconvolve######\n')
 
                 except Exception:
                     error_text = traceback.format_exc()
                     f =open('log.txt','a+')
                     f.write(error_text)
                     f.close()
-                    logging.error(error_text)
+                    self.logger.error(error_text)
                 
                 self.updateMD()
 

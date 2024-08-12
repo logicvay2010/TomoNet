@@ -1351,7 +1351,7 @@ class Recon(QTabWidget):
         except:
             pass
 
-    def tab_changed(self,i):
+    def tab_changed(self, i):
         if i == 1:
             self.reload_table()
             self.etomo_count_tomo()
@@ -1796,6 +1796,15 @@ class Recon(QTabWidget):
                 notes_i = note_dict[tomo] if tomo in note_dict.keys() else ""
                 self.tableView_aretomo.setItem(i, 7, QTableWidgetItem(notes_i))
         self.current_tomoNames_aretomo = tomoNames
+    
+    def list_row_changed(self, i):
+        if i == 1:
+            if self.currentIndex() == 1:
+                self.reload_table()
+                self.etomo_count_tomo()
+            if self.currentIndex() == 2:
+                self.reload_table_aretomo()
+                self.aretomo_count_tomo()
     
     @QtCore.pyqtSlot(str)
     def update_log_window(self, txt):

@@ -1378,6 +1378,11 @@ class Expand(QTabWidget):
         if i == 2:
             self.reload_table()
     
+    def list_row_changed(self, i):
+        if i == 5:
+            if self.currentIndex() == 2:
+                self.reload_table()
+    
     def table_click(self, item):
         i = item.row()
         j = item.column()

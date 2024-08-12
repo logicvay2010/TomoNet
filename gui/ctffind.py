@@ -677,6 +677,9 @@ class Ctffind(QTabWidget):
                 action_plot_4.setFont(QFont("sans-serif", 8, QFont.Bold))
                 self.tableView.setItem(i, 5, action_plot_4)
 
+    def list_row_changed(self, i):
+        if i == 2:
+            self.reload_table()
     ##### 2023/06/06 to be changed to adapt ctffind section
     def get_params(self):
         

@@ -179,7 +179,8 @@ class Chunks:
                     
         return new[0:self._sp[0],0:self._sp[1],0:self._sp[2]]
 
-def deconv_one(tomo, out_tomo, isonet_folder="IsoNet", voltage=300.0, cs=2.7, defocus=1.0, pixel_size=1.0,snrfalloff=1.0, deconvstrength=1.0,highpassnyquist=0.02,chunk_size=200,overlap_rate = 0.25,ncpu=4):
+def deconv_one(tomo, out_tomo, isonet_folder="IsoNet", voltage=300.0, cs=2.7, defocus=1.0, pixel_size=1.0, \
+               snrfalloff=1.0, deconvstrength=1.0, highpassnyquist=0.02, chunk_size=200, overlap_rate = 0.25, ncpu=4):
     import mrcfile
     from multiprocessing import Pool
     from functools import partial

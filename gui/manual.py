@@ -260,6 +260,10 @@ class Manual(QTabWidget):
                 action_view_picked.setFont(QFont("sans-serif", 8, QFont.Bold))
                 self.tableView.setItem(i, 7, action_view_picked)
 
+    def list_row_changed(self, i):
+        if i == 4:
+            self.reload_table()
+    
     def table_doubleClick(self, item):
         i = item.row()
         j = item.column()

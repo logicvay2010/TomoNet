@@ -90,20 +90,22 @@ class Ui_TomoNet(object):
 
         recon = Recon()
         self.stackedWidget.addWidget(recon)
+        self.listWidget.currentRowChanged.connect(recon.list_row_changed)
         
         ctffind = Ctffind()
         self.stackedWidget.addWidget(ctffind)
-
-        self.listWidget.currentRowChanged.connect(ctffind.reload_table)
+        self.listWidget.currentRowChanged.connect(ctffind.list_row_changed)
 
         isonet = IsoNet()
         self.stackedWidget.addWidget(isonet)
 
         manual = Manual()
         self.stackedWidget.addWidget(manual)
+        self.listWidget.currentRowChanged.connect(manual.list_row_changed)
 
         expand = Expand()
         self.stackedWidget.addWidget(expand)
+        self.listWidget.currentRowChanged.connect(expand.list_row_changed)
 
         autopick = Autopick()
         self.stackedWidget.addWidget(autopick)
