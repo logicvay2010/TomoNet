@@ -620,17 +620,19 @@ class Ctffind(QTabWidget):
 
             first_column = [int(float(l.split()[0])) for l in newlines]
 
-            defoci_1 = np.array([int(float(l.split()[1])) for l in newlines])
-            defoci_2 = np.array([int(float(l.split()[2])) for l in newlines])
-            defoci = (defoci_1 + defoci_2)//2
-            
-            tilt_num = first_column[-1] if len(first_column) > 0 else 0
-            tilt_nums.append(tilt_num)
-            defocus.append(defoci)
+            try:
+                defoci_1 = np.array([int(float(l.split()[1])) for l in newlines])
+                defoci_2 = np.array([int(float(l.split()[2])) for l in newlines])
+                defoci = (defoci_1 + defoci_2)//2
+                
+                tilt_num = first_column[-1] if len(first_column) > 0 else 0
+                tilt_nums.append(tilt_num)
+                defocus.append(defoci)
 
-            best_fit = np.array([round(float(l.split()[6]),1) for l in newlines])
-            best_ctf_rings.append(best_fit)
-        
+                best_fit = np.array([round(float(l.split()[6]),1) for l in newlines])
+                best_ctf_rings.append(best_fit)
+            except:
+                tomoNames.remove(tomoName)
         results['tomoNames'] = tomoNames
         results['tilt_nums'] = tilt_nums
         results['defocus'] = defocus
@@ -643,14 +645,15 @@ class Ctffind(QTabWidget):
         tomoNames = results['tomoNames']
         tilt_nums = results['tilt_nums']
         defocus = results['defocus']
-        best_ctf_rings =results['best_ctf_rings']
+        best_ctf_rings = results['best_ctf_rings']
         self.ctf_results = results
         self.tableView.setRowCount(0)
         self.tableView.setRowCount(len(tomoNames))
         if len(tomoNames) > 0:
             for i, tomo in enumerate(tomoNames):
                 self.tableView.setItem(i, 0, QTableWidgetItem(tomo))
-                action_defocus = QTableWidgetItem(str(tilt_nums[i]))
+                tilt_num_i = str(tilt_nums[i])
+                action_defocus = QTableWidgetItem(tilt_num_i)
                 action_defocus.setBackground(QtGui.QColor("#4CAF50"))
                 action_defocus.setFont(QFont("sans-serif", 8, QFont.Bold))
                 self.tableView.setItem(i, 1, action_defocus)
