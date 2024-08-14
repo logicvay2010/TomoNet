@@ -7,7 +7,7 @@ import shutil
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QTabWidget, QMessageBox, QHeaderView, QTableWidgetItem
 
-from TomoNet.util.utils import check_log_file, getLogContent
+from TomoNet.util.utils import check_log_file, getLogContent, string2float, string2int
 from TomoNet.util import metadata
 from TomoNet.util.metadata import MetaData, Label, Item
 from TomoNet.process.bash_isonet_deconv import Deconvolve
@@ -176,7 +176,7 @@ class IsoNet(QTabWidget):
         # group widget deconvolution
         self.groupBox_deconv = QtWidgets.QGroupBox(self.tab)
         self.groupBox_deconv.setMinimumSize(QtCore.QSize(0, 120))
-        self.groupBox_deconv.setMaximumSize(QtCore.QSize(16777215, 120))
+        self.groupBox_deconv.setMaximumSize(QtCore.QSize(16777215, 150))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
@@ -242,24 +242,6 @@ class IsoNet(QTabWidget):
         
         self.horizontalLayout_8 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_8.setObjectName("horizontalLayout_8")
-        self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_4.setObjectName("horizontalLayout_4")
-        
-        self.label_ncpu = QtWidgets.QLabel(self.groupBox_deconv)
-        self.label_ncpu.setMinimumSize(QtCore.QSize(60, 0))
-        self.label_ncpu.setWhatsThis("")
-        self.label_ncpu.setStyleSheet("")
-        self.label_ncpu.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.label_ncpu.setObjectName("label_ncpu")
-        self.horizontalLayout_4.addWidget(self.label_ncpu)
-        
-        self.lineEdit_ncpu = QtWidgets.QLineEdit(self.groupBox_deconv)
-        self.lineEdit_ncpu.setMinimumSize(QtCore.QSize(60, 25))
-        self.lineEdit_ncpu.setMaximumSize(QtCore.QSize(16777215, 25))
-        self.lineEdit_ncpu.setObjectName("lineEdit_ncpu")
-        self.horizontalLayout_4.addWidget(self.lineEdit_ncpu)
-        
-        self.horizontalLayout_8.addLayout(self.horizontalLayout_4)
         
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
@@ -311,7 +293,68 @@ class IsoNet(QTabWidget):
         self.horizontalLayout_8.addLayout(self.horizontalLayout_5)
         
         self.gridLayout_3.addLayout(self.horizontalLayout_8, 1, 0, 1, 1)
+
+        self.horizontalLayout_9 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_9.setObjectName("horizontalLayout_9")
         
+        self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_4.setObjectName("horizontalLayout_4")
+        
+        self.label_ncpu = QtWidgets.QLabel(self.groupBox_deconv)
+        self.label_ncpu.setMinimumSize(QtCore.QSize(60, 0))
+        self.label_ncpu.setWhatsThis("")
+        self.label_ncpu.setStyleSheet("")
+        self.label_ncpu.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_ncpu.setObjectName("label_ncpu")
+        self.horizontalLayout_4.addWidget(self.label_ncpu)
+        
+        self.lineEdit_ncpu = QtWidgets.QLineEdit(self.groupBox_deconv)
+        self.lineEdit_ncpu.setMinimumSize(QtCore.QSize(60, 25))
+        self.lineEdit_ncpu.setMaximumSize(QtCore.QSize(16777215, 25))
+        self.lineEdit_ncpu.setObjectName("lineEdit_ncpu")
+        self.horizontalLayout_4.addWidget(self.lineEdit_ncpu)
+        
+        self.horizontalLayout_9.addLayout(self.horizontalLayout_4)
+
+        self.horizontalLayout_10 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_10.setObjectName("horizontalLayout_10")
+        
+        self.label_voltage = QtWidgets.QLabel(self.groupBox_deconv)
+        self.label_voltage.setMinimumSize(QtCore.QSize(60, 0))
+        self.label_voltage.setWhatsThis("")
+        self.label_voltage.setStyleSheet("")
+        self.label_voltage.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_voltage.setObjectName("label_voltage")
+        self.horizontalLayout_10.addWidget(self.label_voltage)
+        
+        self.lineEdit_voltage = QtWidgets.QLineEdit(self.groupBox_deconv)
+        self.lineEdit_voltage.setMinimumSize(QtCore.QSize(60, 25))
+        self.lineEdit_voltage.setMaximumSize(QtCore.QSize(16777215, 25))
+        self.lineEdit_voltage.setObjectName("lineEdit_voltage")
+        self.horizontalLayout_10.addWidget(self.lineEdit_voltage)
+        
+        self.horizontalLayout_9.addLayout(self.horizontalLayout_10)
+
+        self.horizontalLayout_11 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_11.setObjectName("horizontalLayout_11")
+        
+        self.label_cs = QtWidgets.QLabel(self.groupBox_deconv)
+        self.label_cs.setMinimumSize(QtCore.QSize(60, 0))
+        self.label_cs.setWhatsThis("")
+        self.label_cs.setStyleSheet("")
+        self.label_cs.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_cs.setObjectName("label_cs")
+        self.horizontalLayout_11.addWidget(self.label_cs)
+        
+        self.lineEdit_cs = QtWidgets.QLineEdit(self.groupBox_deconv)
+        self.lineEdit_cs.setMinimumSize(QtCore.QSize(60, 25))
+        self.lineEdit_cs.setMaximumSize(QtCore.QSize(16777215, 25))
+        self.lineEdit_cs.setObjectName("lineEdit_cs")
+        self.horizontalLayout_11.addWidget(self.lineEdit_cs)
+        
+        self.horizontalLayout_9.addLayout(self.horizontalLayout_11)
+
+        self.gridLayout_3.addLayout(self.horizontalLayout_9, 2, 0, 1, 1)
 
         self.gridLayout_preparation.addLayout(self.horizontalLayout_1, 0, 0, 1, 1)
         self.gridLayout_preparation.addWidget(self.groupBox_deconv, 1, 0, 1, 1)
@@ -594,18 +637,28 @@ class IsoNet(QTabWidget):
         self.lineEdit_deconv_dir.setPlaceholderText(_translate("Form", "deconv"))
         self.label_tomo_index_deconv.setText(_translate("Form", "tomo index"))
         self.lineEdit_tomo_index_deconv.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">If this value is set, process only the tomograms listed in this index. e.g. 1,2,3,4</span></p></body></html>"))
-        self.label_ncpu.setText(_translate("Form", "ncpu"))
-        self.lineEdit_ncpu.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">number of gpu to use in deconvolve</span></p></body></html>"))
-        self.lineEdit_ncpu.setPlaceholderText(_translate("Form", "4"))
+
         self.label_chunk_size.setText(_translate("Form", "chunk size"))
         self.lineEdit_chunk_size.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">(None) When your computer has enough memory, please keep the chunk_size as the default value: None . Otherwise, you can let the program crop the tomogram into multiple chunks for multiprocessing and assembly them into one. The chunk_size defines the size of individual chunk. This option may induce artifacts along edges of chunks. When that happen, you may use larger overlap_rate.</span></p></body></html>"))
         self.lineEdit_chunk_size.setPlaceholderText(_translate("Form", "None"))
-        self.label_highpassnyquist.setText(_translate("Form", "highpassnyquist"))
+        self.label_highpassnyquist.setText(_translate("Form", "high pass nyquist"))
         self.lineEdit_highpassnyquist.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">(0.02) Highpass filter at very low resolution.</span></p></body></html>"))
         self.lineEdit_highpassnyquist.setPlaceholderText(_translate("Form", "0.02"))
-        self.label_overlap.setText(_translate("Form", "overlap"))
+        self.label_overlap.setText(_translate("Form", "overlap ratio"))
         self.lineEdit_overlap.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">The overlapping rate for adjecent tiles.</span></p></body></html>"))
         self.lineEdit_overlap.setPlaceholderText(_translate("Form", "0.25"))
+
+        self.label_ncpu.setText(_translate("Form", "ncpu"))
+        self.lineEdit_ncpu.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">number of gpu to use in deconvolve</span></p></body></html>"))
+        self.lineEdit_ncpu.setPlaceholderText(_translate("Form", "4"))
+
+        self.label_voltage.setText(_translate("Form", "voltage"))
+        self.lineEdit_voltage.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">voltage</span></p></body></html>"))
+        self.lineEdit_voltage.setPlaceholderText(_translate("Form", "300"))
+
+        self.label_cs.setText(_translate("Form", "CS"))
+        self.lineEdit_cs.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">spherical aberration coefficient </span></p></body></html>"))
+        self.lineEdit_cs.setPlaceholderText(_translate("Form", "2.7"))
 
         self.pushButton_deconv.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">click to run isonet deconvolve</span></p></body></html>"))
         self.pushButton_deconv.setText(_translate("Form", "Deconvolve"))
@@ -655,6 +708,8 @@ class IsoNet(QTabWidget):
         data['chunk_size'] = ""
         data['highpassnyquist'] = ""
         data['overlap'] = ""
+        data['voltage'] = ""
+        data['cs'] = ""
 
         try:
             with open(self.setting_file) as f:
@@ -674,6 +729,8 @@ class IsoNet(QTabWidget):
         self.lineEdit_chunk_size.setText(data['chunk_size'])
         self.lineEdit_highpassnyquist.setText(data['highpassnyquist'])
         self.lineEdit_overlap.setText(data['overlap'])
+        self.lineEdit_voltage.setText(data['voltage'])
+        self.lineEdit_cs.setText(data['cs'])
     
     def save_setting(self):
         param = {}
@@ -683,6 +740,8 @@ class IsoNet(QTabWidget):
         param['chunk_size'] = self.lineEdit_chunk_size.text()
         param['highpassnyquist'] = self.lineEdit_highpassnyquist.text()
         param['overlap'] = self.lineEdit_overlap.text()
+        param['voltage'] = self.lineEdit_voltage.text()
+        param['cs'] = self.lineEdit_cs.text()
 
         try:
             with open(self.setting_file, 'w') as f: 
@@ -1048,29 +1107,52 @@ class IsoNet(QTabWidget):
             return "Please define tomo index for Ctf deconvolution."
         
         if self.lineEdit_ncpu.text():
-            ncpu = int(self.lineEdit_ncpu.text())
+            if not string2int(self.lineEdit_ncpu.text()) == None:
+                ncpu = string2int(self.lineEdit_ncpu.text())
+            else:
+                return "Please use the valid format for the ncpu #!"
         else:
             ncpu = 6
-        
+
         if self.lineEdit_highpassnyquist.text():
-            highpassnyquist = float(self.lineEdit_highpassnyquist.text())
+            if not string2float(self.lineEdit_highpassnyquist.text()) == None:
+                highpassnyquist = string2float(self.lineEdit_highpassnyquist.text())
+            else:
+                return "Please use the valid format for the high pass nyquist!"
         else:
             highpassnyquist = 0.02
         
         if self.lineEdit_chunk_size.text():
-            chunk_size = float(self.lineEdit_chunk_size.text())
+            if not string2float(self.lineEdit_chunk_size.text()) == None:
+                chunk_size = string2float(self.lineEdit_chunk_size.text())
+            else:
+                return "Please use the valid format for the chunk_size!"
         else:
             chunk_size = 200
         
         if self.lineEdit_overlap.text():
-            overlap_rate = float(self.lineEdit_overlap.text())
+            if not string2float(self.lineEdit_overlap_rate.text()) == None:
+                overlap_rate = string2float(self.lineEdit_overlap_rate.text())
+            else:
+                return "Please use the valid format for the overlap_rate!"
         else:
             overlap_rate = 0.25
         
-        snrfalloff = 1.0
-        deconvstrength = 1.0
-        voltage = 300.0
-        cs = 2.7
+        if self.lineEdit_voltage.text():
+            if not string2float(self.lineEdit_voltage.text()) == None:
+                voltage = string2float(self.lineEdit_voltage.text())
+            else:
+                return "Please use the valid format for the voltage!"
+        else:
+            voltage = 300.0
+
+        if self.lineEdit_cs.text():
+            if not string2float(self.lineEdit_cs.text()) == None:
+                cs = string2float(self.lineEdit_cs.text())
+            else:
+                return "Please use the valid format for the cs!"
+        else:
+            cs = 2.7
 
         params = {}
         params['tomogram_star'] = tomogram_star
@@ -1080,8 +1162,7 @@ class IsoNet(QTabWidget):
         params['highpassnyquist'] = highpassnyquist
         params['chunk_size'] = chunk_size
         params['overlap_rate'] = overlap_rate
-        params['snrfalloff'] = snrfalloff
-        params['deconvstrength'] = deconvstrength
+
         params['voltage'] = voltage
         params['cs'] = cs
         return params
@@ -1124,11 +1205,9 @@ class IsoNet(QTabWidget):
                     self.thread_deconvolve.stop_process()
                     self.read_star_gui(self.tomogram_star)
                     self.setTableWidget(self.tableWidget, self.md)
-                    #self.updateMD_2()
     
     def cmd_finished(self, button, text="Run"):
         button.setText(text)
         button.setStyleSheet("QPushButton {color: black;}")  
-        self.logger.info(self.tomogram_star)
         self.read_star_gui(self.tomogram_star)
         self.setTableWidget(self.tableWidget, self.md)

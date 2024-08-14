@@ -11,7 +11,7 @@ class Deconvolve(QThread):
     def __init__(self, d):
         super().__init__()
         self.d = d
-        
+
         self.tomogram_star = d['tomogram_star']
         self.deconv_folder = d['deconv_folder'] 
         self.tomo_idx = d['tomo_idx']
@@ -19,8 +19,6 @@ class Deconvolve(QThread):
         self.highpassnyquist  = d['highpassnyquist']
         self.chunk_size = d['chunk_size']
         self.overlap_rate = d['overlap_rate'] 
-        self.snrfalloff = d['snrfalloff'] 
-        self.deconvstrength = d['deconvstrength'] 
         self.voltage = d['voltage'] 
         self.cs = d['cs'] 
 
@@ -39,7 +37,6 @@ class Deconvolve(QThread):
     def run(self):
         self.md = MetaData()
         self.md.read(self.tomogram_star)
-        #self.md.read("/home/logicvay/Project/Mformicia_slayer/IsoNet/tomograms.star")
 
         if not 'rlnSnrFalloff' in self.md.getLabels():
             self.md.addLabels('rlnSnrFalloff','rlnDeconvStrength','rlnDeconvTomoName')
@@ -57,16 +54,14 @@ class Deconvolve(QThread):
 
         for it in self.md:
             if tomo_idx is None or str(it.rlnIndex) in tomo_idx:
-                if self.snrfalloff is not None:
-                    self.md._setItemValue(it, Label('rlnSnrFalloff'), self.snrfalloff)
-                if self.deconvstrength is not None:
-                    self.md._setItemValue(it, Label('rlnDeconvStrength'), self.deconvstrength)
+                if it.rlnSnrFalloff is not None:
+                    self.md._setItemValue(it, Label('rlnSnrFalloff'), it.rlnSnrFalloff)
+                if it.rlnDeconvStrength is not None:
+                    self.md._setItemValue(it, Label('rlnDeconvStrength'), it.rlnDeconvStrength)
 
                 tomo_file = it.rlnMicrographName
                 base_name = os.path.basename(tomo_file)
                 deconv_tomo_name = '{}/{}'.format(self.deconv_folder, base_name)
-
-                #self.logger.info("########Processing Ctf Deconvolution for {} ########".format(tomo_file))
 
                 try:
                     deconv_one(it.rlnMicrographName, deconv_tomo_name, self.isonet_folder, voltage=self.voltage, cs=self.cs, defocus=it.rlnDefocus/10000.0, \
@@ -77,7 +72,6 @@ class Deconvolve(QThread):
                 self.md._setItemValue(it, Label('rlnDeconvTomoName'), deconv_tomo_name)
                 
                 self.md.write(self.tomogram_star)
-            #self.md.write("/home/logicvay/Project/Mformicia_slayer/IsoNet/tomograms-3.star")
         
         self.logger.info('######Isonet done ctf deconvolve######\n')
 
@@ -85,4 +79,3 @@ class Deconvolve(QThread):
         self.quit()
         self.terminate()
         self.wait()
-
