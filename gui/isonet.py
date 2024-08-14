@@ -1,20 +1,18 @@
 import logging
 import os
-import traceback
 import os.path
 import glob
 import shutil
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QTabWidget, QMessageBox, QHeaderView, QTableWidgetItem
-from PyQt5.QtGui import QFont
 
 from TomoNet.util.utils import check_log_file, getLogContent
 from TomoNet.util import metadata
 from TomoNet.util.metadata import MetaData, Label, Item
+from TomoNet.process.bash_isonet_deconv import Deconvolve
 
-from TomoNet.process.deconvolution import deconv_one
-from TomoNet.util.dict2attr import idx2list
+
 
 class IsoNet(QTabWidget):
     def __init__(self):
@@ -26,7 +24,7 @@ class IsoNet(QTabWidget):
 
         self.isonet_folder = "IsoNet"
 
-        self.tomogram_star = "IsoNet/tomograms.star"
+        self.tomogram_star = "{}/{}".format(os.getcwd(), "IsoNet/tomograms.star")
 
         self.md = None
 
@@ -36,6 +34,8 @@ class IsoNet(QTabWidget):
 
         self.read_star()
         
+        self.thread_deconvolve = None
+
         check_log_file(self.log_file, "IsoNet")
 
         self.logger = logging.getLogger(__name__)
@@ -205,13 +205,13 @@ class IsoNet(QTabWidget):
         self.lineEdit_deconv_dir.setObjectName("lineEdit_deconv_dir")
         self.horizontalLayout_9.addWidget(self.lineEdit_deconv_dir)
         
-        self.button_deconov_dir = QtWidgets.QPushButton(self.groupBox_deconv)
-        self.button_deconov_dir.setStyleSheet("background-color:rgb(255, 255, 255)")
-        self.button_deconov_dir.setText("")
-        self.button_deconov_dir.setIcon(self.icon)
-        self.button_deconov_dir.setIconSize(QtCore.QSize(36, 20))
-        self.button_deconov_dir.setObjectName("button_deconov_dir")
-        self.horizontalLayout_9.addWidget(self.button_deconov_dir)
+        # self.button_deconov_dir = QtWidgets.QPushButton(self.groupBox_deconv)
+        # self.button_deconov_dir.setStyleSheet("background-color:rgb(255, 255, 255)")
+        # self.button_deconov_dir.setText("")
+        # self.button_deconov_dir.setIcon(self.icon)
+        # self.button_deconov_dir.setIconSize(QtCore.QSize(36, 20))
+        # self.button_deconov_dir.setObjectName("button_deconov_dir")
+        # self.horizontalLayout_9.addWidget(self.button_deconov_dir)
         
         self.horizontalLayout_7.addLayout(self.horizontalLayout_9)
         
@@ -840,7 +840,7 @@ class IsoNet(QTabWidget):
                         flt,
                         options=options)
         if fileName:
-            simple_name = self.model.sim_path(pwd,fileName)
+            simple_name = self.model.sim_path(pwd, fileName)
             lineEdit.setText(simple_name)
 
     def file_types(self, item):
@@ -891,7 +891,6 @@ class IsoNet(QTabWidget):
         for j in range(columnCount):
             self.md.addLabels(self.table_header[j+1])
             #self.model.md.addLabels(self.tableWidget.horizontalHeaderItem(j).text())
-
         for i in range(rowCount):
             #TODO check the folder contains only tomograms.
             it = Item()
@@ -981,7 +980,8 @@ class IsoNet(QTabWidget):
                         options=options)
         if fileName:
             try:
-                tomo_file = self.sim_path(self.pwd, fileName)
+                #tomo_file = self.sim_path(self.pwd, fileName)
+                tomo_file = fileName
                 read_result = self.read_star_gui(tomo_file)
                 if read_result == 1:
                     self.warn_window("The input star file is not legid!")
@@ -1031,7 +1031,6 @@ class IsoNet(QTabWidget):
             "rlnMaskDensityPercentage": "50",
             "rlnMaskStdPercentage": "50",
             "rlnMaskName": "None"
-
         }
         return switcher.get(label, "None")
     
@@ -1042,22 +1041,27 @@ class IsoNet(QTabWidget):
             deconv_folder = "{}/{}".format(self.isonet_folder, self.lineEdit_deconv_dir.text())
         else:
             deconv_folder = "{}/{}".format(self.isonet_folder, "deconv")
+        
         if self.lineEdit_tomo_index_deconv.text():
             tomo_idx = self.lineEdit_tomo_index_deconv.text()
         else:
             return "Please define tomo index for Ctf deconvolution."
+        
         if self.lineEdit_ncpu.text():
             ncpu = int(self.lineEdit_ncpu.text())
         else:
             ncpu = 6
+        
         if self.lineEdit_highpassnyquist.text():
             highpassnyquist = float(self.lineEdit_highpassnyquist.text())
         else:
             highpassnyquist = 0.02
+        
         if self.lineEdit_chunk_size.text():
             chunk_size = float(self.lineEdit_chunk_size.text())
         else:
             chunk_size = 200
+        
         if self.lineEdit_overlap.text():
             overlap_rate = float(self.lineEdit_overlap.text())
         else:
@@ -1080,73 +1084,51 @@ class IsoNet(QTabWidget):
         params['deconvstrength'] = deconvstrength
         params['voltage'] = voltage
         params['cs'] = cs
-
         return params
     
     def deconvolve(self):
         params = self.get_deconv_params()
         if type(params) is str:
-            self.logger.error(params)
+            QMessageBox.warning(self, 'Error!', \
+                "Error! {}"\
+                .format(params))
+            self.cmd_finished(button=self.pushButton_deconv)
         elif type(params) is dict:
-            ret = QMessageBox.question(self, 'CTF Deconvolution!', \
-                    "Perform CTF Deconvolution?\n"\
+            if self.pushButton_deconv.text() == "Deconvolve":
+                ret = QMessageBox.question(self, 'CTF Deconvolution!', \
+                        "Perform CTF Deconvolution?\n"\
+                        , QMessageBox.Yes | QMessageBox.No, \
+                        QMessageBox.No)   
+                if ret == QMessageBox.Yes:
+                    
+                    self.pushButton_deconv.setText("STOP")
+                    
+                    self.pushButton_deconv.setStyleSheet('QPushButton {color: red;}')
+
+                    self.thread_deconvolve = Deconvolve(params)                
+
+                    self.thread_deconvolve.finished.connect(lambda: self.cmd_finished(self.pushButton_deconv, "Deconvolve"))
+                    
+                    self.thread_deconvolve.start()
+                else:
+                    self.cmd_finished(button=self.pushButton_deconv, text="Deconvolve")
+            else:
+                ret = QMessageBox.question(self, 'Warning!', \
+                    "Stop Ctf Deconvolution! \
+                    \nConfirm?\n"\
                     , QMessageBox.Yes | QMessageBox.No, \
-                    QMessageBox.No)   
-            if ret == QMessageBox.Yes:
-                
-                tomogram_star = params['tomogram_star']
-                deconv_folder = params['deconv_folder'] 
-                tomo_idx = params['tomo_idx']
-                ncpu = params['ncpu'] 
-                highpassnyquist  = params['highpassnyquist']
-                chunk_size = params['chunk_size']
-                overlap_rate = params['overlap_rate'] 
-                snrfalloff = params['snrfalloff'] 
-                deconvstrength = params['deconvstrength'] 
-                voltage = params['voltage'] 
-                cs = params['cs'] 
-                
-                try:
-                    md = MetaData()
-                    md.read(tomogram_star)
-                    if not 'rlnSnrFalloff' in md.getLabels():
-                        md.addLabels('rlnSnrFalloff','rlnDeconvStrength','rlnDeconvTomoName')
-                        for it in md:
-                            md._setItemValue(it,Label('rlnSnrFalloff'),1.0)
-                            md._setItemValue(it,Label('rlnDeconvStrength'),1.0)
-                            md._setItemValue(it,Label('rlnDeconvTomoName'),None)
-
-                    if not os.path.isdir(deconv_folder):
-                        os.mkdir(deconv_folder)
-
-                    tomo_idx = idx2list(tomo_idx)
-                    for it in md:
-                        if tomo_idx is None or str(it.rlnIndex) in tomo_idx:
-                            if snrfalloff is not None:
-                                md._setItemValue(it,Label('rlnSnrFalloff'), snrfalloff)
-                            if deconvstrength is not None:
-                                md._setItemValue(it,Label('rlnDeconvStrength'),deconvstrength)
-
-                            tomo_file = it.rlnMicrographName
-                            base_name = os.path.basename(tomo_file)
-                            deconv_tomo_name = '{}/{}'.format(deconv_folder,base_name)
-
-                            deconv_one(it.rlnMicrographName, deconv_tomo_name, self.isonet_folder, voltage=voltage, cs=cs, defocus=it.rlnDefocus/10000.0, \
-                                    pixel_size=it.rlnPixelSize,snrfalloff=it.rlnSnrFalloff, deconvstrength=it.rlnDeconvStrength, \
-                                        highpassnyquist=highpassnyquist, chunk_size=chunk_size, overlap_rate=overlap_rate, ncpu=ncpu)
-                            md._setItemValue(it,Label('rlnDeconvTomoName'),deconv_tomo_name)
-                        md.write(tomogram_star)
-                    self.logger.info('\n######Isonet done ctf deconvolve######\n')
-
-                except Exception:
-                    error_text = traceback.format_exc()
-                    f =open('log.txt','a+')
-                    f.write(error_text)
-                    f.close()
-                    self.logger.error(error_text)
-                
-                self.updateMD()
-
+                    QMessageBox.No)
+                if ret == QMessageBox.Yes:
+                    self.pushButton_deconv.setText("Deconvolve")
+                    self.pushButton_deconv.setStyleSheet("QPushButton {color: black;}")
+                    self.thread_deconvolve.stop_process()
+                    self.read_star_gui(self.tomogram_star)
+                    self.setTableWidget(self.tableWidget, self.md)
+                    #self.updateMD_2()
+    
     def cmd_finished(self, button, text="Run"):
         button.setText(text)
-        button.setStyleSheet("QPushButton {color: black;}")
+        button.setStyleSheet("QPushButton {color: black;}")  
+        self.logger.info(self.tomogram_star)
+        self.read_star_gui(self.tomogram_star)
+        self.setTableWidget(self.tableWidget, self.md)
