@@ -8,10 +8,8 @@ def tom_ctf1d(pixelsize, voltage, cs, defocus, amplitude, phaseshift, bfactor, l
 
     ny = 1 / pixelsize
 
-
     lambda1 = 12.2643247 / np.sqrt(voltage * (1.0 + voltage * 0.978466e-6)) * 1e-10
     lambda2 = lambda1 * 2
-
 
     points = np.arange(0,length)
     points = points.astype(float)
@@ -25,7 +23,6 @@ def tom_ctf1d(pixelsize, voltage, cs, defocus, amplitude, phaseshift, bfactor, l
     acurve = np.cos(w) * amplitude
     pcurve = -np.sqrt(1 - amplitude**2) * np.sin(w)
     bfactor = np.exp(-bfactor * k2 * 0.25)
-
 
     return (pcurve + acurve)*bfactor
 
@@ -49,16 +46,16 @@ def tom_deconv_tomo(vol_file, out_file,angpix, voltage, cs, defocus, snrfalloff,
         vol = f.data
         voxelsize = f.voxel_size
     data = np.arange(0,1+1/2047.,1/2047.)
-    highpass = np.minimum(np.ones(data.shape[0]), data/highpassnyquist) * np.pi;
-    highpass = 1-np.cos(highpass);
+    highpass = np.minimum(np.ones(data.shape[0]), data/highpassnyquist) * np.pi
+    highpass = 1-np.cos(highpass)
     eps = 1e-6
     snr = np.exp(-data * snrfalloff * 100 / angpix) * (10**deconvstrength) * highpass + eps
     #snr[0] = -1
-    ctf = tom_ctf1d(angpix*1e-10, voltage * 1e3, cs * 1e-3, -defocus*1e-6, 0.07, phaseshift / 180 * np.pi, 0);
+    ctf = tom_ctf1d(angpix*1e-10, voltage * 1e3, cs * 1e-3, -defocus*1e-6, 0.07, phaseshift / 180 * np.pi, 0)
     if phaseflipped:
         ctf = abs(ctf)
 
-    wiener = ctf/(ctf*ctf+1/snr);
+    wiener = ctf/(ctf*ctf+1/snr)
 
     denom = ctf*ctf+1/snr
     #np.savetxt('den.txt',denom)
@@ -160,7 +157,6 @@ class Chunks:
                     chunks_file_list.append(file_name)
         return chunks_file_list
 
-
     def restore(self,new_file_list):
         cropsize = int(self.chunk_size*(1+self.overlap))
         cubesize = self.chunk_size
@@ -192,7 +188,7 @@ def deconv_one(tomo, out_tomo, isonet_folder="IsoNet", voltage=300.0, cs=2.7, de
     os.mkdir('{}/deconv_temp'.format(isonet_folder))
 
     if not logger == None:
-        logger.info('deconv: {}| pixel: {}| defocus: {}| snrfalloff:{}| deconvstrength:{}'.format(os.path.basename(tomo), pixel_size, defocus ,snrfalloff, deconvstrength))
+        logger.info('Input map: {} | Pixel size: {} | Defocus: {} µm | Snrfalloff:{} | Deconvstrength:{}'.format(os.path.basename(tomo), pixel_size, defocus ,snrfalloff, deconvstrength))
     if chunk_size is None:
         tom_deconv_tomo(tomo,out_tomo,pixel_size, voltage, cs, defocus,snrfalloff,deconvstrength,highpassnyquist,phaseflipped=False, phaseshift=0,ncpu=ncpu)
     else:    

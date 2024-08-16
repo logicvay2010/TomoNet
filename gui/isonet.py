@@ -11,6 +11,7 @@ from TomoNet.util.utils import check_log_file, getLogContent, string2float, stri
 from TomoNet.util import metadata
 from TomoNet.util.metadata import MetaData, Label, Item
 from TomoNet.process.bash_isonet_deconv import Deconvolve
+from TomoNet.process.bash_isonet_generate_mask import MaskGeneration
 
 class IsoNet(QTabWidget):
     def __init__(self):
@@ -43,6 +44,8 @@ class IsoNet(QTabWidget):
         self.read_star()
         
         self.thread_deconvolve = None
+        self.thread_generate_mask = None
+        self.thread_subtomos = None
 
         self.fileSystemWatcher = QtCore.QFileSystemWatcher(self)
         self.fileSystemWatcher.addPath(self.log_file)
@@ -50,7 +53,6 @@ class IsoNet(QTabWidget):
         
         self.setupUi()        
 
-        
         if os.path.exists(self.tomogram_star):
             self.read_star()
             self.setTableWidget(self.tableWidget, self.md)
@@ -93,25 +95,9 @@ class IsoNet(QTabWidget):
         self.pushButton_generate_star.clicked.connect(self.new_star)
         self.pushButton_open_star.clicked.connect(self.open_star)
         self.pushButton_3dmod.clicked.connect(self.view_3dmod)
-
-        #self.addTab(self.tab_2, "Predict Particles")
         
         for child in self.findChildren(QtWidgets.QLineEdit):
            child.textChanged.connect(self.save_setting)
-
-        # self.lineEdit_input_model.textChanged.connect(self.model_folder_changed)
-        # self.pushButton_input_folder_train.clicked.connect\
-        #     (lambda: browse.browseFolderSlot(self.lineEdit_input_folder_train)) 
-        
-        # self.pushButton_continue_from_model.clicked.connect\
-        #     (lambda: browse.browseSlot(self.lineEdit_continue_from_model, 'h5')) 
-
-        # self.pushButton_input_folder_predict.clicked.connect\
-        #     (lambda: browse.browseFolderSlot(self.lineEdit_input_folder_predict)) 
-        # self.pushButton_input_model.clicked.connect\
-        #     (lambda: browse.browseSlot(self.lineEdit_input_model, 'h5')) 
-        
-        # self.pushButton_train_network.clicked.connect(self.train_network)
 
         for child in self.findChildren(QtWidgets.QComboBox):
             child.currentIndexChanged.connect(self.save_setting)
@@ -119,26 +105,15 @@ class IsoNet(QTabWidget):
         for child in self.findChildren(QtWidgets.QCheckBox):
             child.stateChanged.connect(self.save_setting)
 
-
-        # self.comboBox_prediction_condition.currentIndexChanged.connect(self.reload_table)
-
-        # self.tableView_prediction.doubleClicked.connect(self.table_click)
-
-        # self.pushButton_predict_network.clicked.connect(self.predict_network)
-
-        # self.pushButton_delete_condition.clicked.connect(self.remove_condition)
-
         self.pushButton_deconv.clicked.connect(self.deconvolve)
+        self.pushButton_generate_mask.clicked.connect(self.generate_mask)
 
         self.setTabShape(QtWidgets.QTabWidget.Triangular)
         
         self.retranslateUi_deconvolve()
         self.retranslateUi_preparation()
         self.currentChanged.connect(self.tab_changed)
-        # self.retranslateUi_tab2()
         self.read_settting()
-        # self.model_folder_changed()
-        # self.reload_table()
 
     def setUI_deconvolve(self):
         #tab 1
@@ -494,15 +469,15 @@ class IsoNet(QTabWidget):
         self.horizontalLayout_2_2.setObjectName("horizontalLayout_2_2")
         self.pushButton_generate_mask = QtWidgets.QPushButton(self.tab_2)
         self.pushButton_generate_mask.setEnabled(True)
-        self.pushButton_generate_mask.setMinimumSize(QtCore.QSize(180, 48))
-        self.pushButton_generate_mask.setMaximumSize(QtCore.QSize(180, 48))
+        self.pushButton_generate_mask.setMinimumSize(QtCore.QSize(160, 48))
+        self.pushButton_generate_mask.setMaximumSize(QtCore.QSize(160, 48))
         self.pushButton_generate_mask.setObjectName("run")
         self.horizontalLayout_2_2.addWidget(self.pushButton_generate_mask)
 
         self.pushButton_extract_subtomo = QtWidgets.QPushButton(self.tab_2)
         self.pushButton_extract_subtomo.setEnabled(True)
-        self.pushButton_extract_subtomo.setMinimumSize(QtCore.QSize(180, 48))
-        self.pushButton_extract_subtomo.setMaximumSize(QtCore.QSize(180, 48))
+        self.pushButton_extract_subtomo.setMinimumSize(QtCore.QSize(170, 48))
+        self.pushButton_extract_subtomo.setMaximumSize(QtCore.QSize(170, 48))
         self.pushButton_extract_subtomo.setObjectName("run")
         self.horizontalLayout_2_2.addWidget(self.pushButton_extract_subtomo)
         
@@ -572,7 +547,7 @@ class IsoNet(QTabWidget):
         self.lineEdit_patch_size_mask.setPlaceholderText(_translate("Form", "4"))
         self.label_zAxis_crop_mask.setText(_translate("Form", "z axis crop"))
         self.lineEdit_zAxis_crop_mask.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">If exclude the top and bottom regions of tomograms along z axis. For example, &quot;--z_crop 0.2&quot; will mask out the top 20% and bottom 20% region along z axis.</span></p></body></html>"))
-        self.lineEdit_zAxis_crop_mask.setPlaceholderText(_translate("Form", " 0"))
+        self.lineEdit_zAxis_crop_mask.setPlaceholderText(_translate("Form", "0"))
         self.label_mask_dir.setText(_translate("Form", "mask directory"))
         self.lineEdit_mask_dir.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">a folder path to save your mask for each tomograms.</span></p><p><br/></p></body></html>"))
         self.lineEdit_mask_dir.setPlaceholderText(_translate("Form", "mask"))
@@ -789,10 +764,8 @@ class IsoNet(QTabWidget):
                 return 1
             else:
                 self.tomogram_star = star_file
-                self.logger.info("r:"+self.tomogram_star)
                 self.md = MetaData()
                 self.md.read(self.tomogram_star)
-                self.logger.info("r+2:"+self.md._data[2].rlnDeconvTomoName)
                 self.table_header = self.md.getLabels()
             return 0
     
@@ -1090,7 +1063,7 @@ class IsoNet(QTabWidget):
                     it = Item()
                     md.addItem(it)
                     md._setItemValue(it,Label('rlnIndex'),str(i))
-                    md._setItemValue(it,Label('rlnMicrographName'),os.path.join(dir_path, tomo))
+                    md._setItemValue(it,Label('rlnMicrographName'), self.sim_path(pwd, os.path.join(dir_path, tomo)))
                     md._setItemValue(it,Label('rlnPixelSize'), pixel_size)
                     md._setItemValue(it,Label('rlnDefocus'), defocus)
                     md._setItemValue(it,Label('rlnNumberSubtomo'), subtomo_num)
@@ -1208,6 +1181,8 @@ class IsoNet(QTabWidget):
         if self.lineEdit_ncpu.text():
             if not string2int(self.lineEdit_ncpu.text()) == None:
                 ncpu = string2int(self.lineEdit_ncpu.text())
+                if ncpu < 1:
+                    return "Please use the valid format for the ncpu #!"
             else:
                 return "Please use the valid format for the ncpu #!"
         else:
@@ -1216,30 +1191,38 @@ class IsoNet(QTabWidget):
         if self.lineEdit_highpassnyquist.text():
             if not string2float(self.lineEdit_highpassnyquist.text()) == None:
                 highpassnyquist = string2float(self.lineEdit_highpassnyquist.text())
+                if not highpassnyquist > 0:
+                    return "Please use the valid format for the high pass nyquist!"
             else:
                 return "Please use the valid format for the high pass nyquist!"
         else:
             highpassnyquist = 0.02
         
         if self.lineEdit_chunk_size.text():
-            if not string2float(self.lineEdit_chunk_size.text()) == None:
-                chunk_size = string2float(self.lineEdit_chunk_size.text())
+            if not string2int(self.lineEdit_chunk_size.text()) == None:
+                chunk_size = string2int(self.lineEdit_chunk_size.text())
+                if not chunk_size > 0:
+                    return "Please use the valid format for the chunk size!"
             else:
-                return "Please use the valid format for the chunk_size!"
+                return "Please use the valid format for the chunk size!"
         else:
             chunk_size = 200
         
         if self.lineEdit_overlap.text():
             if not string2float(self.lineEdit_overlap_rate.text()) == None:
                 overlap_rate = string2float(self.lineEdit_overlap_rate.text())
+                if not (overlap_rate >= 0 and overlap_rate <= 1 ):
+                    return "Please use the valid format for the overlap rate!"
             else:
-                return "Please use the valid format for the overlap_rate!"
+                return "Please use the valid format for the overlap rate!"
         else:
             overlap_rate = 0.25
         
         if self.lineEdit_voltage.text():
             if not string2float(self.lineEdit_voltage.text()) == None:
                 voltage = string2float(self.lineEdit_voltage.text())
+                if not voltage > 0:
+                    return "Please use the valid format for the voltage!"
             else:
                 return "Please use the valid format for the voltage!"
         else:
@@ -1248,6 +1231,8 @@ class IsoNet(QTabWidget):
         if self.lineEdit_cs.text():
             if not string2float(self.lineEdit_cs.text()) == None:
                 cs = string2float(self.lineEdit_cs.text())
+                if not cs > 0:
+                    return "Please use the valid format for the cs!"
             else:
                 return "Please use the valid format for the cs!"
         else:
@@ -1272,7 +1257,7 @@ class IsoNet(QTabWidget):
             QMessageBox.warning(self, 'Error!', \
                 "Error! {}"\
                 .format(params))
-            self.cmd_finished(button=self.pushButton_deconv)
+            self.cmd_finished(button=self.pushButton_deconv, text="Deconvolve")
         elif type(params) is dict:
             if self.pushButton_deconv.text() == "Deconvolve":
                 ret = QMessageBox.question(self, 'CTF Deconvolution!', \
@@ -1303,12 +1288,91 @@ class IsoNet(QTabWidget):
                     self.pushButton_deconv.setStyleSheet("QPushButton {color: black;}")
                     self.thread_deconvolve.stop_process()
                     self.open_star_fileName(self.tomogram_star)
-                    #self.read_star_gui(self.tomogram_star)
-                    #self.setTableWidget(self.tableWidget, self.md)
+    
+    def get_generate_mask_params(self):
+        
+        tomogram_star = self.tomogram_star
+
+        if self.lineEdit_mask_dir.text():
+            mask_folder = "{}/{}".format(self.isonet_folder, self.lineEdit_mask_dir.text())
+        else:
+            mask_folder = "{}/{}".format(self.isonet_folder, "mask")
+        
+        if self.lineEdit_patch_size_mask.text():
+            if not string2int(self.lineEdit_patch_size_mask.text()) == None:
+                patch_size_mask = string2int(self.lineEdit_patch_size_mask.text())
+                if not patch_size_mask > 0:
+                    return "Please use the valid format for the patch size!"
+            else:
+                return "Please use the valid format for the patch size!"
+        else:
+            patch_size_mask = 4
+
+        if self.lineEdit_zAxis_crop_mask.text():
+            if not string2float(self.lineEdit_zAxis_crop_mask.text()) == None:
+                zAxis_crop_mask = string2float(self.lineEdit_zAxis_crop_mask.text())
+                if not (zAxis_crop_mask >= 0 and zAxis_crop_mask < 1):
+                    return "Please use the valid format for the z axis crop ratio!"
+            else:
+                return "Please use the valid format for the z axis crop ratio!"
+        else:
+            zAxis_crop_mask = 0
+
+        if self.lineEdit_tomo_index_mask.text():
+            tomo_idx = self.lineEdit_tomo_index_mask.text()
+        else:
+            tomo_idx = None
+
+        params = {}
+        params['tomogram_star'] = tomogram_star
+        params['mask_folder'] = mask_folder
+        params['tomo_idx'] = tomo_idx
+        params['patch_size_mask'] = patch_size_mask
+        params['zAxis_crop_mask'] = zAxis_crop_mask
+        params['use_deconv_mask'] = 1 if self.checkBox_use_deconv_mask.isChecked() else 0
+
+        return params
+    
+    def generate_mask(self):
+        params = self.get_generate_mask_params()
+        
+        if type(params) is str:
+            QMessageBox.warning(self, 'Error!', \
+                "Error! {}"\
+                .format(params))
+            self.cmd_finished(button=self.pushButton_generate_mask, text="Generate Mask")
+        elif type(params) is dict:
+            if self.pushButton_generate_mask.text() == "Generate Mask":
+                ret = QMessageBox.question(self, 'Generate Mask!', \
+                        "Perform Generate Mask?\n"\
+                        , QMessageBox.Yes | QMessageBox.No, \
+                        QMessageBox.No)   
+                if ret == QMessageBox.Yes:
+                    
+                    self.pushButton_generate_mask.setText("STOP")
+                    
+                    self.pushButton_generate_mask.setStyleSheet('QPushButton {color: red;}')
+
+                    self.thread_generate_mask = MaskGeneration(params)                
+
+                    self.thread_generate_mask.finished.connect(lambda: self.cmd_finished(self.pushButton_generate_mask, "Generate Mask"))
+                    
+                    self.thread_generate_mask.start()
+                else:
+                    self.cmd_finished(button=self.pushButton_generate_mask, text="Generate Mask")
+            else:
+                ret = QMessageBox.question(self, 'Warning!', \
+                    "Stop Generate Mask! \
+                    \nConfirm?\n"\
+                    , QMessageBox.Yes | QMessageBox.No, \
+                    QMessageBox.No)
+                if ret == QMessageBox.Yes:
+                    self.pushButton_generate_mask.setText("Generate Mask")
+                    self.pushButton_generate_mask.setStyleSheet("QPushButton {color: black;}")
+                    self.thread_generate_mask.stop_process()
+                    self.open_star_fileName(self.tomogram_star)
     
     def cmd_finished(self, button, text="Run"):
         button.setText(text)
         button.setStyleSheet("QPushButton {color: black;}")  
         self.open_star_fileName(self.tomogram_star)
-        #self.read_star_gui(self.tomogram_star)
-        #self.setTableWidget(self.tableWidget, self.md)

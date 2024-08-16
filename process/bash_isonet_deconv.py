@@ -50,9 +50,9 @@ class Deconvolve(QThread):
         
         tomo_idx = idx2list(self.tomo_idx)
         if not tomo_idx is None:
-            self.logger.info("########Processing Ctf Deconvolution for {} Tomogram(s)########".format(len(tomo_idx)))
+            self.logger.info("\n####################Processing Ctf Deconvolution for {} Tomogram(s)####################\n".format(len(tomo_idx)))
         else:
-            self.logger.info("########Processing Ctf Deconvolution for {} Tomogram(s)########".format(len(self.md)))
+            self.logger.info("\n####################Processing Ctf Deconvolution for {} Tomogram(s)####################\n".format(len(self.md)))
         
         self.logger.info("########The results will be saved in folder {} ########".format(self.deconv_folder))
 
@@ -78,7 +78,7 @@ class Deconvolve(QThread):
                 
                 self.md.write(self.tomogram_star)
         
-        self.logger.info('######Isonet done ctf deconvolve######\n')
+        self.logger.info('\n##################Isonet done ctf deconvolve##################\n')
 
     def stop_process(self):
         self.quit()
