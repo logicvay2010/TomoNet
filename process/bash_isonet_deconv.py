@@ -49,7 +49,11 @@ class Deconvolve(QThread):
             os.mkdir(self.deconv_folder)
         
         tomo_idx = idx2list(self.tomo_idx)
-        self.logger.info("########Processing Ctf Deconvolution for {} Tomogram(s)########".format(len(tomo_idx)))
+        if not tomo_idx is None:
+            self.logger.info("########Processing Ctf Deconvolution for {} Tomogram(s)########".format(len(tomo_idx)))
+        else:
+            self.logger.info("########Processing Ctf Deconvolution for {} Tomogram(s)########".format(len(self.md)))
+        
         self.logger.info("########The results will be saved in folder {} ########".format(self.deconv_folder))
 
         for it in self.md:
@@ -69,6 +73,7 @@ class Deconvolve(QThread):
                                 highpassnyquist=self.highpassnyquist, chunk_size=self.chunk_size, overlap_rate=self.overlap_rate, ncpu=self.ncpu, logger=self.logger)
                 except Exception as err:
                     self.logger.error(f"Unexpected {err=}, {type(err)=}")
+                
                 self.md._setItemValue(it, Label('rlnDeconvTomoName'), deconv_tomo_name)
                 
                 self.md.write(self.tomogram_star)

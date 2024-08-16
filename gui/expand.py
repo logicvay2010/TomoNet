@@ -773,7 +773,7 @@ class Expand(QTabWidget):
 
         self.label_repeating_unit = QtWidgets.QLabel(self.tab2)
         self.label_repeating_unit.setSizePolicy(sizePolicy)
-        self.label_repeating_unit.setMinimumSize(QtCore.QSize(140, 0))
+        self.label_repeating_unit.setMinimumSize(QtCore.QSize(150, 0))
         self.label_repeating_unit.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_repeating_unit.setObjectName("label_repeating_unit")
         self.horizontalLayout_2_5.addWidget(self.label_repeating_unit)

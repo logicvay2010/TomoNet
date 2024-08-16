@@ -100,9 +100,6 @@ LABELS = {
     'rlnMaskBoundary': str
 }
 
-
-
-
 class Label():
     def __init__(self, labelName):
         self.name = labelName

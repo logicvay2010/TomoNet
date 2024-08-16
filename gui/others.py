@@ -217,7 +217,7 @@ class OtherUtils(QTabWidget):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_rotation.sizePolicy().hasHeightForWidth())
         self.label_rotation.setSizePolicy(sizePolicy)
-        self.label_rotation.setMinimumSize(QtCore.QSize(200, 0))
+        self.label_rotation.setMinimumSize(QtCore.QSize(220, 0))
         self.label_rotation.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_rotation.setObjectName("label_rotation")
         self.horizontalLayout_4.addWidget(self.label_rotation)

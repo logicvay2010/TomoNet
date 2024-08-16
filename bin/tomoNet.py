@@ -4,7 +4,7 @@ import socket
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtWidgets import QListWidgetItem, QListWidget
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import Qt, QSize, QRect
 from PyQt5.QtGui import QColor
 
 from TomoNet.util import metadata
@@ -78,7 +78,7 @@ class Ui_TomoNet(object):
         for name in list_names:
             item = QListWidgetItem(name, self.listWidget)
             # Set the default width and height of the item (only height is useful here)
-            item.setSizeHint(QSize(16777215, 35))
+            item.setSizeHint(QSize(16777215, 40))
             #item.setBackground(QColor("lightgray"))
             # Text centered
             item.setTextAlignment(Qt.AlignCenter)
@@ -177,6 +177,12 @@ QPushButton#run {
     font-weight: bold;
 }
 
+QPushButton#pushButton_open_star, QPushButton#pushButton_insert, QPushButton#pushButton_delete, QPushButton#pushButton_3dmod, QPushButton#pushButton_generate_star{
+    font: 15px;
+    font-weight: bold;
+    height:30px
+}
+
 QGroupBox{
     font: 14px;
     font-weight: bold;
@@ -184,11 +190,14 @@ QGroupBox{
 
 QListWidget {
     outline: 1px;
-    font: 14px;
+    border-top: 1.5px solid black;
+    font: 15px;
     font-weight:bold;
 }
 QListWidget::item {
-        border-bottom: 2px solid black;
+        border-bottom: 1.5px solid black;
+        border-right: 1.5px solid black;
+        border-left: 1.5px solid black;
         background-color: #e5eaf5;
         opacity: 1
     }
@@ -207,13 +216,18 @@ QTabWidget{
 }
 
 QWidget#tab {
-    font: 14px;
+    font: 15px;
     background: rgb(237, 240, 232)
 }
 
 QLabel{
     font-weight: bold;
-    font: 14px;
+    font: 15px;
+}
+
+QCheckBox{
+    font-weight: bold;
+    font: 15px;
 }
 
 QComboBox{
@@ -230,8 +244,14 @@ class MyWindow(QtWidgets.QMainWindow):
         # print("{}/../gui/icons/icon_folder.png".format(scriptDir))
         # icon.addPixmap(QtGui.QPixmap("{}/../gui/icons/spider.svg".format(scriptDir)), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         # app.setWindowIcon(icon)
+        # import tkinter
+        # app_w = tkinter.Tk()
+        # center_x = app_w.winfo_screenwidth()//4
+        # center_y = app_w.winfo_screenheight()//4
+        # self.setGeometry(QRect(center_x, center_y, 100, 100))
     def closeEvent(self, event):
-        result = QtWidgets.QMessageBox.question(self,
+        msg = QtWidgets.QMessageBox(self)
+        result = msg.question(self,
                         "Confirm Exit...",
                         "Do you want to exit? ",
                         QtWidgets.QMessageBox.Yes| QtWidgets.QMessageBox.No)
@@ -262,7 +282,7 @@ if __name__ == '__main__':
     
     MainWindow = MyWindow()
     if not check_root():
-        ret = QMessageBox.question(None, 'Notice!', "Are you sure to launch tomoNet in the current folder?\n", QMessageBox.Yes | QMessageBox.No, \
+        ret = QMessageBox.question(MainWindow, 'Notice!', "Are you sure to launch tomoNet in the current folder?\n", QMessageBox.Yes | QMessageBox.No, \
                         QMessageBox.No)        
     else:
         ret = QMessageBox.Yes

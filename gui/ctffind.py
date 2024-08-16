@@ -232,7 +232,7 @@ class Ctffind(QTabWidget):
 
         self.label_max_res = QtWidgets.QLabel(self.tab)
         self.label_max_res.setSizePolicy(sizePolicy)
-        self.label_max_res.setMinimumSize(QtCore.QSize(60, 0))
+        self.label_max_res.setMinimumSize(QtCore.QSize(70, 0))
         self.label_max_res.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_max_res.setObjectName("label_max_res")
         self.horizontalLayout_3.addWidget(self.label_max_res)
@@ -265,7 +265,7 @@ class Ctffind(QTabWidget):
 
         self.label_defocus_step = QtWidgets.QLabel(self.tab)
         self.label_defocus_step.setSizePolicy(sizePolicy)
-        self.label_defocus_step.setMinimumSize(QtCore.QSize(100, 0))
+        self.label_defocus_step.setMinimumSize(QtCore.QSize(110, 0))
         self.label_defocus_step.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_defocus_step.setObjectName("label_defocus_step")
         self.horizontalLayout_3.addWidget(self.label_defocus_step)

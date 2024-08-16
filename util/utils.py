@@ -1,7 +1,7 @@
 import os
 import shutil
 
-def string2float(s, d=2):
+def string2float(s, d=3):
         try:
             n = round(float(s),d)
         except:
