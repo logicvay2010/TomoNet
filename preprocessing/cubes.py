@@ -74,7 +74,7 @@ def mask_mesh_seeds(mask, sidelen, croplen, threshold=0.01, indx=0):
     return (ind0,ind1,ind2)
 
 def crop_cubes(img3D, seeds, cubeSideLen):
-    size=len(seeds[0])
+    #size=len(seeds[0])
     cube_size=(cubeSideLen,cubeSideLen,cubeSideLen)
     cubes=[img3D[tuple(slice(_r-(_p//2),_r+_p-(_p//2)) for _r,_p in zip(r,cube_size))] for r in zip(*seeds)]
     cubes=np.array(cubes)
