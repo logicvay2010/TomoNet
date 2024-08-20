@@ -24,15 +24,15 @@ def motioncor_single(param):
         subprocess.check_output(cmd, shell=True)
     except Exception as err:
         param['logger'].error('MotionCor2 failed!')
-        param['logger'].error(f"Unexpected {err=}, {type(err)=}")
+        param['logger'].error(err)
         return -1
     
     cmd = '{}'.format(param['cmd_5'])
     try:
         subprocess.check_output(cmd, shell=True)
-    except:
+    except Exception as err:
         param['logger'].error('MotionCor2 failed!')
-        param['logger'].error(f"Unexpected {err=}, {type(err)=}")
+        param['logger'].error(err)
         return -1
     
     try:
@@ -127,7 +127,7 @@ class MotionCor2(QThread):
                         #mkdir directory for ODD and EVN tilts
                     except Exception as err:
                         self.logger.error('Creating ODD and EVN subfolder failed!')
-                        self.logger.error(f"Unexpected {err=}, {type(err)=}")
+                        self.logger.error(err)
                         break
                 else:
                     cmd_4 = '-SplitSum 0 '
@@ -146,14 +146,14 @@ class MotionCor2(QThread):
                             subprocess.check_output(cmd, shell=True)
                         except Exception as err:
                             self.logger.error('MotionCor2 failed!')
-                            self.logger.error(f"Unexpected {err=}, {type(err)=}")
+                            self.logger.error(err)
                             break
                         cmd = 'sh {}/{}_MotionCor2_cmd.log'.format(self.corrected_folder, basename)
                         try:
                             subprocess.check_output(cmd, shell=True)
                         except Exception as err:
                             self.logger.error('MotionCor2 failed!')
-                            self.logger.error(f"Unexpected {err=}, {type(err)=}")
+                            self.logger.error(err)
                             break
 
                         if check_output("{}/{}_MotionCor2_output.log".format(self.corrected_folder, basename)):
@@ -168,7 +168,7 @@ class MotionCor2(QThread):
                                     subprocess.check_output(cmd, shell=True)
                             except Exception as err:
                                 self.logger.error('failed move raw frames into {}!'.format(self.processed_folder))
-                                self.logger.error(f"Unexpected {err=}, {type(err)=}")
+                                self.logger.error(err)
                                 #break
                         else:
                             self.logger.warning('processing on GPU {} error: {}. Will try it later.'.format(gpu_ID[0], image))
