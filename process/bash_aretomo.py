@@ -213,7 +213,7 @@ class AreTomo(QThread):
                 self.logger.error("Ask for {} GPUs, but only detected {} GPUs!".format(len(gpu_ID), detected_gpu_num))
                 return  
         except:
-            self.logger.error("GPU is not detected!")
+            self.logger.error("error obtaining GPU info using torch!")
             return 
         
         if not os.path.exists(self.processed_folder):
