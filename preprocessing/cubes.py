@@ -4,7 +4,7 @@ import scipy.cluster.hierarchy as hcluster
 from TomoNet.util.io import log
 from TomoNet.util.geometry import in_boundary
 
-def create_cube_seeds(img3D, nCubesPerImg, cubeSideLen,mask=None):
+def create_cube_seeds(img3D, nCubesPerImg, cubeSideLen, mask=None):
     sp=img3D.shape
     if mask is None:
         cubeMask=np.ones(sp)
@@ -15,7 +15,7 @@ def create_cube_seeds(img3D, nCubesPerImg, cubeSideLen,mask=None):
     valid_inds = [v + s.start for s, v in zip(border_slices, valid_inds)]
     sample_inds = np.random.choice(len(valid_inds[0]), nCubesPerImg, replace=len(valid_inds[0]) < nCubesPerImg)
     rand_inds = [v[sample_inds] for v in valid_inds]
-    return (rand_inds[0],rand_inds[1], rand_inds[2])
+    return (rand_inds[0], rand_inds[1], rand_inds[2])
 
 def create_cube_seeds_new(img3D, nCubesPerImg, cubeSideLen, coords, mask=None, logger=None):
     sp=img3D.shape
@@ -73,13 +73,6 @@ def mask_mesh_seeds(mask, sidelen, croplen, threshold=0.01, indx=0):
     # return ind_list
     return (ind0,ind1,ind2)
 
-def crop_cubes(img3D, seeds, cubeSideLen):
-    #size=len(seeds[0])
-    cube_size=(cubeSideLen,cubeSideLen,cubeSideLen)
-    cubes=[img3D[tuple(slice(_r-(_p//2),_r+_p-(_p//2)) for _r,_p in zip(r,cube_size))] for r in zip(*seeds)]
-    cubes=np.array(cubes)
-    return cubes
-
 def normalize(x, percentile = True, pmin=4.0, pmax=96.0, axis=None, clip=False, eps=1e-20):
     """Percentile-based image normalization."""
     if percentile:
@@ -88,10 +81,18 @@ def normalize(x, percentile = True, pmin=4.0, pmax=96.0, axis=None, clip=False, 
         out = (x - mi) / ( ma - mi + eps )
         out = out.astype(np.float32)
         if clip:
-            return np.clip(out,0,1)
+            return np.clip(out, 0, 1)
         else:
             return out
     else:
         out = (x-np.mean(x))/np.std(x)
         out = out.astype(np.float32)
         return out
+
+def crop_cubes(img3D, seeds, cubeSideLen):
+    #size=len(seeds[0])
+    cube_size=(cubeSideLen,cubeSideLen,cubeSideLen)
+    #img3D = normalize(img3D)
+    cubes=[img3D[tuple(slice(_r-(_p//2),_r+_p-(_p//2)) for _r,_p in zip(r,cube_size))] for r in zip(*seeds)]
+    cubes=np.array(cubes)
+    return cubes

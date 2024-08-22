@@ -1,8 +1,6 @@
 import logging
 import os
 import os.path
-import glob
-import shutil
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QTabWidget, QMessageBox, QHeaderView, QTableWidgetItem, QInputDialog
@@ -12,6 +10,7 @@ from TomoNet.util import metadata
 from TomoNet.util.metadata import MetaData, Label, Item
 from TomoNet.process.bash_isonet_deconv import Deconvolve
 from TomoNet.process.bash_isonet_generate_mask import MaskGeneration
+from TomoNet.process.bash_isonet_extract_subtomos import ExtractSubtomos
 
 class IsoNet(QTabWidget):
     def __init__(self):
@@ -353,7 +352,7 @@ class IsoNet(QTabWidget):
         self.gridLayout_preparation.addLayout(self.horizontalLayout_2_1, 0, 0, 1, 1)
 
         self.groupBox_generate_mask = QtWidgets.QGroupBox(self.tab_2)
-        self.groupBox_generate_mask.setMinimumSize(QtCore.QSize(0, 60))
+        self.groupBox_generate_mask.setMinimumSize(QtCore.QSize(0, 80))
         self.groupBox_generate_mask.setMaximumSize(QtCore.QSize(16777215, 80))
         self.groupBox_generate_mask.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
         self.groupBox_generate_mask.setFlat(False)
@@ -420,12 +419,16 @@ class IsoNet(QTabWidget):
         self.gridLayout_preparation.addWidget(self.groupBox_generate_mask, 1, 0, 1, 1)
 
         self.groupBox_extract = QtWidgets.QGroupBox(self.tab_2)
-        self.groupBox_extract.setMinimumSize(QtCore.QSize(0, 60))
+        self.groupBox_extract.setMinimumSize(QtCore.QSize(0, 80))
         self.groupBox_extract.setMaximumSize(QtCore.QSize(16777215, 80))
         self.groupBox_extract.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
         self.groupBox_extract.setFlat(False)
         self.groupBox_extract.setObjectName("groupBox_extract")
         
+        
+        self.verticalLayout_2_2 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_2_2.setObjectName("verticalLayout_2_2")
+
         self.horizontalLayout_2_7 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2_7.setObjectName("horizontalLayout_2_7")
         
@@ -441,17 +444,17 @@ class IsoNet(QTabWidget):
         self.lineEdit_subtomo_dir.setObjectName("lineEdit_subtomo_dir")
         self.horizontalLayout_2_7.addWidget(self.lineEdit_subtomo_dir)
                 
-        self.label_subtomo_star_file = QtWidgets.QLabel(self.groupBox_extract)
-        self.label_subtomo_star_file.setMinimumSize(QtCore.QSize(100, 0))
-        self.label_subtomo_star_file.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.label_subtomo_star_file.setObjectName("label_subtomo_star_file")
-        self.horizontalLayout_2_7.addWidget(self.label_subtomo_star_file)
+        # self.label_subtomo_star_file = QtWidgets.QLabel(self.groupBox_extract)
+        # self.label_subtomo_star_file.setMinimumSize(QtCore.QSize(100, 0))
+        # self.label_subtomo_star_file.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        # self.label_subtomo_star_file.setObjectName("label_subtomo_star_file")
+        # self.horizontalLayout_2_7.addWidget(self.label_subtomo_star_file)
         
-        self.lineEdit_subtomo_star_file = QtWidgets.QLineEdit(self.groupBox_extract)
-        self.lineEdit_subtomo_star_file.setMinimumSize(QtCore.QSize(100, 25))
-        self.lineEdit_subtomo_star_file.setMaximumSize(QtCore.QSize(16777215, 25))
-        self.lineEdit_subtomo_star_file.setObjectName("lineEdit_subtomo_star_file")
-        self.horizontalLayout_2_7.addWidget(self.lineEdit_subtomo_star_file)
+        # self.lineEdit_subtomo_star_file = QtWidgets.QLineEdit(self.groupBox_extract)
+        # self.lineEdit_subtomo_star_file.setMinimumSize(QtCore.QSize(100, 25))
+        # self.lineEdit_subtomo_star_file.setMaximumSize(QtCore.QSize(16777215, 25))
+        # self.lineEdit_subtomo_star_file.setObjectName("lineEdit_subtomo_star_file")
+        # self.horizontalLayout_2_7.addWidget(self.lineEdit_subtomo_star_file)
 
         self.label_subtomo_cube_size = QtWidgets.QLabel(self.groupBox_extract)
         self.label_subtomo_cube_size.setMinimumSize(QtCore.QSize(70, 0))
@@ -466,7 +469,7 @@ class IsoNet(QTabWidget):
         self.horizontalLayout_2_7.addWidget(self.lineEdit_subtomo_cube_size)
 
         self.label_tomo_index_subtomo = QtWidgets.QLabel(self.groupBox_extract)
-        self.label_tomo_index_subtomo.setMinimumSize(QtCore.QSize(90, 0))
+        self.label_tomo_index_subtomo.setMinimumSize(QtCore.QSize(80, 0))
         self.label_tomo_index_subtomo.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_tomo_index_subtomo.setObjectName("label_tomo_index_subtomo")
         self.horizontalLayout_2_7.addWidget(self.label_tomo_index_subtomo)
@@ -482,7 +485,62 @@ class IsoNet(QTabWidget):
         self.checkBox_use_deconv_subtomo.setObjectName("checkBox_use_deconv_subtomo")
         self.horizontalLayout_2_7.addWidget(self.checkBox_use_deconv_subtomo)
         
-        self.groupBox_extract.setLayout(self.horizontalLayout_2_7)
+        self.verticalLayout_2_2.addLayout(self.horizontalLayout_2_7)
+
+        # self.horizontalLayout_2_8 = QtWidgets.QHBoxLayout()
+        # self.horizontalLayout_2_8.setObjectName("horizontalLayout_2_8")
+        
+        # self.label_tilt_range = QtWidgets.QLabel(self.groupBox_extract)
+        # self.label_tilt_range.setMinimumSize(QtCore.QSize(80, 0))
+        # self.label_tilt_range.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        # self.label_tilt_range.setObjectName("label_tilt_range")
+        # self.horizontalLayout_2_8.addWidget(self.label_tilt_range)
+        
+        # self.lineEdit_tilt_range = QtWidgets.QLineEdit(self.groupBox_extract)
+        # self.lineEdit_tilt_range.setMinimumSize(QtCore.QSize(30, 25))
+        # self.lineEdit_tilt_range.setMaximumSize(QtCore.QSize(16777215, 25))
+        # self.lineEdit_tilt_range.setObjectName("lineEdit_tilt_range")
+        # self.horizontalLayout_2_8.addWidget(self.lineEdit_tilt_range)
+
+        # self.label_target_tilt_range = QtWidgets.QLabel(self.groupBox_extract)
+        # self.label_target_tilt_range.setMinimumSize(QtCore.QSize(140, 0))
+        # self.label_target_tilt_range.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        # self.label_target_tilt_range.setObjectName("label_target_tilt_range")
+        # self.horizontalLayout_2_8.addWidget(self.label_target_tilt_range)
+        
+        # self.lineEdit_target_tilt_range = QtWidgets.QLineEdit(self.groupBox_extract)
+        # self.lineEdit_target_tilt_range.setMinimumSize(QtCore.QSize(30, 25))
+        # self.lineEdit_target_tilt_range.setMaximumSize(QtCore.QSize(16777215, 25))
+        # self.lineEdit_target_tilt_range.setObjectName("lineEdit_target_tilt_range")
+        # self.horizontalLayout_2_8.addWidget(self.lineEdit_target_tilt_range)
+
+        # self.label_tomo_index_subtomo_plus = QtWidgets.QLabel(self.groupBox_extract)
+        # self.label_tomo_index_subtomo_plus.setMinimumSize(QtCore.QSize(120, 0))
+        # self.label_tomo_index_subtomo_plus.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        # self.label_tomo_index_subtomo_plus.setObjectName("label_tomo_index_subtomo_plus")
+        # self.horizontalLayout_2_8.addWidget(self.label_tomo_index_subtomo_plus)
+        
+        # self.lineEdit_tomo_index_subtomo_plus = QtWidgets.QLineEdit(self.groupBox_extract)
+        # self.lineEdit_tomo_index_subtomo_plus.setMinimumSize(QtCore.QSize(30, 25))
+        # self.lineEdit_tomo_index_subtomo_plus.setMaximumSize(QtCore.QSize(16777215, 25))
+        # self.lineEdit_tomo_index_subtomo_plus.setObjectName("lineEdit_tomo_index_subtomo_plus")
+        # self.horizontalLayout_2_8.addWidget(self.lineEdit_tomo_index_subtomo_plus)
+
+        # self.label_tomo_index_subtomo_minus = QtWidgets.QLabel(self.groupBox_extract)
+        # self.label_tomo_index_subtomo_minus.setMinimumSize(QtCore.QSize(120, 0))
+        # self.label_tomo_index_subtomo_minus.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        # self.label_tomo_index_subtomo_minus.setObjectName("label_tomo_index_subtomo_minus")
+        # self.horizontalLayout_2_8.addWidget(self.label_tomo_index_subtomo_minus)
+        
+        # self.lineEdit_tomo_index_subtomo_minus = QtWidgets.QLineEdit(self.groupBox_extract)
+        # self.lineEdit_tomo_index_subtomo_minus.setMinimumSize(QtCore.QSize(30, 25))
+        # self.lineEdit_tomo_index_subtomo_minus.setMaximumSize(QtCore.QSize(16777215, 25))
+        # self.lineEdit_tomo_index_subtomo_minus.setObjectName("lineEdit_tomo_index_subtomo_minus")
+        # self.horizontalLayout_2_8.addWidget(self.lineEdit_tomo_index_subtomo_minus)
+
+        # self.verticalLayout_2_2.addLayout(self.horizontalLayout_2_8)
+
+        self.groupBox_extract.setLayout(self.verticalLayout_2_2)
 
         self.gridLayout_preparation.addWidget(self.groupBox_extract, 2, 0, 1, 1)
 
@@ -569,7 +627,7 @@ class IsoNet(QTabWidget):
         self.pushButton_generate_mask.setText(_translate("Form", "Generate Mask"))
 
         self.pushButton_extract_subtomo.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">click to run isonet subtomo extraction which will be used for neural network training</span></p></body></html>"))
-        self.pushButton_extract_subtomo.setText(_translate("Form", "Extract Subtomo"))
+        self.pushButton_extract_subtomo.setText(_translate("Form", "Extract Subtomos"))
         
         self.groupBox_generate_mask.setTitle(_translate("Form", "Generate Mask Settings"))
 
@@ -591,17 +649,30 @@ class IsoNet(QTabWidget):
         self.label_subtomo_dir.setText(_translate("Form", "subtomo directory"))
         self.lineEdit_subtomo_dir.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">a folder path to save your mask for each tomograms.</span></p><p><br/></p></body></html>"))
         self.lineEdit_subtomo_dir.setPlaceholderText(_translate("Form", "subtomo"))
-        self.label_subtomo_star_file.setText(_translate("Form", "subtomo star"))
-        self.lineEdit_subtomo_star_file.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">(subtomo.star) star file for output subtomograms.</span></p></body></html>"))
-        self.lineEdit_subtomo_star_file.setPlaceholderText(_translate("Form", "subtomo.star"))
+        #self.label_subtomo_star_file.setText(_translate("Form", "subtomo star"))
+        # self.lineEdit_subtomo_star_file.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">(subtomo.star) star file for output subtomograms.</span></p></body></html>"))
+        # self.lineEdit_subtomo_star_file.setPlaceholderText(_translate("Form", "subtomo.star"))
         self.checkBox_use_deconv_subtomo.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">If CTF deconvolved tomogram is found in tomogram.star, use that tomogram instead.</span></p></body></html>"))
         self.checkBox_use_deconv_subtomo.setText(_translate("Form", "use deconv map"))
         self.label_subtomo_cube_size.setText(_translate("Form", "cube size"))
         self.lineEdit_subtomo_cube_size.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">Size of cubes for training, should be divisible by 8, eg. 32, 64. The actual sizes of extracted subtomograms are this value add 16.</span></p></body></html>"))
         self.lineEdit_subtomo_cube_size.setPlaceholderText(_translate("Form", "64"))
-        self.label_tomo_index_subtomo.setText(_translate("Form", "tomo index"))
-        self.lineEdit_tomo_index_subtomo.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">If this value is set, process only the tomograms listed in this index. </span></p></body></html>"))
         
+        self.label_tomo_index_subtomo.setText(_translate("Form", "tomo index"))
+        self.lineEdit_tomo_index_subtomo.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">index numbers of tomograms to be used to train neural network.</span></p></body></html>"))
+        
+        # self.label_tomo_index_subtomo_plus.setText(_translate("Form", "tomo index (+)"))
+        # self.lineEdit_tomo_index_subtomo_plus.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">Mandatory, tomograms used to train the plus part. </span></p></body></html>"))
+        # self.label_tomo_index_subtomo_minus.setText(_translate("Form", "tomo index (-)"))
+        # self.lineEdit_tomo_index_subtomo_minus.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">Mandatory, tomograms used to train the minus part. </span></p></body></html>"))
+        
+        # self.label_tilt_range.setText(_translate("Form", "tilt range"))
+        # self.lineEdit_tilt_range.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">Tilt range of the tilt series.</span></p></body></html>"))
+        # self.lineEdit_tilt_range.setPlaceholderText(_translate("Form", "-60,60"))
+        # self.label_target_tilt_range.setText(_translate("Form", "target tilt range"))
+        # self.lineEdit_target_tilt_range.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">Target tilt range for Network training.</span></p></body></html>"))
+        # self.lineEdit_target_tilt_range.setPlaceholderText(_translate("Form", "-90,90"))
+
     @QtCore.pyqtSlot(str)
     def update_log_window(self, txt):
         in_current_page = True
@@ -642,11 +713,15 @@ class IsoNet(QTabWidget):
         data['zAxis_crop_mask'] = ""
         data['use_deconv_mask'] = True
         
-        # data['subtomo_dir'] = ""
-        # data['subtomo_star_file'] = ""
-        # data['subtomo_cube_size'] = ""
-        # data['tomo_index_subtomo'] = ""
-        # data['use_deconv_subtomo'] = True
+        data['subtomo_dir'] = ""
+        #data['subtomo_star_file'] = ""
+        data['subtomo_cube_size'] = ""
+        data['tomo_index_subtomo'] = ""
+        # data['tomo_index_subtomo_minus'] = ""
+        # data['tomo_index_subtomo_plus'] = ""
+        data['use_deconv_subtomo'] = True
+        # data['tilt_range'] = ""
+        # data['target_tilt_range'] = ""
 
         try:
             with open(self.setting_file) as f:
@@ -677,11 +752,15 @@ class IsoNet(QTabWidget):
         self.lineEdit_zAxis_crop_mask.setText(data['zAxis_crop_mask'])
         self.checkBox_use_deconv_mask.setChecked(data['use_deconv_mask'])
         
-        # self.lineEdit_subtomo_dir.setText(data['subtomo_dir'])
-        # self.lineEdit_subtomo_star_file.setText(data['subtomo_star_file'])
-        # self.lineEdit_subtomo_cube_size.setText(data['subtomo_cube_size'])
-        # self.lineEdit_tomo_index_subtomo.setText(data['tomo_index_subtomo'])
-        # self.checkBox_use_deconv_subtomo.setChecked(data['use_deconv_subtomo'])
+        self.lineEdit_subtomo_dir.setText(data['subtomo_dir'])
+        #self.lineEdit_subtomo_star_file.setText(data['subtomo_star_file'])
+        self.lineEdit_subtomo_cube_size.setText(data['subtomo_cube_size'])
+        self.lineEdit_tomo_index_subtomo.setText(data['tomo_index_subtomo'])
+        # self.lineEdit_tomo_index_subtomo_minus.setText(data['tomo_index_subtomo_minus'])
+        # self.lineEdit_tomo_index_subtomo_plus.setText(data['tomo_index_subtomo_plus'])
+        self.checkBox_use_deconv_subtomo.setChecked(data['use_deconv_subtomo'])
+        # self.lineEdit_tilt_range.setText(data['tilt_range'])
+        # self.lineEdit_target_tilt_range.setText(data['target_tilt_range'])
     
     def save_setting(self):
         param = {}
@@ -701,11 +780,15 @@ class IsoNet(QTabWidget):
         param['tomo_index_mask'] = self.lineEdit_tomo_index_mask.text()
         param['use_deconv_mask'] = self.checkBox_use_deconv_mask.isChecked()
         
-        # param['subtomo_dir'] = self.lineEdit_subtomo_dir.text()
-        # param['subtomo_star_file'] = self.lineEdit_subtomo_star_file.text()
-        # param['subtomo_cube_size'] = self.lineEdit_subtomo_cube_size.text()
-        # param['tomo_index_subtomo'] = self.lineEdit_tomo_index_subtomo.text()
-        # param['use_deconv_subtomo'] = self.checkBox_use_deconv_subtomo.isChecked()
+        param['subtomo_dir'] = self.lineEdit_subtomo_dir.text()
+        #param['subtomo_star_file'] = self.lineEdit_subtomo_star_file.text()
+        param['subtomo_cube_size'] = self.lineEdit_subtomo_cube_size.text()
+        param['tomo_index_subtomo'] = self.lineEdit_tomo_index_subtomo.text()
+        # param['tomo_index_subtomo_minus'] = self.lineEdit_tomo_index_subtomo_minus.text()
+        # param['tomo_index_subtomo_plus'] = self.lineEdit_tomo_index_subtomo_plus.text()
+        param['use_deconv_subtomo'] = self.checkBox_use_deconv_subtomo.isChecked()
+        # param['tilt_range'] = self.lineEdit_tilt_range.text()
+        # param['target_tilt_range'] = self.lineEdit_target_tilt_range.text()
 
         try:
             with open(self.setting_file, 'w') as f: 
@@ -1433,13 +1516,121 @@ class IsoNet(QTabWidget):
                     self.open_star_fileName(self.tomogram_star)
     
     def get_extract_subtomos_params(self):
-        d = {}
-        d['tomogram_star'] = self.tomogram_star
-        return d
+        param = {}
+        
+        tomogram_star = self.tomogram_star
+
+        if self.lineEdit_subtomo_dir.text():
+            subtomo_dir = "{}/{}".format(self.isonet_folder, self.lineEdit_subtomo_dir.text())
+        else:
+            subtomo_dir = "{}/{}".format(self.isonet_folder, "subtomos")
+        
+        if self.lineEdit_subtomo_cube_size.text():
+            if not string2int(self.lineEdit_subtomo_cube_size.text()) == None:
+                subtomo_cube_size = string2int(self.lineEdit_subtomo_cube_size.text())
+                if not subtomo_cube_size > 0:
+                    return "Please use the valid format for the patch size!"
+            else:
+                return "Please use the valid format for the patch size!"
+        else:
+            subtomo_cube_size = 64
+
+        # if self.lineEdit_tilt_range.text():
+        #     line = self.lineEdit_tilt_range.text()
+        #     try:
+        #         split = line.split(',')
+        #         if len(split) == 2 and string2int(split[0]) is not None and string2int(split[1]) is not None:
+        #             t1 = string2int(split[0])
+        #             t2 = string2int(split[1])
+        #             tilt_range = [min(t1,t2), max(t1,t2)]
+        #         else:
+        #             return "Please check the format of tilt range is correct. two integers seperated by ','!"
+        #     except:
+        #         return "Please check the format of tilt range is correct. two integers seperated by ','!"
+        # else:
+        #     tilt_range = [-60,60]
+        #     #return "Please specify tilt range!"
+        
+        # if self.lineEdit_target_tilt_range.text():
+        #     line = self.lineEdit_target_tilt_range.text()
+        #     try:
+        #         split = line.split(',')
+        #         if len(split) == 2 and string2int(split[0]) is not None and string2int(split[1]) is not None:
+        #             t1 = string2int(split[0])
+        #             t2 = string2int(split[1])
+        #             target_tilt_range = [min(t1,t2), max(t1,t2)]
+        #         else:
+        #             return "Please check the format of target tilt range is correct. two integers seperated by ','!"
+        #     except:
+        #         return "Please check the format of target tilt range is correct. two integers seperated by ','!"
+        # else:
+        #     return "Please specify target tilt range!"
+        
+        if self.lineEdit_tomo_index_subtomo.text():
+            tomo_index_subtomo = self.lineEdit_tomo_index_subtomo.text()
+        else:
+            return None
+            #return "Please specify tomo_index_subtomo!"
+
+        # if self.lineEdit_tomo_index_subtomo_minus.text():
+        #     tomo_index_subtomo_minus = self.lineEdit_tomo_index_subtomo_minus.text()
+        # else:
+        #     return "Please specify tomo_index_subtomo_minus!"
+
+        # if self.lineEdit_tomo_index_subtomo_plus.text():
+        #     tomo_index_subtomo_plus = self.lineEdit_tomo_index_subtomo_plus.text()
+        # else:
+        #     return "Please specify tomo_index_subtomo_plus!"
+
+        param['tomogram_star'] = tomogram_star
+        param['subtomo_dir'] = subtomo_dir
+        param['subtomo_star_file'] = "{}.star".format(subtomo_dir)
+        # param['tilt_range'] = tilt_range
+        param['subtomo_cube_size'] = subtomo_cube_size
+        # param['target_tilt_range'] = target_tilt_range
+        # param['tomo_index_subtomo_minus'] = tomo_index_subtomo_minus
+        # param['tomo_index_subtomo_plus'] = tomo_index_subtomo_plus
+        param['tomo_index_subtomo'] = tomo_index_subtomo
+        param['use_deconv_subtomo'] = 1 if self.checkBox_use_deconv_subtomo.isChecked() else 0
+        return param
 
     def extract_subtomos(self):
-        d = self.get_extract_subtomos_params()
-        self.logger.info(d)
+        params = self.get_extract_subtomos_params()
+        if type(params) is str:
+            QMessageBox.warning(self, 'Error!', \
+                "Error! {}"\
+                .format(params))
+            self.cmd_finished(button=self.pushButton_extract_subtomo, text="Extract Subtomos")
+        elif type(params) is dict:
+            if self.pushButton_extract_subtomo.text() == "Extract Subtomos":
+                ret = QMessageBox.question(self, 'Extract Subtomos!', \
+                        "Perform Extract Subtomos?\n"\
+                        , QMessageBox.Yes | QMessageBox.No, \
+                        QMessageBox.No)   
+                if ret == QMessageBox.Yes:
+                    
+                    self.pushButton_extract_subtomo.setText("STOP")
+                    
+                    self.pushButton_extract_subtomo.setStyleSheet('QPushButton {color: red;}')
+
+                    self.thread_subtomos = ExtractSubtomos(params)                
+
+                    self.thread_subtomos.finished.connect(lambda: self.cmd_finished(self.pushButton_extract_subtomo, "Extract Subtomos"))
+                    
+                    self.thread_subtomos.start()
+                else:
+                    self.cmd_finished(button=self.pushButton_extract_subtomo, text="Extract Subtomos")
+            else:
+                ret = QMessageBox.question(self, 'Warning!', \
+                    "Stop Extract Subtomos! \
+                    \nConfirm?\n"\
+                    , QMessageBox.Yes | QMessageBox.No, \
+                    QMessageBox.No)
+                if ret == QMessageBox.Yes:
+                    self.pushButton_extract_subtomo.setText("Extract Subtomos")
+                    self.pushButton_extract_subtomo.setStyleSheet("QPushButton {color: black;}")
+                    self.thread_subtomos.stop_process()
+                    #self.open_star_fileName(self.tomogram_star)
     
     def cmd_finished(self, button, text="Run"):
         button.setText(text)
