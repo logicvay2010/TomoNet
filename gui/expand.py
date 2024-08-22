@@ -773,7 +773,7 @@ class Expand(QTabWidget):
 
         self.label_repeating_unit = QtWidgets.QLabel(self.tab2)
         self.label_repeating_unit.setSizePolicy(sizePolicy)
-        self.label_repeating_unit.setMinimumSize(QtCore.QSize(140, 0))
+        self.label_repeating_unit.setMinimumSize(QtCore.QSize(150, 0))
         self.label_repeating_unit.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_repeating_unit.setObjectName("label_repeating_unit")
         self.horizontalLayout_2_5.addWidget(self.label_repeating_unit)
@@ -1137,7 +1137,7 @@ class Expand(QTabWidget):
         in_current_page = True
         for x in self.parentWidget().parentWidget().children():
             if x.objectName() == "listWidget":
-                if not x.currentRow() == 4:
+                if not x.currentRow() == 5:
                     in_current_page = False
             elif x.objectName() == "log_window":
                 if in_current_page:
@@ -1377,6 +1377,11 @@ class Expand(QTabWidget):
     def tab_changed(self, i):
         if i == 2:
             self.reload_table()
+    
+    def list_row_changed(self, i):
+        if i == 5:
+            if self.currentIndex() == 2:
+                self.reload_table()
     
     def table_click(self, item):
         i = item.row()

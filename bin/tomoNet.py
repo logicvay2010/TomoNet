@@ -4,11 +4,13 @@ import socket
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtWidgets import QListWidgetItem, QListWidget
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import Qt, QSize, QRect
+from PyQt5.QtGui import QColor
 
 from TomoNet.util import metadata
 from TomoNet.gui.motioncor import MotionCor
 from TomoNet.gui.ctffind import Ctffind
+from TomoNet.gui.isonet import IsoNet
 from TomoNet.gui.manual import Manual
 from TomoNet.gui.recon import Recon
 from TomoNet.gui.expand import Expand
@@ -76,7 +78,8 @@ class Ui_TomoNet(object):
         for name in list_names:
             item = QListWidgetItem(name, self.listWidget)
             # Set the default width and height of the item (only height is useful here)
-            item.setSizeHint(QSize(16777215, 35))
+            item.setSizeHint(QSize(16777215, 40))
+            #item.setBackground(QColor("lightgray"))
             # Text centered
             item.setTextAlignment(Qt.AlignCenter)
 
@@ -87,17 +90,22 @@ class Ui_TomoNet(object):
 
         recon = Recon()
         self.stackedWidget.addWidget(recon)
+        self.listWidget.currentRowChanged.connect(recon.list_row_changed)
         
         ctffind = Ctffind()
         self.stackedWidget.addWidget(ctffind)
+        self.listWidget.currentRowChanged.connect(ctffind.list_row_changed)
 
-        self.listWidget.currentRowChanged.connect(ctffind.reload_table)
+        isonet = IsoNet()
+        self.stackedWidget.addWidget(isonet)
 
         manual = Manual()
         self.stackedWidget.addWidget(manual)
+        self.listWidget.currentRowChanged.connect(manual.list_row_changed)
 
         expand = Expand()
         self.stackedWidget.addWidget(expand)
+        self.listWidget.currentRowChanged.connect(expand.list_row_changed)
 
         autopick = Autopick()
         self.stackedWidget.addWidget(autopick)
@@ -105,7 +113,7 @@ class Ui_TomoNet(object):
         otherUtils = OtherUtils()
         self.stackedWidget.addWidget(otherUtils)
 
-        self.log_file = ["MotionCorrection/motion.log", "Recon/recon.log", "Ctffind/ctffind.log",\
+        self.log_file = ["MotionCorrection/motion.log", "Recon/recon.log", "Ctffind/ctffind.log", "IsoNet/isonet.log",\
             "ManualPick/manual.log", "Expand/expand.log", "Autopick/autopick.log", "OtherUtils/otherUtils.log"]
         self.log_window.setText(self.getLogContent(self.log_file[0]))
         self.log_window.moveCursor(QtGui.QTextCursor.End)
@@ -169,30 +177,57 @@ QPushButton#run {
     font-weight: bold;
 }
 
+QPushButton#pushButton_open_star, QPushButton#pushButton_insert, QPushButton#pushButton_delete, QPushButton#pushButton_3dmod, QPushButton#pushButton_generate_star{
+    font: 15px;
+    font-weight: bold;
+    height:30px
+}
+
 QGroupBox{
-    font: 12px;
+    font: 14px;
+    font-weight: bold;
 }
 
 QListWidget {
-    outline: 0px;
-    font: 14px;
+    outline: 1px;
+    border-top: 1.5px solid black;
+    font: 15px;
     font-weight:bold;
-    background: #e5eaf5
 }
-
+QListWidget::item {
+        border-bottom: 1.5px solid black;
+        border-right: 1.5px solid black;
+        border-left: 1.5px solid black;
+        background-color: #e5eaf5;
+        opacity: 1
+    }
+QListWidget::item:selected {
+        background-color: #1569C7;
+        opacity: 0.75
+    }
+QListWidget::item:hover {
+        background-color: #48AAAD;
+        opacity: 0.5
+    }
+    
 QTabWidget{
     font: 16px;
     background: rgb(144,160,187)
 }
 
 QWidget#tab {
-    font: 14px;
+    font: 15px;
     background: rgb(237, 240, 232)
 }
 
 QLabel{
     font-weight: bold;
-    font: 14px;
+    font: 15px;
+}
+
+QCheckBox{
+    font-weight: bold;
+    font: 15px;
 }
 
 QComboBox{
@@ -209,8 +244,14 @@ class MyWindow(QtWidgets.QMainWindow):
         # print("{}/../gui/icons/icon_folder.png".format(scriptDir))
         # icon.addPixmap(QtGui.QPixmap("{}/../gui/icons/spider.svg".format(scriptDir)), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         # app.setWindowIcon(icon)
+        # import tkinter
+        # app_w = tkinter.Tk()
+        # center_x = app_w.winfo_screenwidth()//4
+        # center_y = app_w.winfo_screenheight()//4
+        # self.setGeometry(QRect(center_x, center_y, 100, 100))
     def closeEvent(self, event):
-        result = QtWidgets.QMessageBox.question(self,
+        msg = QtWidgets.QMessageBox(self)
+        result = msg.question(self,
                         "Confirm Exit...",
                         "Do you want to exit? ",
                         QtWidgets.QMessageBox.Yes| QtWidgets.QMessageBox.No)
@@ -220,10 +261,11 @@ class MyWindow(QtWidgets.QMainWindow):
         if result == QtWidgets.QMessageBox.No:
             pass
             #kill the old process
+
 def check_root():
     directory = os.getcwd()
     folders = os.listdir(directory)
-    return "MotionCorrection" in folders and "Recon" in folders and "Ctffind" in folders and "Expand" in folders and "Autopick" in folders and "OtherUtils" in folders
+    return "MotionCorrection" in folders and "Recon" in folders and "Ctffind" in folders and "IsoNet" in folders and "Expand" in folders and "Autopick" in folders and "OtherUtils" in folders
 
 from PyQt5.QtWidgets import QMessageBox
 
@@ -240,7 +282,7 @@ if __name__ == '__main__':
     
     MainWindow = MyWindow()
     if not check_root():
-        ret = QMessageBox.question(None, 'Notice!', "Are you sure to launch tomoNet in the current folder?\n", QMessageBox.Yes | QMessageBox.No, \
+        ret = QMessageBox.question(MainWindow, 'Notice!', "Are you sure to launch tomoNet in the current folder?\n", QMessageBox.Yes | QMessageBox.No, \
                         QMessageBox.No)        
     else:
         ret = QMessageBox.Yes

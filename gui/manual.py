@@ -142,7 +142,7 @@ class Manual(QTabWidget):
         in_current_page = True
         for x in self.parentWidget().parentWidget().children():
             if x.objectName() == "listWidget":
-                if not x.currentRow() == 3:
+                if not x.currentRow() == 4:
                     in_current_page = False
             elif x.objectName() == "log_window":
                 if in_current_page:
@@ -260,6 +260,10 @@ class Manual(QTabWidget):
                 action_view_picked.setFont(QFont("sans-serif", 8, QFont.Bold))
                 self.tableView.setItem(i, 7, action_view_picked)
 
+    def list_row_changed(self, i):
+        if i == 4:
+            self.reload_table()
+    
     def table_doubleClick(self, item):
         i = item.row()
         j = item.column()

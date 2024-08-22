@@ -232,7 +232,7 @@ class Ctffind(QTabWidget):
 
         self.label_max_res = QtWidgets.QLabel(self.tab)
         self.label_max_res.setSizePolicy(sizePolicy)
-        self.label_max_res.setMinimumSize(QtCore.QSize(60, 0))
+        self.label_max_res.setMinimumSize(QtCore.QSize(70, 0))
         self.label_max_res.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_max_res.setObjectName("label_max_res")
         self.horizontalLayout_3.addWidget(self.label_max_res)
@@ -265,7 +265,7 @@ class Ctffind(QTabWidget):
 
         self.label_defocus_step = QtWidgets.QLabel(self.tab)
         self.label_defocus_step.setSizePolicy(sizePolicy)
-        self.label_defocus_step.setMinimumSize(QtCore.QSize(100, 0))
+        self.label_defocus_step.setMinimumSize(QtCore.QSize(110, 0))
         self.label_defocus_step.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_defocus_step.setObjectName("label_defocus_step")
         self.horizontalLayout_3.addWidget(self.label_defocus_step)
@@ -680,6 +680,9 @@ class Ctffind(QTabWidget):
                 action_plot_4.setFont(QFont("sans-serif", 8, QFont.Bold))
                 self.tableView.setItem(i, 5, action_plot_4)
 
+    def list_row_changed(self, i):
+        if i == 2:
+            self.reload_table()
     ##### 2023/06/06 to be changed to adapt ctffind section
     def get_params(self):
         

@@ -583,7 +583,7 @@ class Recon(QTabWidget):
         
         self.label_PixelSize_aretomo = QtWidgets.QLabel(self.tab_aretomo)
         self.label_PixelSize_aretomo.setSizePolicy(sizePolicy)
-        self.label_PixelSize_aretomo.setMinimumSize(QtCore.QSize(60, 0))
+        self.label_PixelSize_aretomo.setMinimumSize(QtCore.QSize(70, 0))
         self.label_PixelSize_aretomo.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_PixelSize_aretomo.setObjectName("label_PixelSize_aretomo")
         self.horizontalLayout_8.addWidget(self.label_PixelSize_aretomo)
@@ -621,7 +621,7 @@ class Recon(QTabWidget):
         
         self.label_UseAlnFile = QtWidgets.QLabel(self.tab_aretomo)
         self.label_UseAlnFile.setSizePolicy(sizePolicy)
-        self.label_UseAlnFile.setMinimumSize(QtCore.QSize(80, 0))
+        self.label_UseAlnFile.setMinimumSize(QtCore.QSize(90, 0))
         self.label_UseAlnFile.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_UseAlnFile.setObjectName("label_UseAlnFile")
         self.horizontalLayout_8.addWidget(self.label_UseAlnFile)
@@ -633,7 +633,7 @@ class Recon(QTabWidget):
 
         self.label_GPU_ID = QtWidgets.QLabel(self.tab_aretomo)
         self.label_GPU_ID.setSizePolicy(sizePolicy)
-        self.label_GPU_ID.setMinimumSize(QtCore.QSize(60, 0))
+        self.label_GPU_ID.setMinimumSize(QtCore.QSize(70, 0))
         self.label_GPU_ID.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_GPU_ID.setObjectName("label_GPU_ID")
         self.horizontalLayout_8.addWidget(self.label_GPU_ID)
@@ -1351,7 +1351,7 @@ class Recon(QTabWidget):
         except:
             pass
 
-    def tab_changed(self,i):
+    def tab_changed(self, i):
         if i == 1:
             self.reload_table()
             self.etomo_count_tomo()
@@ -1796,6 +1796,15 @@ class Recon(QTabWidget):
                 notes_i = note_dict[tomo] if tomo in note_dict.keys() else ""
                 self.tableView_aretomo.setItem(i, 7, QTableWidgetItem(notes_i))
         self.current_tomoNames_aretomo = tomoNames
+    
+    def list_row_changed(self, i):
+        if i == 1:
+            if self.currentIndex() == 1:
+                self.reload_table()
+                self.etomo_count_tomo()
+            if self.currentIndex() == 2:
+                self.reload_table_aretomo()
+                self.aretomo_count_tomo()
     
     @QtCore.pyqtSlot(str)
     def update_log_window(self, txt):

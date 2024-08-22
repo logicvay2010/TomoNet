@@ -91,7 +91,7 @@ def extract_subtomos_one(tomoName, maskName, coordsFile, data_dir, label_size, n
     subtomos = crop_cubes(orig_data, seeds, crop_size)
 
     # if the extraction folder was not generated, then make one, all subtomograms will be saved to train and test subsets
-    base_name = os.path.splitext(os.path.basename(tomoName))[0]
+    #base_name = os.path.splitext(os.path.basename(tomoName))[0]
     dirs_tomake = ['train_x','train_y', 'test_x', 'test_y']
     if check_folder:        
         mkfolder(data_dir)

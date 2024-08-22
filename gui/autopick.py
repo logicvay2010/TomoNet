@@ -266,7 +266,7 @@ class Autopick(QTabWidget):
 
         self.label_steps_per_epoch = QtWidgets.QLabel(self.tab)
         self.label_steps_per_epoch.setSizePolicy(sizePolicy)
-        self.label_steps_per_epoch.setMinimumSize(QtCore.QSize(120, 0))
+        self.label_steps_per_epoch.setMinimumSize(QtCore.QSize(130, 0))
         self.label_steps_per_epoch.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_steps_per_epoch.setObjectName("label_steps_per_epoch")
         self.horizontalLayout_9.addWidget(self.label_steps_per_epoch)
@@ -392,7 +392,7 @@ class Autopick(QTabWidget):
         
         self.label_box_size_predict = QtWidgets.QLabel(self.tab_2)
         self.label_box_size_predict.setSizePolicy(sizePolicy)
-        self.label_box_size_predict.setMinimumSize(QtCore.QSize(130, 0))
+        self.label_box_size_predict.setMinimumSize(QtCore.QSize(140, 0))
         self.label_box_size_predict.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_box_size_predict.setObjectName("label_box_size_predict")
         self.horizontalLayout_7.addWidget(self.label_box_size_predict)
@@ -404,7 +404,7 @@ class Autopick(QTabWidget):
 
         self.label_unit_size_predict = QtWidgets.QLabel(self.tab_2)
         self.label_unit_size_predict.setSizePolicy(sizePolicy)
-        self.label_unit_size_predict.setMinimumSize(QtCore.QSize(170, 0))
+        self.label_unit_size_predict.setMinimumSize(QtCore.QSize(180, 0))
         self.label_unit_size_predict.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_unit_size_predict.setObjectName("label_unit_size_predict")
         self.horizontalLayout_7.addWidget(self.label_unit_size_predict)
@@ -871,7 +871,7 @@ class Autopick(QTabWidget):
         in_current_page = True
         for x in self.parentWidget().parentWidget().children():
             if x.objectName() == "listWidget":
-                if not x.currentRow() == 5:
+                if not x.currentRow() == 6:
                     in_current_page = False
             elif x.objectName() == "log_window":
                 if in_current_page:

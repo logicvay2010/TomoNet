@@ -217,7 +217,7 @@ class OtherUtils(QTabWidget):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_rotation.sizePolicy().hasHeightForWidth())
         self.label_rotation.setSizePolicy(sizePolicy)
-        self.label_rotation.setMinimumSize(QtCore.QSize(200, 0))
+        self.label_rotation.setMinimumSize(QtCore.QSize(220, 0))
         self.label_rotation.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_rotation.setObjectName("label_rotation")
         self.horizontalLayout_4.addWidget(self.label_rotation)
@@ -868,7 +868,7 @@ class OtherUtils(QTabWidget):
         in_current_page = True
         for x in self.parentWidget().parentWidget().children():
             if x.objectName() == "listWidget":
-                if not x.currentRow() == 6:
+                if not x.currentRow() == 7:
                     in_current_page = False
             elif x.objectName() == "log_window":
                 if in_current_page:
