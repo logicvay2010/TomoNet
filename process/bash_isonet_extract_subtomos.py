@@ -11,11 +11,7 @@ from TomoNet.util.io import mkfolder
 
 from TomoNet.util.metadata import MetaData, Label, Item
 
-from TomoNet.preprocessing.cubes import create_cube_seeds, crop_cubes, normalize
-
-from scipy.ndimage import rotate
-
-#from TomoNet.preprocessing.prepare import extract_subtomos
+from TomoNet.preprocessing.cubes import create_cube_seeds, crop_cubes
 
 
 def mw2d(dim,missingAngle=[30,30]):

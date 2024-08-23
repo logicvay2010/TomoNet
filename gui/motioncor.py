@@ -20,7 +20,10 @@ class MotionCor(QTabWidget):
         
         self.check_log_file("MotionCorrection")
 
+        self.root_folder = "MotionCorrection"
+
         check_or_create_path("MotionCorrection/MotionCor2")
+
 
         self.logger = logging.getLogger(__name__)
         handler = logging.FileHandler(filename=self.log_file, mode='a')
@@ -251,9 +254,9 @@ class MotionCor(QTabWidget):
         for child in self.findChildren(QtWidgets.QComboBox):
             child.currentIndexChanged.connect(self.save_setting)
 
-        self.pushButton_raw_image_folder.clicked.connect(lambda: browse.browseFolderSlot(self.lineEdit_raw_image_folder)) 
-        self.pushButton_motioncor_exe.clicked.connect(lambda: browse.browseSlot(self.lineEdit_motioncor_exe)) 
-        self.pushButton_gain_ref.clicked.connect(lambda: browse.browseSlot(self.lineEdit_gain_ref, 'map')) 
+        self.pushButton_raw_image_folder.clicked.connect(lambda: browse.browseFolderSlot(self.lineEdit_raw_image_folder, location=".")) 
+        self.pushButton_motioncor_exe.clicked.connect(lambda: browse.browseSlot(self.lineEdit_motioncor_exe, location="/")) 
+        self.pushButton_gain_ref.clicked.connect(lambda: browse.browseSlot(self.lineEdit_gain_ref, 'map', location=self.root_folder)) 
 
         self.pushButton_run_motioncor.clicked.connect(self.motioncor)
 
