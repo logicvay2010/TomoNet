@@ -1,12 +1,14 @@
 import logging
 import os
 import os.path
+import glob
+import shutil
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QTabWidget, QMessageBox, QHeaderView, QTableWidgetItem, QInputDialog
 
 from TomoNet.util.utils import check_log_file, getLogContent, string2float, string2int
-from TomoNet.util import browse
+from TomoNet.util import metadata
 from TomoNet.util.metadata import MetaData, Label, Item
 from TomoNet.process.bash_isonet_deconv import Deconvolve
 from TomoNet.process.bash_isonet_generate_mask import MaskGeneration
@@ -72,16 +74,12 @@ class IsoNet(QTabWidget):
         self.icon_trashCan.addPixmap(QtGui.QPixmap("{}/icons/trash_can.png".format(scriptDir)), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
         self.setUI_deconvolve()
+        #self.setUI_tab2()
+        
         self.addTab(self.tab, "CTF Deconvolve")
 
         self.setUI_preparation()
         self.addTab(self.tab_2, "Preparation")
-
-        self.setUI_train()
-        self.addTab(self.tab_3, "Train Neural Network")
-
-        #self.setUI_inference()
-        #self.addTab(self.tab_4, "Missing Wedge Correction")
         
         self.setTableWidget(self.tableWidget, self.md)
 
@@ -118,19 +116,10 @@ class IsoNet(QTabWidget):
         self.pushButton_generate_mask.clicked.connect(self.generate_mask)
         self.pushButton_extract_subtomo.clicked.connect(self.extract_subtomos)
 
-        self.pushButton_train_subtomos_star.clicked.connect\
-            (lambda: browse.browseSlot(self.lineEdit_train_subtomos_star, 'star', location=self.isonet_folder)) 
-        self.pushButton_train_pretrained_model.clicked.connect\
-            (lambda: browse.browseSlot(self.lineEdit_train_pretrained_model, 'h5', location=self.isonet_folder)) 
-        self.pushButton_continue_from_iter.clicked.connect\
-            (lambda: browse.browseSlot(self.lineEdit_continue_from_iter, 'json', location=self.isonet_folder)) 
-
         self.setTabShape(QtWidgets.QTabWidget.Triangular)
         
         self.retranslateUi_deconvolve()
         self.retranslateUi_preparation()
-        self.retranslateUi_train()
-
         self.currentChanged.connect(self.tab_changed)
         self.read_settting()
 
@@ -365,7 +354,7 @@ class IsoNet(QTabWidget):
         self.gridLayout_preparation.addLayout(self.horizontalLayout_2_1, 0, 0, 1, 1)
 
         self.groupBox_generate_mask = QtWidgets.QGroupBox(self.tab_2)
-        self.groupBox_generate_mask.setMinimumSize(QtCore.QSize(0, 80))
+        self.groupBox_generate_mask.setMinimumSize(QtCore.QSize(0, 60))
         self.groupBox_generate_mask.setMaximumSize(QtCore.QSize(16777215, 80))
         self.groupBox_generate_mask.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
         self.groupBox_generate_mask.setFlat(False)
@@ -432,8 +421,8 @@ class IsoNet(QTabWidget):
         self.gridLayout_preparation.addWidget(self.groupBox_generate_mask, 1, 0, 1, 1)
 
         self.groupBox_extract = QtWidgets.QGroupBox(self.tab_2)
-        self.groupBox_extract.setMinimumSize(QtCore.QSize(0, 80))
-        self.groupBox_extract.setMaximumSize(QtCore.QSize(16777215, 80))
+        self.groupBox_extract.setMinimumSize(QtCore.QSize(0, 120))
+        self.groupBox_extract.setMaximumSize(QtCore.QSize(16777215, 150))
         self.groupBox_extract.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
         self.groupBox_extract.setFlat(False)
         self.groupBox_extract.setObjectName("groupBox_extract")
@@ -481,18 +470,6 @@ class IsoNet(QTabWidget):
         self.lineEdit_subtomo_cube_size.setObjectName("lineEdit_subtomo_cube_size")
         self.horizontalLayout_2_7.addWidget(self.lineEdit_subtomo_cube_size)
 
-        self.label_tomo_index_subtomo = QtWidgets.QLabel(self.groupBox_extract)
-        self.label_tomo_index_subtomo.setMinimumSize(QtCore.QSize(80, 0))
-        self.label_tomo_index_subtomo.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.label_tomo_index_subtomo.setObjectName("label_tomo_index_subtomo")
-        self.horizontalLayout_2_7.addWidget(self.label_tomo_index_subtomo)
-        
-        self.lineEdit_tomo_index_subtomo = QtWidgets.QLineEdit(self.groupBox_extract)
-        self.lineEdit_tomo_index_subtomo.setMinimumSize(QtCore.QSize(30, 25))
-        self.lineEdit_tomo_index_subtomo.setMaximumSize(QtCore.QSize(16777215, 25))
-        self.lineEdit_tomo_index_subtomo.setObjectName("lineEdit_tomo_index_subtomo")
-        self.horizontalLayout_2_7.addWidget(self.lineEdit_tomo_index_subtomo)
-
         self.checkBox_use_deconv_subtomo = QtWidgets.QCheckBox(self.groupBox_extract)
         self.checkBox_use_deconv_subtomo.setChecked(True)
         self.checkBox_use_deconv_subtomo.setObjectName("checkBox_use_deconv_subtomo")
@@ -500,58 +477,58 @@ class IsoNet(QTabWidget):
         
         self.verticalLayout_2_2.addLayout(self.horizontalLayout_2_7)
 
-        # self.horizontalLayout_2_8 = QtWidgets.QHBoxLayout()
-        # self.horizontalLayout_2_8.setObjectName("horizontalLayout_2_8")
+        self.horizontalLayout_2_8 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2_8.setObjectName("horizontalLayout_2_8")
         
-        # self.label_tilt_range = QtWidgets.QLabel(self.groupBox_extract)
-        # self.label_tilt_range.setMinimumSize(QtCore.QSize(80, 0))
-        # self.label_tilt_range.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        # self.label_tilt_range.setObjectName("label_tilt_range")
-        # self.horizontalLayout_2_8.addWidget(self.label_tilt_range)
+        self.label_tilt_range = QtWidgets.QLabel(self.groupBox_extract)
+        self.label_tilt_range.setMinimumSize(QtCore.QSize(80, 0))
+        self.label_tilt_range.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_tilt_range.setObjectName("label_tilt_range")
+        self.horizontalLayout_2_8.addWidget(self.label_tilt_range)
         
-        # self.lineEdit_tilt_range = QtWidgets.QLineEdit(self.groupBox_extract)
-        # self.lineEdit_tilt_range.setMinimumSize(QtCore.QSize(30, 25))
-        # self.lineEdit_tilt_range.setMaximumSize(QtCore.QSize(16777215, 25))
-        # self.lineEdit_tilt_range.setObjectName("lineEdit_tilt_range")
-        # self.horizontalLayout_2_8.addWidget(self.lineEdit_tilt_range)
+        self.lineEdit_tilt_range = QtWidgets.QLineEdit(self.groupBox_extract)
+        self.lineEdit_tilt_range.setMinimumSize(QtCore.QSize(30, 25))
+        self.lineEdit_tilt_range.setMaximumSize(QtCore.QSize(16777215, 25))
+        self.lineEdit_tilt_range.setObjectName("lineEdit_tilt_range")
+        self.horizontalLayout_2_8.addWidget(self.lineEdit_tilt_range)
 
-        # self.label_target_tilt_range = QtWidgets.QLabel(self.groupBox_extract)
-        # self.label_target_tilt_range.setMinimumSize(QtCore.QSize(140, 0))
-        # self.label_target_tilt_range.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        # self.label_target_tilt_range.setObjectName("label_target_tilt_range")
-        # self.horizontalLayout_2_8.addWidget(self.label_target_tilt_range)
+        self.label_target_tilt_range = QtWidgets.QLabel(self.groupBox_extract)
+        self.label_target_tilt_range.setMinimumSize(QtCore.QSize(140, 0))
+        self.label_target_tilt_range.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_target_tilt_range.setObjectName("label_target_tilt_range")
+        self.horizontalLayout_2_8.addWidget(self.label_target_tilt_range)
         
-        # self.lineEdit_target_tilt_range = QtWidgets.QLineEdit(self.groupBox_extract)
-        # self.lineEdit_target_tilt_range.setMinimumSize(QtCore.QSize(30, 25))
-        # self.lineEdit_target_tilt_range.setMaximumSize(QtCore.QSize(16777215, 25))
-        # self.lineEdit_target_tilt_range.setObjectName("lineEdit_target_tilt_range")
-        # self.horizontalLayout_2_8.addWidget(self.lineEdit_target_tilt_range)
+        self.lineEdit_target_tilt_range = QtWidgets.QLineEdit(self.groupBox_extract)
+        self.lineEdit_target_tilt_range.setMinimumSize(QtCore.QSize(30, 25))
+        self.lineEdit_target_tilt_range.setMaximumSize(QtCore.QSize(16777215, 25))
+        self.lineEdit_target_tilt_range.setObjectName("lineEdit_target_tilt_range")
+        self.horizontalLayout_2_8.addWidget(self.lineEdit_target_tilt_range)
 
-        # self.label_tomo_index_subtomo_plus = QtWidgets.QLabel(self.groupBox_extract)
-        # self.label_tomo_index_subtomo_plus.setMinimumSize(QtCore.QSize(120, 0))
-        # self.label_tomo_index_subtomo_plus.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        # self.label_tomo_index_subtomo_plus.setObjectName("label_tomo_index_subtomo_plus")
-        # self.horizontalLayout_2_8.addWidget(self.label_tomo_index_subtomo_plus)
+        self.label_tomo_index_subtomo_plus = QtWidgets.QLabel(self.groupBox_extract)
+        self.label_tomo_index_subtomo_plus.setMinimumSize(QtCore.QSize(120, 0))
+        self.label_tomo_index_subtomo_plus.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_tomo_index_subtomo_plus.setObjectName("label_tomo_index_subtomo_plus")
+        self.horizontalLayout_2_8.addWidget(self.label_tomo_index_subtomo_plus)
         
-        # self.lineEdit_tomo_index_subtomo_plus = QtWidgets.QLineEdit(self.groupBox_extract)
-        # self.lineEdit_tomo_index_subtomo_plus.setMinimumSize(QtCore.QSize(30, 25))
-        # self.lineEdit_tomo_index_subtomo_plus.setMaximumSize(QtCore.QSize(16777215, 25))
-        # self.lineEdit_tomo_index_subtomo_plus.setObjectName("lineEdit_tomo_index_subtomo_plus")
-        # self.horizontalLayout_2_8.addWidget(self.lineEdit_tomo_index_subtomo_plus)
+        self.lineEdit_tomo_index_subtomo_plus = QtWidgets.QLineEdit(self.groupBox_extract)
+        self.lineEdit_tomo_index_subtomo_plus.setMinimumSize(QtCore.QSize(30, 25))
+        self.lineEdit_tomo_index_subtomo_plus.setMaximumSize(QtCore.QSize(16777215, 25))
+        self.lineEdit_tomo_index_subtomo_plus.setObjectName("lineEdit_tomo_index_subtomo_plus")
+        self.horizontalLayout_2_8.addWidget(self.lineEdit_tomo_index_subtomo_plus)
 
-        # self.label_tomo_index_subtomo_minus = QtWidgets.QLabel(self.groupBox_extract)
-        # self.label_tomo_index_subtomo_minus.setMinimumSize(QtCore.QSize(120, 0))
-        # self.label_tomo_index_subtomo_minus.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        # self.label_tomo_index_subtomo_minus.setObjectName("label_tomo_index_subtomo_minus")
-        # self.horizontalLayout_2_8.addWidget(self.label_tomo_index_subtomo_minus)
+        self.label_tomo_index_subtomo_minus = QtWidgets.QLabel(self.groupBox_extract)
+        self.label_tomo_index_subtomo_minus.setMinimumSize(QtCore.QSize(120, 0))
+        self.label_tomo_index_subtomo_minus.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_tomo_index_subtomo_minus.setObjectName("label_tomo_index_subtomo_minus")
+        self.horizontalLayout_2_8.addWidget(self.label_tomo_index_subtomo_minus)
         
-        # self.lineEdit_tomo_index_subtomo_minus = QtWidgets.QLineEdit(self.groupBox_extract)
-        # self.lineEdit_tomo_index_subtomo_minus.setMinimumSize(QtCore.QSize(30, 25))
-        # self.lineEdit_tomo_index_subtomo_minus.setMaximumSize(QtCore.QSize(16777215, 25))
-        # self.lineEdit_tomo_index_subtomo_minus.setObjectName("lineEdit_tomo_index_subtomo_minus")
-        # self.horizontalLayout_2_8.addWidget(self.lineEdit_tomo_index_subtomo_minus)
+        self.lineEdit_tomo_index_subtomo_minus = QtWidgets.QLineEdit(self.groupBox_extract)
+        self.lineEdit_tomo_index_subtomo_minus.setMinimumSize(QtCore.QSize(30, 25))
+        self.lineEdit_tomo_index_subtomo_minus.setMaximumSize(QtCore.QSize(16777215, 25))
+        self.lineEdit_tomo_index_subtomo_minus.setObjectName("lineEdit_tomo_index_subtomo_minus")
+        self.horizontalLayout_2_8.addWidget(self.lineEdit_tomo_index_subtomo_minus)
 
-        # self.verticalLayout_2_2.addLayout(self.horizontalLayout_2_8)
+        self.verticalLayout_2_2.addLayout(self.horizontalLayout_2_8)
 
         self.groupBox_extract.setLayout(self.verticalLayout_2_2)
 
@@ -578,187 +555,6 @@ class IsoNet(QTabWidget):
         
         self.gridLayout_preparation.addLayout(self.horizontalLayout_2_2, 4, 0, 1, 1)
        
-    def setUI_train(self):
-        
-        scriptDir = os.path.dirname(os.path.realpath(__file__))
-        icon =  QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("{}/icons/icon_folder.png".format(scriptDir)), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-
-        self.tab_3 = QtWidgets.QWidget()
-        self.tab_3.setObjectName("tab")
-
-        self.gridLayout_train = QtWidgets.QGridLayout(self.tab_3)
-
-        self.groupBox_train_general = QtWidgets.QGroupBox(self.tab_3)
-        self.groupBox_train_general.setMinimumSize(QtCore.QSize(0, 140))
-        self.groupBox_train_general.setMaximumSize(QtCore.QSize(16777215, 150))
-        self.groupBox_train_general.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
-        self.groupBox_train_general.setFlat(False)
-        self.groupBox_train_general.setObjectName("groupBox_train_general")
-
-        self.verticalLayout_3_1 = QtWidgets.QVBoxLayout()
-        self.verticalLayout_3_1.setObjectName("verticalLayout_3_1")
-        
-        self.horizontalLayout_3_1 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_3_1.setObjectName("horizontalLayout_3_1")
-        
-        self.label_train_subtomos_star = QtWidgets.QLabel(self.groupBox_train_general)
-        self.label_train_subtomos_star.setMinimumSize(QtCore.QSize(120, 0))
-        self.label_train_subtomos_star.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.label_train_subtomos_star.setObjectName("label_train_subtomos_star")
-        self.horizontalLayout_3_1.addWidget(self.label_train_subtomos_star)
-        
-        self.lineEdit_train_subtomos_star = QtWidgets.QLineEdit(self.groupBox_train_general)
-        self.lineEdit_train_subtomos_star.setMinimumSize(QtCore.QSize(100, 25))
-        self.lineEdit_train_subtomos_star.setMaximumSize(QtCore.QSize(16777215, 25))
-        self.lineEdit_train_subtomos_star.setObjectName("lineEdit_train_subtomos_star")
-        self.horizontalLayout_3_1.addWidget(self.lineEdit_train_subtomos_star)
-
-        self.pushButton_train_subtomos_star = QtWidgets.QPushButton(self.tab_3)
-        self.pushButton_train_subtomos_star.setText("")
-        self.pushButton_train_subtomos_star.setIcon(icon)
-        self.pushButton_train_subtomos_star.setIconSize(QtCore.QSize(24, 24))
-        self.pushButton_train_subtomos_star.setMaximumSize(QtCore.QSize(160, 24))
-        self.pushButton_train_subtomos_star.setMinimumSize(QtCore.QSize(48, 24))
-        self.pushButton_train_subtomos_star.setObjectName("pushButton_train_subtomos_star")
-        self.horizontalLayout_3_1.addWidget(self.pushButton_train_subtomos_star)
-
-        self.verticalLayout_3_1.addLayout(self.horizontalLayout_3_1)
-
-        self.horizontalLayout_3_2 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_3_2.setObjectName("horizontalLayout_3_2")
-
-        self.label_train_pretrained_model = QtWidgets.QLabel(self.groupBox_train_general)
-        self.label_train_pretrained_model.setMinimumSize(QtCore.QSize(80, 0))
-        self.label_train_pretrained_model.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.label_train_pretrained_model.setObjectName("label_train_pretrained_model")
-        self.horizontalLayout_3_2.addWidget(self.label_train_pretrained_model)
-        
-        self.lineEdit_train_pretrained_model = QtWidgets.QLineEdit(self.groupBox_train_general)
-        self.lineEdit_train_pretrained_model.setMinimumSize(QtCore.QSize(80, 25))
-        self.lineEdit_train_pretrained_model.setMaximumSize(QtCore.QSize(16777215, 25))
-        self.lineEdit_train_pretrained_model.setObjectName("lineEdit_train_pretrained_model")
-        self.horizontalLayout_3_2.addWidget(self.lineEdit_train_pretrained_model)
-
-        self.pushButton_train_pretrained_model = QtWidgets.QPushButton(self.tab_3)
-        self.pushButton_train_pretrained_model.setText("")
-        self.pushButton_train_pretrained_model.setIcon(icon)
-        self.pushButton_train_pretrained_model.setIconSize(QtCore.QSize(24, 24))
-        self.pushButton_train_pretrained_model.setMaximumSize(QtCore.QSize(160, 24))
-        self.pushButton_train_pretrained_model.setMinimumSize(QtCore.QSize(48, 24))
-        self.pushButton_train_pretrained_model.setObjectName("pushButton_train_pretrained_model")
-        self.horizontalLayout_3_2.addWidget(self.pushButton_train_pretrained_model)
-
-        self.verticalLayout_3_1.addLayout(self.horizontalLayout_3_2)
-
-        self.horizontalLayout_3_3 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_3_3.setObjectName("horizontalLayout_3_3")
-
-        self.label_continue_from_iter = QtWidgets.QLabel(self.groupBox_train_general)
-        self.label_continue_from_iter.setMinimumSize(QtCore.QSize(150, 0))
-        self.label_continue_from_iter.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.label_continue_from_iter.setObjectName("label_continue_from_iter")
-        self.horizontalLayout_3_3.addWidget(self.label_continue_from_iter)
-        
-        self.lineEdit_continue_from_iter = QtWidgets.QLineEdit(self.groupBox_train_general)
-        self.lineEdit_continue_from_iter.setMinimumSize(QtCore.QSize(80, 25))
-        self.lineEdit_continue_from_iter.setMaximumSize(QtCore.QSize(16777215, 25))
-        self.lineEdit_continue_from_iter.setObjectName("lineEdit_continue_from_iter")
-        self.horizontalLayout_3_3.addWidget(self.lineEdit_continue_from_iter)
-
-        self.pushButton_continue_from_iter = QtWidgets.QPushButton(self.tab_3)
-        self.pushButton_continue_from_iter.setText("")
-        self.pushButton_continue_from_iter.setIcon(icon)
-        self.pushButton_continue_from_iter.setIconSize(QtCore.QSize(24, 24))
-        self.pushButton_continue_from_iter.setMaximumSize(QtCore.QSize(160, 24))
-        self.pushButton_continue_from_iter.setMinimumSize(QtCore.QSize(32, 24))
-        self.pushButton_continue_from_iter.setObjectName("pushButton_continue_from_iter")
-        self.horizontalLayout_3_3.addWidget(self.pushButton_continue_from_iter)
-
-        self.label_train_result_folder = QtWidgets.QLabel(self.groupBox_train_general)
-        self.label_train_result_folder.setMinimumSize(QtCore.QSize(90, 0))
-        self.label_train_result_folder.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.label_train_result_folder.setObjectName("label_train_result_folder")
-        self.horizontalLayout_3_3.addWidget(self.label_train_result_folder)
-        
-        self.lineEdit_train_result_folder = QtWidgets.QLineEdit(self.groupBox_train_general)
-        self.lineEdit_train_result_folder.setMinimumSize(QtCore.QSize(100, 25))
-        self.lineEdit_train_result_folder.setMaximumSize(QtCore.QSize(100, 25))
-        self.lineEdit_train_result_folder.setObjectName("lineEdit_train_result_folder")
-        self.horizontalLayout_3_3.addWidget(self.lineEdit_train_result_folder)
-
-        self.label_train_ncpu = QtWidgets.QLabel(self.groupBox_train_general)
-        self.label_train_ncpu.setMinimumSize(QtCore.QSize(50, 0))
-        self.label_train_ncpu.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.label_train_ncpu.setObjectName("label_train_ncpu")
-        self.horizontalLayout_3_3.addWidget(self.label_train_ncpu)
-        
-        self.lineEdit_train_ncpu = QtWidgets.QLineEdit(self.groupBox_train_general)
-        self.lineEdit_train_ncpu.setMinimumSize(QtCore.QSize(40, 25))
-        self.lineEdit_train_ncpu.setMaximumSize(QtCore.QSize(40, 25))
-        self.lineEdit_train_ncpu.setObjectName("lineEdit_train_ncpu")
-        self.horizontalLayout_3_3.addWidget(self.lineEdit_train_ncpu)
-
-        self.label_train_gpuID = QtWidgets.QLabel(self.groupBox_train_general)
-        self.label_train_gpuID.setMinimumSize(QtCore.QSize(50, 0))
-        self.label_train_gpuID.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.label_train_gpuID.setObjectName("label_train_gpuID")
-        self.horizontalLayout_3_3.addWidget(self.label_train_gpuID)
-        
-        self.lineEdit_train_gpuID = QtWidgets.QLineEdit(self.groupBox_train_general)
-        self.lineEdit_train_gpuID.setMinimumSize(QtCore.QSize(80, 25))
-        self.lineEdit_train_gpuID.setMaximumSize(QtCore.QSize(80, 25))
-        self.lineEdit_train_gpuID.setObjectName("lineEdit_train_gpuID")
-        self.horizontalLayout_3_3.addWidget(self.lineEdit_train_gpuID)
-
-        self.verticalLayout_3_1.addLayout(self.horizontalLayout_3_3)
-        
-        self.groupBox_train_general.setLayout(self.verticalLayout_3_1)
-
-        self.gridLayout_train.addWidget(self.groupBox_train_general, 1, 0, 1, 1)
-
-        self.groupBox_train_refinement = QtWidgets.QGroupBox(self.tab_3)
-        self.groupBox_train_refinement.setMinimumSize(QtCore.QSize(0, 80))
-        self.groupBox_train_refinement.setMaximumSize(QtCore.QSize(16777215, 80))
-        self.groupBox_train_refinement.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
-        self.groupBox_train_refinement.setFlat(False)
-        self.groupBox_train_refinement.setObjectName("groupBox_train_refinement")
-
-        self.gridLayout_train.addWidget(self.groupBox_train_refinement, 2, 0, 1, 1)
-
-        self.groupBox_train_network = QtWidgets.QGroupBox(self.tab_3)
-        self.groupBox_train_network.setMinimumSize(QtCore.QSize(0, 80))
-        self.groupBox_train_network.setMaximumSize(QtCore.QSize(16777215, 80))
-        self.groupBox_train_network.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
-        self.groupBox_train_network.setFlat(False)
-        self.groupBox_train_network.setObjectName("groupBox_train_network")
-
-        self.gridLayout_train.addWidget(self.groupBox_train_network, 3, 0, 1, 1)
-
-        self.groupBox_train_noise = QtWidgets.QGroupBox(self.tab_3)
-        self.groupBox_train_noise.setMinimumSize(QtCore.QSize(0, 80))
-        self.groupBox_train_noise.setMaximumSize(QtCore.QSize(16777215, 80))
-        self.groupBox_train_noise.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
-        self.groupBox_train_noise.setFlat(False)
-        self.groupBox_train_noise.setObjectName("groupBox_train_noise")
-
-        self.gridLayout_train.addWidget(self.groupBox_train_noise, 4, 0, 1, 1)
-
-
-        self.spacerItem3_3 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_train.addItem(self.spacerItem3_3, 5, 0, 1, 1)
-
-        self.horizontalLayout_3_last = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_3_last.setObjectName("horizontalLayout_3_last")
-        self.pushButton_train = QtWidgets.QPushButton(self.tab_3)
-        self.pushButton_train.setEnabled(True)
-        self.pushButton_train.setMinimumSize(QtCore.QSize(120, 48))
-        self.pushButton_train.setMaximumSize(QtCore.QSize(120, 48))
-        self.pushButton_train.setObjectName("run")
-        self.horizontalLayout_3_last.addWidget(self.pushButton_train)
-        
-        self.gridLayout_train.addLayout(self.horizontalLayout_3_last, 6, 0, 1, 1)
-    
     def retranslateUi_deconvolve(self):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("Form", "Form"))
@@ -775,36 +571,32 @@ class IsoNet(QTabWidget):
         self.pushButton_3dmod.setText(_translate("Form", "3dmod view"))
 
         self.groupBox_deconv.setTitle(_translate("Form", "Settings"))
-        
         self.label_deconv_dir.setText(_translate("Form", "deconvolve directory"))
-        self.lineEdit_deconv_dir.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">A folder path to save your deconvolved maps. Default: deconv </span></p></body></html>"))
+        self.lineEdit_deconv_dir.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">a folder path to save your deconvolved maps.</span></p><p><span style=\" font-size:9pt;\"><br/></span></p></body></html>"))
         self.lineEdit_deconv_dir.setPlaceholderText(_translate("Form", "deconv"))
-        
         self.label_tomo_index_deconv.setText(_translate("Form", "tomo index"))
-        self.lineEdit_tomo_index_deconv.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">If this value is set, process only the tomograms listed in this index. e.g. 1,2,3,4. Default: None </span></p></body></html>"))
+        self.lineEdit_tomo_index_deconv.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">If this value is set, process only the tomograms listed in this index. e.g. 1,2,3,4</span></p></body></html>"))
 
         self.label_chunk_size.setText(_translate("Form", "chunk size"))
-        self.lineEdit_chunk_size.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">Default: None. When your computer has enough memory, please keep the chunk_size as the default value: None . Otherwise, you can let the program crop the tomogram into multiple chunks for multiprocessing and assembly them into one. The chunk_size defines the size of individual chunk. This option may induce artifacts along edges of chunks. When that happen, you may use larger overlap_rate.</span></p></body></html>"))
+        self.lineEdit_chunk_size.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">(None) When your computer has enough memory, please keep the chunk_size as the default value: None . Otherwise, you can let the program crop the tomogram into multiple chunks for multiprocessing and assembly them into one. The chunk_size defines the size of individual chunk. This option may induce artifacts along edges of chunks. When that happen, you may use larger overlap_rate.</span></p></body></html>"))
         self.lineEdit_chunk_size.setPlaceholderText(_translate("Form", "None"))
-        
         self.label_highpassnyquist.setText(_translate("Form", "high pass nyquist"))
-        self.lineEdit_highpassnyquist.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">Highpass filter at very low resolution. Default: 0.02</span></p></body></html>"))
+        self.lineEdit_highpassnyquist.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">(0.02) Highpass filter at very low resolution.</span></p></body></html>"))
         self.lineEdit_highpassnyquist.setPlaceholderText(_translate("Form", "0.02"))
-        
         self.label_overlap.setText(_translate("Form", "overlap ratio"))
-        self.lineEdit_overlap.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">The overlapping rate for adjecent tiles. Default: 0.25 </span></p></body></html>"))
+        self.lineEdit_overlap.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">The overlapping rate for adjecent tiles.</span></p></body></html>"))
         self.lineEdit_overlap.setPlaceholderText(_translate("Form", "0.25"))
 
         self.label_ncpu.setText(_translate("Form", "ncpu"))
-        self.lineEdit_ncpu.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">number of cpu to use in deconvolve. Default: 6 </span></p></body></html>"))
-        self.lineEdit_ncpu.setPlaceholderText(_translate("Form", "6"))
+        self.lineEdit_ncpu.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">number of gpu to use in deconvolve</span></p></body></html>"))
+        self.lineEdit_ncpu.setPlaceholderText(_translate("Form", "4"))
 
         self.label_voltage.setText(_translate("Form", "voltage"))
-        self.lineEdit_voltage.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">Voltage. Default: 300</span></p></body></html>"))
+        self.lineEdit_voltage.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">voltage</span></p></body></html>"))
         self.lineEdit_voltage.setPlaceholderText(_translate("Form", "300"))
 
         self.label_cs.setText(_translate("Form", "CS"))
-        self.lineEdit_cs.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\"> spherical aberration coefficient. Default: 2.7 </span></p></body></html>"))
+        self.lineEdit_cs.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">spherical aberration coefficient </span></p></body></html>"))
         self.lineEdit_cs.setPlaceholderText(_translate("Form", "2.7"))
 
         self.pushButton_deconv.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">click to run isonet deconvolve</span></p></body></html>"))
@@ -829,73 +621,43 @@ class IsoNet(QTabWidget):
         
         self.groupBox_generate_mask.setTitle(_translate("Form", "Generate Mask Settings"))
 
-        self.label_mask_dir.setText(_translate("Form", "mask directory"))
-        self.lineEdit_mask_dir.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">A folder path to save your mask for each tomograms. Default: mask</span></p><p><br/></p></body></html>"))
-        self.lineEdit_mask_dir.setPlaceholderText(_translate("Form", "mask"))
-
         self.label_patch_size_mask.setText(_translate("Form", "patch size"))
-        self.lineEdit_patch_size_mask.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">The size of the box from which the max-filter and std-filter are calculated. Default: mask</span></p></body></html>"))
+        self.lineEdit_patch_size_mask.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">The size of the box from which the max-filter and std-filter are calculated.</span></p></body></html>"))
         self.lineEdit_patch_size_mask.setPlaceholderText(_translate("Form", "4"))
-        
         self.label_zAxis_crop_mask.setText(_translate("Form", "z axis crop"))
-        self.lineEdit_zAxis_crop_mask.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">If exclude the top and bottom regions of tomograms along z axis. For example, &quot;--z_crop 0.2&quot; will mask out the top 20% and bottom 20% region along z axis. Default: 0</span></p></body></html>"))
+        self.lineEdit_zAxis_crop_mask.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">If exclude the top and bottom regions of tomograms along z axis. For example, &quot;--z_crop 0.2&quot; will mask out the top 20% and bottom 20% region along z axis.</span></p></body></html>"))
         self.lineEdit_zAxis_crop_mask.setPlaceholderText(_translate("Form", "0"))
-        
+        self.label_mask_dir.setText(_translate("Form", "mask directory"))
+        self.lineEdit_mask_dir.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">a folder path to save your mask for each tomograms.</span></p><p><br/></p></body></html>"))
+        self.lineEdit_mask_dir.setPlaceholderText(_translate("Form", "mask"))
         self.label_tomo_index_mask.setText(_translate("Form", "tomo index"))
-        self.lineEdit_tomo_index_mask.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">If this value is set, process only the tomograms listed in this index. Default: None </span></p></body></html>"))
-        
+        self.lineEdit_tomo_index_mask.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">If this value is set, process only the tomograms listed in this index. </span></p></body></html>"))
         self.checkBox_use_deconv_mask.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">If CTF deconvolved tomogram is found in tomogram.star, use that tomogram instead.</span></p></body></html>"))
         self.checkBox_use_deconv_mask.setText(_translate("Form", "use deconv map"))
 
         self.groupBox_extract.setTitle(_translate("Form", "Extract Subtomograms Settings"))
-        
         self.label_subtomo_dir.setText(_translate("Form", "subtomo directory"))
-        self.lineEdit_subtomo_dir.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">A folder path to save your mask for each tomograms. Default: subtomos</span></p><p><br/></p></body></html>"))
+        self.lineEdit_subtomo_dir.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">a folder path to save your mask for each tomograms.</span></p><p><br/></p></body></html>"))
         self.lineEdit_subtomo_dir.setPlaceholderText(_translate("Form", "subtomo"))
-
+        #self.label_subtomo_star_file.setText(_translate("Form", "subtomo star"))
+        # self.lineEdit_subtomo_star_file.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">(subtomo.star) star file for output subtomograms.</span></p></body></html>"))
+        # self.lineEdit_subtomo_star_file.setPlaceholderText(_translate("Form", "subtomo.star"))
         self.checkBox_use_deconv_subtomo.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">If CTF deconvolved tomogram is found in tomogram.star, use that tomogram instead.</span></p></body></html>"))
         self.checkBox_use_deconv_subtomo.setText(_translate("Form", "use deconv map"))
-        
         self.label_subtomo_cube_size.setText(_translate("Form", "cube size"))
-        self.lineEdit_subtomo_cube_size.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">Size of cubes for training, should be divisible by 8, eg. 32, 64. The actual sizes of extracted subtomograms are this value add 16. Default: 64</span></p></body></html>"))
+        self.lineEdit_subtomo_cube_size.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">Size of cubes for training, should be divisible by 8, eg. 32, 64. The actual sizes of extracted subtomograms are this value add 16.</span></p></body></html>"))
         self.lineEdit_subtomo_cube_size.setPlaceholderText(_translate("Form", "64"))
+        self.label_tomo_index_subtomo_plus.setText(_translate("Form", "tomo index (+)"))
+        self.lineEdit_tomo_index_subtomo_plus.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">Mandatory, tomograms used to train the plus part. </span></p></body></html>"))
+        self.label_tomo_index_subtomo_minus.setText(_translate("Form", "tomo index (-)"))
+        self.lineEdit_tomo_index_subtomo_minus.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">Mandatory, tomograms used to train the minus part. </span></p></body></html>"))
         
-        self.label_tomo_index_subtomo.setText(_translate("Form", "tomo index"))
-        self.lineEdit_tomo_index_subtomo.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">index numbers of tomograms to be used to train neural network. Default: None</span></p></body></html>"))
-
-    def retranslateUi_train(self):
-        _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("Form", "Form"))
-
-        self.groupBox_train_general.setTitle(_translate("Form", "General Options"))
-        self.label_train_subtomos_star.setText(_translate("Form", "subtomos STAR file"))
-        self.lineEdit_train_subtomos_star.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">star file containing subtomograms extracted for training. Default: IsoNet/subtomos.star </span></p></body></html>"))
-        self.lineEdit_train_subtomos_star.setPlaceholderText(_translate("Form", "IsoNet/subtomos.star"))
-        
-        self.label_train_gpuID.setText(_translate("Form", "GPU ID"))
-        self.lineEdit_train_gpuID.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\"> The ID of gpu to be used during the training. e.g 0,1,2,3. No default. </span></p></body></html>"))
-        
-        self.label_train_pretrained_model.setText(_translate("Form", "pretrained model"))
-        self.lineEdit_train_pretrained_model.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\"> A trained neural network model in &quot;.h5&quot; format to start with. Default: None </span></p></body></html>"))
-        self.lineEdit_train_pretrained_model.setPlaceholderText(_translate("Form", "None"))
-
-        self.label_continue_from_iter.setText(_translate("Form", "continue from iteration #"))
-        self.lineEdit_continue_from_iter.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">A Json file to continue from. That json file is generated at each iteration of refine. Default: None </span></p></body></html>"))
-        self.lineEdit_continue_from_iter.setPlaceholderText(_translate("Form", "None"))
-
-        self.label_train_result_folder.setText(_translate("Form", "result folder"))
-        self.lineEdit_train_result_folder.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">The name of directory to save trained network models. Default: results </span></p></body></html>"))
-        self.lineEdit_train_result_folder.setPlaceholderText(_translate("Form", "results"))
-        
-        self.label_train_ncpu.setText(_translate("Form", "CPU #"))
-        self.lineEdit_train_ncpu.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">CPU # for training dataset preparation. Default: 8</span></p></body></html>"))
-        self.lineEdit_train_ncpu.setPlaceholderText(_translate("Form", "8"))
-        
-        # self.checkBox_only_print_command_refine.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">Check to only print out the command line</span></p></body></html>"))
-        # self.checkBox_only_print_command_refine.setText(_translate("Form", "only print command"))
-        
-        self.pushButton_train.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">Train neural network.</span></p></body></html>"))
-        self.pushButton_train.setText(_translate("Form", "Train"))
+        self.label_tilt_range.setText(_translate("Form", "tilt range"))
+        self.lineEdit_tilt_range.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">Tilt range of the tilt series.</span></p></body></html>"))
+        self.lineEdit_tilt_range.setPlaceholderText(_translate("Form", "-60,60"))
+        self.label_target_tilt_range.setText(_translate("Form", "target tilt range"))
+        self.lineEdit_target_tilt_range.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">Target tilt range for Network training.</span></p></body></html>"))
+        self.lineEdit_target_tilt_range.setPlaceholderText(_translate("Form", "-90,90"))
 
     @QtCore.pyqtSlot(str)
     def update_log_window(self, txt):
@@ -940,12 +702,11 @@ class IsoNet(QTabWidget):
         data['subtomo_dir'] = ""
         #data['subtomo_star_file'] = ""
         data['subtomo_cube_size'] = ""
-        data['tomo_index_subtomo'] = ""
-        # data['tomo_index_subtomo_minus'] = ""
-        # data['tomo_index_subtomo_plus'] = ""
+        data['tomo_index_subtomo_minus'] = ""
+        data['tomo_index_subtomo_plus'] = ""
         data['use_deconv_subtomo'] = True
-        # data['tilt_range'] = ""
-        # data['target_tilt_range'] = ""
+        data['tilt_range'] = ""
+        data['target_tilt_range'] = ""
 
         try:
             with open(self.setting_file) as f:
@@ -979,12 +740,11 @@ class IsoNet(QTabWidget):
         self.lineEdit_subtomo_dir.setText(data['subtomo_dir'])
         #self.lineEdit_subtomo_star_file.setText(data['subtomo_star_file'])
         self.lineEdit_subtomo_cube_size.setText(data['subtomo_cube_size'])
-        self.lineEdit_tomo_index_subtomo.setText(data['tomo_index_subtomo'])
-        # self.lineEdit_tomo_index_subtomo_minus.setText(data['tomo_index_subtomo_minus'])
-        # self.lineEdit_tomo_index_subtomo_plus.setText(data['tomo_index_subtomo_plus'])
+        self.lineEdit_tomo_index_subtomo_minus.setText(data['tomo_index_subtomo_minus'])
+        self.lineEdit_tomo_index_subtomo_plus.setText(data['tomo_index_subtomo_plus'])
         self.checkBox_use_deconv_subtomo.setChecked(data['use_deconv_subtomo'])
-        # self.lineEdit_tilt_range.setText(data['tilt_range'])
-        # self.lineEdit_target_tilt_range.setText(data['target_tilt_range'])
+        self.lineEdit_tilt_range.setText(data['tilt_range'])
+        self.lineEdit_target_tilt_range.setText(data['target_tilt_range'])
     
     def save_setting(self):
         param = {}
@@ -1007,12 +767,11 @@ class IsoNet(QTabWidget):
         param['subtomo_dir'] = self.lineEdit_subtomo_dir.text()
         #param['subtomo_star_file'] = self.lineEdit_subtomo_star_file.text()
         param['subtomo_cube_size'] = self.lineEdit_subtomo_cube_size.text()
-        param['tomo_index_subtomo'] = self.lineEdit_tomo_index_subtomo.text()
-        # param['tomo_index_subtomo_minus'] = self.lineEdit_tomo_index_subtomo_minus.text()
-        # param['tomo_index_subtomo_plus'] = self.lineEdit_tomo_index_subtomo_plus.text()
+        param['tomo_index_subtomo_minus'] = self.lineEdit_tomo_index_subtomo_minus.text()
+        param['tomo_index_subtomo_plus'] = self.lineEdit_tomo_index_subtomo_plus.text()
         param['use_deconv_subtomo'] = self.checkBox_use_deconv_subtomo.isChecked()
-        # param['tilt_range'] = self.lineEdit_tilt_range.text()
-        # param['target_tilt_range'] = self.lineEdit_target_tilt_range.text()
+        param['tilt_range'] = self.lineEdit_tilt_range.text()
+        param['target_tilt_range'] = self.lineEdit_target_tilt_range.text()
 
         try:
             with open(self.setting_file, 'w') as f: 
@@ -1758,17 +1517,55 @@ class IsoNet(QTabWidget):
                 return "Please use the valid format for the patch size!"
         else:
             subtomo_cube_size = 64
-        
-        if self.lineEdit_tomo_index_subtomo.text():
-            tomo_index_subtomo = self.lineEdit_tomo_index_subtomo.text()
+
+        if self.lineEdit_tilt_range.text():
+            line = self.lineEdit_tilt_range.text()
+            try:
+                split = line.split(',')
+                if len(split) == 2 and string2int(split[0]) is not None and string2int(split[1]) is not None:
+                    t1 = string2int(split[0])
+                    t2 = string2int(split[1])
+                    tilt_range = [min(t1,t2), max(t1,t2)]
+                else:
+                    return "Please check the format of tilt range is correct. two integers seperated by ','!"
+            except:
+                return "Please check the format of tilt range is correct. two integers seperated by ','!"
         else:
-            return None
+            tilt_range = [-60,60]
+            #return "Please specify tilt range!"
+        
+        if self.lineEdit_target_tilt_range.text():
+            line = self.lineEdit_target_tilt_range.text()
+            try:
+                split = line.split(',')
+                if len(split) == 2 and string2int(split[0]) is not None and string2int(split[1]) is not None:
+                    t1 = string2int(split[0])
+                    t2 = string2int(split[1])
+                    target_tilt_range = [min(t1,t2), max(t1,t2)]
+                else:
+                    return "Please check the format of target tilt range is correct. two integers seperated by ','!"
+            except:
+                return "Please check the format of target tilt range is correct. two integers seperated by ','!"
+        else:
+            return "Please specify target tilt range!"
+        
+        if self.lineEdit_tomo_index_subtomo_minus.text():
+            tomo_index_subtomo_minus = self.lineEdit_tomo_index_subtomo_minus.text()
+        else:
+            return "Please specify tomo_index_subtomo_minus!"
+
+        if self.lineEdit_tomo_index_subtomo_plus.text():
+            tomo_index_subtomo_plus = self.lineEdit_tomo_index_subtomo_plus.text()
+        else:
+            return "Please specify tomo_index_subtomo_plus!"
 
         param['tomogram_star'] = tomogram_star
         param['subtomo_dir'] = subtomo_dir
-        param['subtomo_star_file'] = "{}.star".format(subtomo_dir)
+        param['tilt_range'] = tilt_range
         param['subtomo_cube_size'] = subtomo_cube_size
-        param['tomo_index_subtomo'] = tomo_index_subtomo
+        param['target_tilt_range'] = target_tilt_range
+        param['tomo_index_subtomo_minus'] = tomo_index_subtomo_minus
+        param['tomo_index_subtomo_plus'] = tomo_index_subtomo_plus
         param['use_deconv_subtomo'] = 1 if self.checkBox_use_deconv_subtomo.isChecked() else 0
         return param
 

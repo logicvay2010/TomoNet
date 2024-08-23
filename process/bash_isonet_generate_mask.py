@@ -89,8 +89,9 @@ class MaskGeneration(QThread):
                                         surface = self.zAxis_crop_mask)
 
                     md._setItemValue(it,Label('rlnMaskName'),mask_out_name)
+                    self.logger.info('##################Isonet done generating mask for tomo # {}##################\n'.format(it.rlnIndex))
+
                 md.write(self.tomogram_star)
-                self.logger.info('##################Isonet done generating mask for {}##################\n'.format(tomo_root_name))
         except Exception as err:
             self.logger.error(f"Unexpected {err=}, {type(err)=}")
             return

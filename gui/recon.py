@@ -28,7 +28,7 @@ class Recon(QTabWidget):
     def __init__(self):
         super().__init__()
         self.setTabShape(QtWidgets.QTabWidget.Triangular)
-
+        self.root_folder = "Recon"
         ############### Define variables ################
         self.etomo_ts_folder = "Recon/ts_tlt"
         self.aretomo_ts_folder = "Recon/ts_tlt"
@@ -41,6 +41,10 @@ class Recon(QTabWidget):
         self.current_ts_list = None
         self.current_ts_list_selected = []
         self.current_tomoNames_aretomo = []
+
+        self.motionCor_folder = "MotionCorrection"
+        
+
         ############### Define variables ################
         
         self.log_file = "Recon/recon.log"
@@ -66,7 +70,7 @@ class Recon(QTabWidget):
 
         self.pushButton_check_tomo_num.clicked.connect(self.check_tomo_num)
 
-        self.pushButton_corrected_image_folder.clicked.connect(lambda: browse.browseFolderSlot(self.lineEdit_corrected_image_folder)) 
+        self.pushButton_corrected_image_folder.clicked.connect(lambda: browse.browseFolderSlot(self.lineEdit_corrected_image_folder, location=self.motionCor_folder)) 
         
         self.pushButton_run_ts_generation.clicked.connect(self.generate_ts)
 
@@ -76,9 +80,9 @@ class Recon(QTabWidget):
 
         self.pushButton_run_aretomo.clicked.connect(self.run_aretomo)
         
-        self.pushButton_etomo_input_folder.clicked.connect(lambda: browse.browseFolderSlot(self.lineEdit_etomo_input_folder)) 
+        self.pushButton_etomo_input_folder.clicked.connect(lambda: browse.browseFolderSlot(self.lineEdit_etomo_input_folder, location=self.root_folder)) 
 
-        self.pushButton_aretomo_input_folder.clicked.connect(lambda: browse.browseFolderSlot(self.lineEdit_aretomo_input_folder)) 
+        self.pushButton_aretomo_input_folder.clicked.connect(lambda: browse.browseFolderSlot(self.lineEdit_aretomo_input_folder, location=self.root_folder)) 
         
         self.currentChanged.connect(self.tab_changed)
         
