@@ -13,8 +13,6 @@ from TomoNet.util.metadata import MetaData, Label, Item
 
 from TomoNet.preprocessing.cubes import create_cube_seeds, crop_cubes
 
-#from TomoNet.preprocessing.prepare import extract_subtomos
-
 
 def mw2d(dim,missingAngle=[30,30]):
     mw=np.zeros((dim,dim),dtype=np.double)
