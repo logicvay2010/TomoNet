@@ -81,6 +81,6 @@ class Deconvolve(QThread):
         self.logger.info('\n##################Isonet done ctf deconvolve##################\n')
 
     def stop_process(self):
-        self.quit()
         self.terminate()
+        self.quit()
         self.wait()

@@ -199,6 +199,6 @@ class ExtractSubtomos(QThread):
         #split_data(self.subtomo_folder)
     
     def stop_process(self):
-        self.quit()
         self.terminate()
+        self.quit()
         self.wait()

@@ -88,7 +88,7 @@ class MaskGeneration(QThread):
                                         std_percentage = it.rlnMaskStdPercentage,
                                         surface = self.zAxis_crop_mask)
 
-                    md._setItemValue(it,Label('rlnMaskName'),mask_out_name)
+                    md._setItemValue(it,Label('rlnMaskName'), mask_out_name)
                     self.logger.info('##################Isonet done generating mask for tomo # {}##################\n'.format(it.rlnIndex))
 
                 md.write(self.tomogram_star)
@@ -150,6 +150,6 @@ class MaskGeneration(QThread):
             n.voxel_size = pixel_size
     
     def stop_process(self):
-        self.quit()
         self.terminate()
+        self.quit()
         self.wait()

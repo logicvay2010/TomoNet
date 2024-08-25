@@ -32,6 +32,8 @@ class Ctffind(QTabWidget):
 
         self.ts_tlt_folder ="Recon/ts_tlt"
 
+        self.recon_folder ="Recon"
+
         self.thread_ctffind = None
 
         self.ctf_results = None
@@ -360,9 +362,9 @@ class Ctffind(QTabWidget):
         self.lineEdit_defocus_step.textChanged.connect(self.save_setting)
        
         self.pushButton_ts_tlt_folder.clicked.connect\
-            (lambda: browse.browseFolderSlot(self.lineEdit_ts_tlt_folder)) 
+            (lambda: browse.browseFolderSlot(self.lineEdit_ts_tlt_folder, location=self.recon_folder)) 
         self.pushButton_ctffind_exe.clicked.connect\
-            (lambda: browse.browseSlot (self.lineEdit_ctffind_exe)) 
+            (lambda: browse.browseSlot (self.lineEdit_ctffind_exe, location='/')) 
 
         self.pushButton_run_ctffind.clicked.connect(self.ctffind4)
         self.pushButton_reload.clicked.connect(self.reload_table)
