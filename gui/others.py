@@ -28,6 +28,8 @@ class OtherUtils(QTabWidget):
 
         self.others_folder = "OtherUtils"
         
+        self.expand_folder = "Expand"
+        
         check_log_file(self.log_file, "OtherUtils")
         
         self.logger = logging.getLogger(__name__)
@@ -66,15 +68,15 @@ class OtherUtils(QTabWidget):
             child.textChanged.connect(self.save_setting)
 
         self.pushButton_expand_result_folder.clicked.connect\
-             (lambda: browse.browseFolderSlot(self.lineEdit_expand_result_folder)) 
+             (lambda: browse.browseFolderSlot(self.lineEdit_expand_result_folder, location=self.expand_folder)) 
         
         self.pushButton_data_star_file.clicked.connect\
-            (lambda: browse.browseSlot(self.lineEdit_data_star_file, 'star')) 
+            (lambda: browse.browseSlot(self.lineEdit_data_star_file, 'star', location=".")) 
         self.pushButton_fitin_map_file.clicked.connect\
-            (lambda: browse.browseSlot(self.lineEdit_fitin_map_file, 'map')) 
+            (lambda: browse.browseSlot(self.lineEdit_fitin_map_file, 'map', location=".")) 
         
         self.pushButton_input_star_file.clicked.connect\
-            (lambda: browse.browseSlot(self.lineEdit_input_star_file, 'star')) 
+            (lambda: browse.browseSlot(self.lineEdit_input_star_file, 'star', location=".")) 
         
         for child in self.findChildren(QtWidgets.QComboBox):
             child.currentIndexChanged.connect(self.save_setting)

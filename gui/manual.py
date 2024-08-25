@@ -21,6 +21,8 @@ class Manual(QTabWidget):
 
         self.recon_folder = "Recon/eTomo"
 
+        self.recon_root_folder = "Recon"
+
         self.stalkInit_folder = "ManualPick/stalkInit_prep"
 
         self.initParams_folder = "ManualPick/initParams"
@@ -111,7 +113,7 @@ class Manual(QTabWidget):
         self.lineEdit_path_other_maps.textChanged.connect(self.reload_table)
 
         self.pushButton_other_maps.clicked.connect\
-            (lambda: browse.browseFolderSlot(self.lineEdit_path_other_maps)) 
+            (lambda: browse.browseFolderSlot(self.lineEdit_path_other_maps, location=self.recon_root_folder)) 
         
         self.read_settting()
         self.setTabShape(QtWidgets.QTabWidget.Triangular)

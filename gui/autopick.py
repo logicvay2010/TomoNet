@@ -23,7 +23,7 @@ class Autopick(QTabWidget):
         
         self.log_file = "Autopick/autopick.log"
 
-        self.expand_folder = "Autopick"
+        self.autopick_folder = "Autopick"
         
         check_log_file(self.log_file, "Autopick")
 
@@ -61,14 +61,14 @@ class Autopick(QTabWidget):
 
         self.lineEdit_input_model.textChanged.connect(self.model_folder_changed)
         self.pushButton_input_folder_train.clicked.connect\
-            (lambda: browse.browseFolderSlot(self.lineEdit_input_folder_train)) 
+            (lambda: browse.browseFolderSlot(self.lineEdit_input_folder_train, location=self.autopick_folder)) 
         self.pushButton_continue_from_model.clicked.connect\
-            (lambda: browse.browseSlot(self.lineEdit_continue_from_model, 'h5')) 
+            (lambda: browse.browseSlot(self.lineEdit_continue_from_model, 'h5', location=self.autopick_folder)) 
 
         self.pushButton_input_folder_predict.clicked.connect\
-            (lambda: browse.browseFolderSlot(self.lineEdit_input_folder_predict)) 
+            (lambda: browse.browseFolderSlot(self.lineEdit_input_folder_predict, location=self.autopick_folder)) 
         self.pushButton_input_model.clicked.connect\
-            (lambda: browse.browseSlot(self.lineEdit_input_model, 'h5')) 
+            (lambda: browse.browseSlot(self.lineEdit_input_model, 'h5', location=self.autopick_folder)) 
         
         self.pushButton_train_network.clicked.connect(self.train_network)
 
