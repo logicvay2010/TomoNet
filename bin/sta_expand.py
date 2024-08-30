@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
-import sys,os
-import subprocess
-import logging
+import sys, os, subprocess, logging
 import imodmodel
 import numpy as np
 

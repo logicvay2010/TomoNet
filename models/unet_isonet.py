@@ -13,7 +13,7 @@ class ConvBlock(pl.LightningModule):
             nn.BatchNorm3d(num_features=out_channels),
             nn.LeakyReLU(),
         ]
-        for _ in range(max(n_conv-1,0)):
+        for _ in range(max(n_conv-1, 0)):
             layers.append(nn.Conv3d(in_channels=out_channels, out_channels=out_channels,
                     kernel_size=kernel_size, stride=stride, padding=padding, bias=True))
             #layers.append(nn.InstanceNorm3d(num_features = out_channels))
@@ -67,7 +67,7 @@ class DecoderBlock(pl.LightningModule):
         return x
 
 class Unet(pl.LightningModule):
-    def __init__(self,filter_base = 64, out_channels=1, learning_rate = 3e-4, add_last=False, metrics=None):
+    def __init__(self, filter_base = 64, out_channels=1, learning_rate = 3e-4, add_last=False, metrics=None):
         super(Unet, self).__init__()
         self.add_last = add_last
         if filter_base == 64:
@@ -91,7 +91,6 @@ class Unet(pl.LightningModule):
     
     def forward(self, x):
         x_org = x
-        
         x, down_sampling_features = self.encoder(x)
         x = self.decoder(x, down_sampling_features)
         y_hat = self.final(x)
@@ -99,15 +98,10 @@ class Unet(pl.LightningModule):
             y_hat += x_org
         return y_hat
 
-    def training_step(self, batch):
+    def training_step(self, batch, batch_idx):
         x, y = batch
         out = self(x)
-        
-        #loss = nn.L1Loss()(out, y)
-        loss = nn.MSELoss()(out, y)
-        #criterion = nn.MSELoss()
-        #loss = torch.sqrt(criterion(out, y))
-
+        loss = nn.L1Loss()(out, y)
         return loss
     
     def configure_optimizers(self):
@@ -118,12 +112,7 @@ class Unet(pl.LightningModule):
         with torch.no_grad():
             x, y = batch
             out = self(x)
-            
-            #loss = nn.L1Loss()(out, y)
-            loss = nn.MSELoss()(out, y)
-            #criterion = nn.MSELoss()
-            #loss = torch.sqrt(criterion(out, y))
-
+            loss = nn.L1Loss()(out, y)
             return loss
     
     def training_epoch_end(self, outputs):

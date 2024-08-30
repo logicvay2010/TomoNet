@@ -1,18 +1,13 @@
 #!/usr/bin/env python3
-import os,sys
-import logging
-import shutil
-import subprocess
-import time
+import os, sys, logging, shutil, subprocess, time
 import glob
 import mrcfile
-
-import scipy.cluster.hierarchy as hcluster
 import numpy as np
+import scipy.cluster.hierarchy as hcluster
 
-from TomoNet.preprocessing.cubes import normalize
 from TomoNet.util.io import log
 from TomoNet.util.utils import mkfolder
+from TomoNet.preprocessing.cubes import normalize
 
 # used for extract sort keys
 def natural_keys(text, delimiter='_', index=-2):

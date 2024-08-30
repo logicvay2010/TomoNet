@@ -1,12 +1,11 @@
 import time, subprocess, logging, psutil 
-from PyQt5.QtCore import QThread, QProcess
+from PyQt5.QtCore import QThread
 
 class Expand_CMDS(QThread):
 
     def __init__(self, cmds):
         super().__init__()
         self.cmds = cmds
-        self.p = None
 
         self.log_file = "Expand/expand.log"
 
@@ -24,13 +23,7 @@ class Expand_CMDS(QThread):
                     self.logger.info("Start generating a new final folder for {}".format(cmd.split()[3]))
             else:
                 self.logger.info("Start expand {} for {} rounds".format(cmd.split()[3],cmd.split()[4]))
-            #subprocess.check_output(cmd, shell=True)
-            
-            self.p = QProcess()
-
-            self.p.start(cmd)
-            res = self.p.waitForFinished(86400)
-            
+            subprocess.check_output(cmd, shell=True)
             try:
                 if cmd.split()[4] == '0':
                     self.logger.info("Finish generating a new final folder for {}".format(cmd.split()[3]))
@@ -38,25 +31,22 @@ class Expand_CMDS(QThread):
                     self.logger.info("Finish expand {} for {} rounds".format(cmd.split()[3],cmd.split()[4]))
             except:
                 pass
-            try:
-                self.kill_process()
-            except:
-                self.p = None
 
     def stop_process(self):
         self.terminate()
         self.quit()
         self.wait()
-        try:
-            self.kill_process()
-        except:
+        
+        with open("Expand/STOP","w") as w:
             pass
 
-    def kill_process(self):
-        try:
-            self.p.kill()    
-        except:
-            pass
+        while True:
+            a = [p.info['pid'] for p in psutil.process_iter(attrs=['pid', 'name']) if ('python' == p.info['name'] or "MCR" in p.info['name'])]
+            if len(a) > 0:
+                [p.kill() for p in psutil.process_iter(attrs=['pid', 'name']) if ('python' == p.info['name'] or "MCR" in p.info['name'])]
+            else:
+                break
+            time.sleep(3)
         
     
 

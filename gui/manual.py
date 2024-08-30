@@ -1,13 +1,10 @@
-import logging
-import os.path
-import os, glob, subprocess
+import os, glob, subprocess, logging
 import imodmodel
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QTabWidget, QHeaderView, QMessageBox, QTableWidgetItem
-from TomoNet.util import metadata
-from TomoNet.util import browse
+from TomoNet.util import metadata, browse
 
 class Manual(QTabWidget):
     def __init__(self):

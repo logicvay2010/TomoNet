@@ -1,18 +1,13 @@
-import os
-import time
-import logging
+import os, time, logging
 import mrcfile
 import numpy as np
+
 from PyQt5.QtCore import QThread
 
 from TomoNet.util.dict2attr import idx2list
-
 from TomoNet.util.io import mkfolder
-
 from TomoNet.util.metadata import MetaData, Label, Item
-
 from TomoNet.preprocessing.cubes import create_cube_seeds, crop_cubes
-
 
 def mw2d(dim,missingAngle=[30,30]):
     mw=np.zeros((dim,dim),dtype=np.double)
@@ -151,9 +146,13 @@ class ExtractSubtomos(QThread):
                 
                 pixel_size = it.rlnPixelSize
                 
-                self.logger.info("Extracting from tomogram {}".format(tomo_file))
-                with mrcfile.open(tomo_file, permissive=True) as mrcData:
-                    orig_data = mrcData.data.astype(np.float32)
+                if os.path.exists(tomo_file):
+                    self.logger.info("Extracting from tomogram {}".format(tomo_file))
+                    with mrcfile.open(tomo_file, permissive=True) as mrcData:
+                        orig_data = mrcData.data.astype(np.float32)
+                else:
+                    self.logger.warning("Tomogram {} does not exist. Perhaps it was removed by accident. Skip extraction this one!".format(tomo_file))
+                    continue
 
                 #tomo_root_name = os.path.splitext(os.path.basename(tomo_file))[0]
                 #self.logger.info(tomo_root_name)

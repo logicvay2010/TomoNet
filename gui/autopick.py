@@ -1,19 +1,14 @@
-import logging
-import os
-import os.path
+import logging, os, shutil
 import glob
-import shutil
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QTabWidget, QMessageBox, QHeaderView, QTableWidgetItem
 from PyQt5.QtGui import QFont
 
-from TomoNet.util import browse
+from TomoNet.util import browse, metadata
 from TomoNet.util.utils import check_log_file, getLogContent, string2float, string2int
 from TomoNet.process.bash_train_network import Train_network
 from TomoNet.process.bash_predict_network import Predict_network
-
-from TomoNet.util import metadata
 
 class Autopick(QTabWidget):
     def __init__(self):

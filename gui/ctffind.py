@@ -1,20 +1,17 @@
-import logging
-import os.path
-import os, glob, subprocess
+import os, glob, logging
 import numpy as np
-import matplotlib
+# import matplotlib
 import matplotlib.pyplot as plt
-try:
-    matplotlib.use('TkAgg')
-except:
-    "no tkinter detected, suggest to install it by run in terminal < sudo apt install python3-tk >"
+# try:
+#     matplotlib.use('TkAgg')
+# except:
+#     "no tkinter detected, suggest to install it by run in terminal < sudo apt install python3-tk >"
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QTabWidget, QHeaderView, QMessageBox, QTableWidgetItem
 
-from TomoNet.util import metadata
-from TomoNet.util import browse
+from TomoNet.util import metadata, browse
 from TomoNet.util.utils import string2float, string2int
 from TomoNet.process.bash_cttfind import Ctffind4
 

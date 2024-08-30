@@ -1,5 +1,4 @@
-import os
-import shutil
+import os, shutil
 
 def string2float(s, d=3):
         try:

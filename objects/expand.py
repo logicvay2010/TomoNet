@@ -1,5 +1,4 @@
-import os
-import subprocess
+import os, subprocess 
 import imodmodel
 import numpy as np
 

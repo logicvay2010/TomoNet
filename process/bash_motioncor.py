@@ -1,10 +1,9 @@
-import os, time, glob
-import multiprocessing as mp
-import subprocess
-import re
-import logging
+import os, time, re, logging, subprocess
+import glob
 import torch
+import multiprocessing as mp
 from multiprocessing import Pool
+
 from PyQt5.QtCore import QThread
 #from TomoNet.util.io import mkfolder
 

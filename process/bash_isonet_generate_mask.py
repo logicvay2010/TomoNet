@@ -1,16 +1,15 @@
-import os
-import logging
+import os, logging
 import mrcfile
 import numpy as np
+
+from scipy.ndimage.filters import gaussian_filter
+from skimage.transform import resize
+
 from PyQt5.QtCore import QThread
 
 from TomoNet.util.metadata import MetaData, Label
 from TomoNet.util.dict2attr import idx2list
-
 from TomoNet.util.filter import maxmask, stdmask
-
-from scipy.ndimage.filters import gaussian_filter
-from skimage.transform import resize
 
 class MaskGeneration(QThread):
 

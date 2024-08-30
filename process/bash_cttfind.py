@@ -1,6 +1,5 @@
-import os, glob
-import subprocess
-import logging
+import os, subprocess, logging
+import glob
 from multiprocessing import Pool
 from PyQt5.QtCore import QThread
 

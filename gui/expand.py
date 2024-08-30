@@ -1,7 +1,5 @@
-import logging
-import os.path
-import json
-import os, glob, subprocess
+import os, subprocess, json, logging
+import glob
 import numpy as np
 from ast import literal_eval
 
@@ -9,11 +7,9 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QTabWidget, QHeaderView, QMessageBox, QTableWidgetItem
 
-from TomoNet.util import metadata
+from TomoNet.util import metadata, browse
 from TomoNet.util.metadata import MetaData, Item, Label
-from TomoNet.util import browse
-from TomoNet.util.utils import natural_keys, check_log_file, getLogContent, string2float, string2int, idx2list
-from TomoNet.util.utils import mkfolder
+from TomoNet.util.utils import mkfolder, check_log_file, getLogContent, string2float, string2int, idx2list
 from TomoNet.util.searchParam import SearchParam
 from TomoNet.process.bash_expand import Expand_CMDS
 
@@ -1860,6 +1856,7 @@ class Expand(QTabWidget):
                     
             if ret == QMessageBox.Yes:
                 self.cmd_finished(self.pushButton_expand_select, "RUN")
+                self.thread_expand_cmds.kill_process()
                 try:
                     self.thread_expand_cmds.stop_process()
                 except:

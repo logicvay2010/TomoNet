@@ -1,21 +1,17 @@
-import logging
-import os.path
-import shutil
-import mrcfile
-import math
-import os, glob
+import os, math, shutil, logging, subprocess
 import starfile
-import subprocess
+import mrcfile
+import glob
 
 import numpy as np
 from scipy.spatial import distance_matrix
 from scipy.spatial.distance import pdist, squareform
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QTabWidget, QMessageBox
 
 from TomoNet.util import browse
-from TomoNet.util.utils import check_log_file, getLogContent, string2float, string2int, getRGBs
-from TomoNet.util.utils import mkfolder
+from TomoNet.util.utils import mkfolder, check_log_file, getLogContent, string2float, string2int, getRGBs
 from TomoNet.util.geometry import get_raw_shifts_PEET, apply_slicerRot_PEET, PEET2Relion, Relion2PEET, Relion2ChimeraX, getNeighbors
 
 class OtherUtils(QTabWidget):
