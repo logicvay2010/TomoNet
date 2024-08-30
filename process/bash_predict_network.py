@@ -1,7 +1,5 @@
-import os, glob
-import logging
-import subprocess
-import json
+import os, logging, subprocess, json
+import glob
 from PyQt5.QtCore import QThread
 
 class Predict_network(QThread):

@@ -1,5 +1,4 @@
-import json, sys
-import logging
+import json, sys, logging
 global logger 
 logger = logging.getLogger('main')
 logger.setLevel(logging.INFO)

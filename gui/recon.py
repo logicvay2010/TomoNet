@@ -1,6 +1,5 @@
-import os, glob, subprocess, shutil
-import logging
-import json
+import os, glob, subprocess, shutil, logging, json
+
 import numpy as np
 from shutil import which
 

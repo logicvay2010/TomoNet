@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
-import os 
-import sys
+import os, sys, logging, subprocess
 import mrcfile
 import imodmodel
-import logging
-import subprocess
-
 import numpy as np
 
 from TomoNet.util.io import log

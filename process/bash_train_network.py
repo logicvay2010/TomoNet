@@ -1,9 +1,10 @@
+
+import os, subprocess, json, logging
+import glob 
+
 from PyQt5.QtCore import QThread
-import os, glob
-import logging
+
 from TomoNet.util.utils import natural_keys
-import subprocess
-import json
 
 class Train_network(QThread):
     def __init__(self, d):

@@ -1,13 +1,10 @@
-import os
-import subprocess
-import re
-import logging
+import os, subprocess, re, logging, shutil
 import torch
-import shutil
 from multiprocessing import Pool
-from TomoNet.util.io import mkfolder_ifnotexist
 
 from PyQt5.QtCore import QThread
+
+from TomoNet.util.io import mkfolder_ifnotexist
 
 def read_header(st_path):
     d = {}

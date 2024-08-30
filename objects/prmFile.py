@@ -1,6 +1,5 @@
+import os, subprocess, math 
 import numpy as np
-import os, subprocess
-import math
 
 class PRMFile():
   def __init__(self, tomo):

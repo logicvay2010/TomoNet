@@ -1,16 +1,15 @@
-import os
-import logging
+import os, logging
 import mrcfile
 import numpy as np
+
+from scipy.ndimage.filters import gaussian_filter
+from skimage.transform import resize
+
 from PyQt5.QtCore import QThread
 
 from TomoNet.util.metadata import MetaData, Label
 from TomoNet.util.dict2attr import idx2list
-
 from TomoNet.util.filter import maxmask, stdmask
-
-from scipy.ndimage.filters import gaussian_filter
-from skimage.transform import resize
 
 class MaskGeneration(QThread):
 
@@ -88,7 +87,7 @@ class MaskGeneration(QThread):
                                         std_percentage = it.rlnMaskStdPercentage,
                                         surface = self.zAxis_crop_mask)
 
-                    md._setItemValue(it,Label('rlnMaskName'),mask_out_name)
+                    md._setItemValue(it,Label('rlnMaskName'), mask_out_name)
                     self.logger.info('##################Isonet done generating mask for tomo # {}##################\n'.format(it.rlnIndex))
 
                 md.write(self.tomogram_star)
@@ -150,6 +149,6 @@ class MaskGeneration(QThread):
             n.voxel_size = pixel_size
     
     def stop_process(self):
-        self.quit()
         self.terminate()
+        self.quit()
         self.wait()

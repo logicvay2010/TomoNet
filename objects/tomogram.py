@@ -1,7 +1,6 @@
-import os
+import os, subprocess
 import glob
 import imodmodel
-import subprocess
 import numpy as np
 import scipy.cluster.hierarchy as hcluster
 

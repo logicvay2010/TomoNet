@@ -1,5 +1,4 @@
-import os
-import shutil
+import os, shutil 
 from PyQt5 import QtGui
 from TomoNet.util.utils import getLogContent
 

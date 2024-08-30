@@ -1,16 +1,17 @@
 import mrcfile
+
 import numpy as np
 import torch
 import torch.nn as nn
 import pytorch_lightning as pl
 
-from .unet import Unet
+from .unet_isonet import Unet
 from .data_sequence import get_datasets, Predict_sets
 
 from TomoNet.util.io import log
 
 class Net:
-    def __init__(self,filter_base=64,out_channels=1, learning_rate = 3e-4, add_last=False, metrics=None):
+    def __init__(self,filter_base=64, out_channels=1, learning_rate = 3e-4, add_last=False, metrics=None):
         self.model = Unet(filter_base = filter_base,learning_rate=learning_rate, out_channels=out_channels, add_last=add_last, metrics=metrics)
 
     def load(self, path):
@@ -56,10 +57,10 @@ class Net:
         if isinstance(gpuID, str):
             gpuID = list(map(int,gpuID.split(',')))
         
-        # if enable_progress_bar:
-        #     callbacks = pl.callbacks.progress.ProgressBar(refresh_rate=5)
-        # else:
-        #     callbacks = None
+        if enable_progress_bar:
+            callbacks = pl.callbacks.progress.ProgressBar(refresh_rate=5)
+        else:
+            callbacks = None
         
         trainer = pl.Trainer(
             accumulate_grad_batches=acc_batches,
@@ -74,13 +75,13 @@ class Net:
             enable_progress_bar=enable_progress_bar,
             logger=False,
             enable_checkpointing=False,
-            #callbacks=[callbacks],
+            callbacks=[callbacks],
             num_sanity_val_steps=0,
         )
         trainer.fit(self.model, train_loader, val_loader)        
         return self.model.metrics
 
-    def predict(self, mrc_list, result_dir, iter_count, inverted=True, mw3d=None, batch_size=1, filter_strength=1.5, logger=None):    
+    def predict(self, mrc_list, result_dir, iter_count, inverted=True, mw3d=None, batch_size=1, logger=None):    
         full_size = 100
         full_length = len(mrc_list)
         iter = full_length//full_size
@@ -122,11 +123,5 @@ class Net:
     
                 with mrcfile.new(file_name, overwrite=True) as output_mrc:
                     temp = predicted[i]
-                    tensor_temp = torch.from_numpy(temp)
-                    temp = np.array(nn.Sigmoid()(tensor_temp))
-
-                    p = 1/(10**filter_strength)
-                    temp[temp < p] = 0
-                    temp[temp >= p] = 1
 
                     output_mrc.set_data(temp)

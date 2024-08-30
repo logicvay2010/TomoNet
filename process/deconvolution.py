@@ -1,8 +1,9 @@
-import numpy as np
-import mrcfile
 import os
 import gc
+import mrcfile
 import scipy.fft
+import numpy as np
+
 
 def tom_ctf1d(pixelsize, voltage, cs, defocus, amplitude, phaseshift, bfactor, length=2048):
 

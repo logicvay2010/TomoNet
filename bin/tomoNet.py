@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-import os
-import socket
+import os, socket
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtWidgets import QListWidgetItem, QListWidget
-from PyQt5.QtCore import Qt, QSize, QRect
-from PyQt5.QtGui import QColor
+from PyQt5.QtCore import Qt, QSize #QRect
+# from PyQt5.QtGui import QColor
 
 from TomoNet.util import metadata
 from TomoNet.gui.motioncor import MotionCor

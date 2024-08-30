@@ -1,6 +1,4 @@
-import os
-import subprocess
-import logging
+import os, subprocess, logging
 import mrcfile
 import numpy as np
 from multiprocessing import Pool

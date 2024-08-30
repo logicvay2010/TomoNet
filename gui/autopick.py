@@ -1,19 +1,14 @@
-import logging
-import os
-import os.path
+import logging, os, shutil
 import glob
-import shutil
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QTabWidget, QMessageBox, QHeaderView, QTableWidgetItem
 from PyQt5.QtGui import QFont
 
-from TomoNet.util import browse
+from TomoNet.util import browse, metadata
 from TomoNet.util.utils import check_log_file, getLogContent, string2float, string2int
 from TomoNet.process.bash_train_network import Train_network
 from TomoNet.process.bash_predict_network import Predict_network
-
-from TomoNet.util import metadata
 
 class Autopick(QTabWidget):
     def __init__(self):
@@ -23,7 +18,7 @@ class Autopick(QTabWidget):
         
         self.log_file = "Autopick/autopick.log"
 
-        self.expand_folder = "Autopick"
+        self.autopick_folder = "Autopick"
         
         check_log_file(self.log_file, "Autopick")
 
@@ -61,14 +56,14 @@ class Autopick(QTabWidget):
 
         self.lineEdit_input_model.textChanged.connect(self.model_folder_changed)
         self.pushButton_input_folder_train.clicked.connect\
-            (lambda: browse.browseFolderSlot(self.lineEdit_input_folder_train)) 
+            (lambda: browse.browseFolderSlot(self.lineEdit_input_folder_train, location=self.autopick_folder)) 
         self.pushButton_continue_from_model.clicked.connect\
-            (lambda: browse.browseSlot(self.lineEdit_continue_from_model, 'h5')) 
+            (lambda: browse.browseSlot(self.lineEdit_continue_from_model, 'h5', location=self.autopick_folder)) 
 
         self.pushButton_input_folder_predict.clicked.connect\
-            (lambda: browse.browseFolderSlot(self.lineEdit_input_folder_predict)) 
+            (lambda: browse.browseFolderSlot(self.lineEdit_input_folder_predict, location=self.autopick_folder)) 
         self.pushButton_input_model.clicked.connect\
-            (lambda: browse.browseSlot(self.lineEdit_input_model, 'h5')) 
+            (lambda: browse.browseSlot(self.lineEdit_input_model, 'h5', location=self.autopick_folder)) 
         
         self.pushButton_train_network.clicked.connect(self.train_network)
 

@@ -1,5 +1,5 @@
-import numpy as np
 import math
+import numpy as np
 from eulerangles import euler2euler, euler2matrix, matrix2euler
 
 def get_rot_matrix_PEET(rot, tilt, psi):

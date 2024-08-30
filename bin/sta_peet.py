@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
 ################ This script is designed for expand particles using PEET package #################
 
-import sys,os
-import numpy as np
-import math
-import subprocess
-from multiprocessing import Pool
+import sys, os, math, subprocess
 import glob
+import numpy as np
+from multiprocessing import Pool
 
 from TomoNet.objects.tomogram import Tomogram
 from TomoNet.objects.prmFile import PRMFile
-from TomoNet.util.star_metadata import MetaData
 from TomoNet.objects.expand import Expand
+from TomoNet.util.star_metadata import MetaData
 
 '''
 # testing using mpram

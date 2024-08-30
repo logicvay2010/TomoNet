@@ -1,13 +1,10 @@
-import logging
-import os.path
-import os, glob, subprocess
+import os, glob, subprocess, logging
 import imodmodel
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QTabWidget, QHeaderView, QMessageBox, QTableWidgetItem
-from TomoNet.util import metadata
-from TomoNet.util import browse
+from TomoNet.util import metadata, browse
 
 class Manual(QTabWidget):
     def __init__(self):
@@ -20,6 +17,8 @@ class Manual(QTabWidget):
         self.check_log_file("ManualPick")
 
         self.recon_folder = "Recon/eTomo"
+
+        self.recon_root_folder = "Recon"
 
         self.stalkInit_folder = "ManualPick/stalkInit_prep"
 
@@ -111,7 +110,7 @@ class Manual(QTabWidget):
         self.lineEdit_path_other_maps.textChanged.connect(self.reload_table)
 
         self.pushButton_other_maps.clicked.connect\
-            (lambda: browse.browseFolderSlot(self.lineEdit_path_other_maps)) 
+            (lambda: browse.browseFolderSlot(self.lineEdit_path_other_maps, location=self.recon_root_folder)) 
         
         self.read_settting()
         self.setTabShape(QtWidgets.QTabWidget.Triangular)

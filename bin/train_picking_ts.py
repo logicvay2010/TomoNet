@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-import logging
-import os
-import sys
-import math
+import logging, os, sys, math
 
 import numpy as np
 import matplotlib.pyplot as plt

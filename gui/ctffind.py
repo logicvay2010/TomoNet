@@ -1,20 +1,17 @@
-import logging
-import os.path
-import os, glob, subprocess
+import os, glob, logging
 import numpy as np
-import matplotlib
+# import matplotlib
 import matplotlib.pyplot as plt
-try:
-    matplotlib.use('TkAgg')
-except:
-    "no tkinter detected, suggest to install it by run in terminal < sudo apt install python3-tk >"
+# try:
+#     matplotlib.use('TkAgg')
+# except:
+#     "no tkinter detected, suggest to install it by run in terminal < sudo apt install python3-tk >"
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QTabWidget, QHeaderView, QMessageBox, QTableWidgetItem
 
-from TomoNet.util import metadata
-from TomoNet.util import browse
+from TomoNet.util import metadata, browse
 from TomoNet.util.utils import string2float, string2int
 from TomoNet.process.bash_cttfind import Ctffind4
 
@@ -31,6 +28,8 @@ class Ctffind(QTabWidget):
         self.ctffind4_path = "Ctffind"
 
         self.ts_tlt_folder ="Recon/ts_tlt"
+
+        self.recon_folder ="Recon"
 
         self.thread_ctffind = None
 
@@ -360,9 +359,9 @@ class Ctffind(QTabWidget):
         self.lineEdit_defocus_step.textChanged.connect(self.save_setting)
        
         self.pushButton_ts_tlt_folder.clicked.connect\
-            (lambda: browse.browseFolderSlot(self.lineEdit_ts_tlt_folder)) 
+            (lambda: browse.browseFolderSlot(self.lineEdit_ts_tlt_folder, location=self.recon_folder)) 
         self.pushButton_ctffind_exe.clicked.connect\
-            (lambda: browse.browseSlot (self.lineEdit_ctffind_exe)) 
+            (lambda: browse.browseSlot (self.lineEdit_ctffind_exe, location='/')) 
 
         self.pushButton_run_ctffind.clicked.connect(self.ctffind4)
         self.pushButton_reload.clicked.connect(self.reload_table)

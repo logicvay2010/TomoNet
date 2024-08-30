@@ -1,21 +1,17 @@
-import logging
-import os.path
-import shutil
-import mrcfile
-import math
-import os, glob
+import os, math, shutil, logging, subprocess
 import starfile
-import subprocess
+import mrcfile
+import glob
 
 import numpy as np
 from scipy.spatial import distance_matrix
 from scipy.spatial.distance import pdist, squareform
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QTabWidget, QMessageBox
 
 from TomoNet.util import browse
-from TomoNet.util.utils import check_log_file, getLogContent, string2float, string2int, getRGBs
-from TomoNet.util.utils import mkfolder
+from TomoNet.util.utils import mkfolder, check_log_file, getLogContent, string2float, string2int, getRGBs
 from TomoNet.util.geometry import get_raw_shifts_PEET, apply_slicerRot_PEET, PEET2Relion, Relion2PEET, Relion2ChimeraX, getNeighbors
 
 class OtherUtils(QTabWidget):
@@ -27,6 +23,8 @@ class OtherUtils(QTabWidget):
         self.log_file = "OtherUtils/otherUtils.log"
 
         self.others_folder = "OtherUtils"
+        
+        self.expand_folder = "Expand"
         
         check_log_file(self.log_file, "OtherUtils")
         
@@ -66,15 +64,15 @@ class OtherUtils(QTabWidget):
             child.textChanged.connect(self.save_setting)
 
         self.pushButton_expand_result_folder.clicked.connect\
-             (lambda: browse.browseFolderSlot(self.lineEdit_expand_result_folder)) 
+             (lambda: browse.browseFolderSlot(self.lineEdit_expand_result_folder, location=self.expand_folder)) 
         
         self.pushButton_data_star_file.clicked.connect\
-            (lambda: browse.browseSlot(self.lineEdit_data_star_file, 'star')) 
+            (lambda: browse.browseSlot(self.lineEdit_data_star_file, 'star', location=".")) 
         self.pushButton_fitin_map_file.clicked.connect\
-            (lambda: browse.browseSlot(self.lineEdit_fitin_map_file, 'map')) 
+            (lambda: browse.browseSlot(self.lineEdit_fitin_map_file, 'map', location=".")) 
         
         self.pushButton_input_star_file.clicked.connect\
-            (lambda: browse.browseSlot(self.lineEdit_input_star_file, 'star')) 
+            (lambda: browse.browseSlot(self.lineEdit_input_star_file, 'star', location=".")) 
         
         for child in self.findChildren(QtWidgets.QComboBox):
             child.currentIndexChanged.connect(self.save_setting)
