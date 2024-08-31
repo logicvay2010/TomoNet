@@ -71,7 +71,7 @@ class Deconvolve(QThread):
                             pixel_size=it.rlnPixelSize, snrfalloff=it.rlnSnrFalloff, deconvstrength=it.rlnDeconvStrength, \
                                 highpassnyquist=self.highpassnyquist, chunk_size=self.chunk_size, overlap_rate=self.overlap_rate, ncpu=self.ncpu, logger=self.logger)
                 except Exception as err:
-                    self.logger.error(f"Unexpected {err=}, {type(err)=}")
+                    self.logger.error(err)
                 
                 self.md._setItemValue(it, Label('rlnDeconvTomoName'), deconv_tomo_name)
                 
