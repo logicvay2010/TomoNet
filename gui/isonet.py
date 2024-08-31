@@ -106,7 +106,7 @@ class IsoNet(QTabWidget):
         self.pushButton_delete_2.clicked.connect(self.removeRow)
         self.pushButton_3dmod_2.clicked.connect(self.view_3dmod)
         
-        self.pushButton_3dmod.clicked.connect(self.view_3dmod)
+        #self.pushButton_3dmod.clicked.connect(self.view_3dmod)
         
         for child in self.findChildren(QtWidgets.QLineEdit):
            child.textChanged.connect(self.save_setting)
@@ -1740,7 +1740,7 @@ class IsoNet(QTabWidget):
                 fileName, _ = QtWidgets.QFileDialog.getOpenFileName(
                                 None,
                                 "Choose File",
-                                "",
+                                self.isonet_folder,
                                 self.file_types(self.table_header[j+1]), options=options)
                 if not fileName:
                     if current_tab_index == 0:
@@ -2200,6 +2200,7 @@ class IsoNet(QTabWidget):
                 if ret == QMessageBox.Yes:
                     self.pushButton_deconv.setText("Deconvolve")
                     self.pushButton_deconv.setStyleSheet("QPushButton {color: black;}")
+                    self.thread_deconvolve.kill_process()
                     self.thread_deconvolve.stop_process()
                     self.open_star_fileName(self.tomogram_star)
     
@@ -2283,6 +2284,7 @@ class IsoNet(QTabWidget):
                 if ret == QMessageBox.Yes:
                     self.pushButton_generate_mask.setText("Generate Mask")
                     self.pushButton_generate_mask.setStyleSheet("QPushButton {color: black;}")
+                    self.thread_generate_mask.kill_process()
                     self.thread_generate_mask.stop_process()
                     self.open_star_fileName(self.tomogram_star)
     
