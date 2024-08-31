@@ -91,7 +91,7 @@ def predict(args):
                 tomo_out_name = '{}/{}_corrected.mrc'.format(args.output_dir, tomo_root_name)
                 network.predict_tomo(args, tomo_file, output_file=tomo_out_name)
                 md._setItemValue(it, Label('rlnCorrectedTomoName'), tomo_out_name)
-    md.write(args.star_file)
+        md.write(args.star_file)
 
 if __name__ == "__main__":
 

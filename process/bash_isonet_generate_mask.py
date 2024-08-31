@@ -1,21 +1,22 @@
-import os, logging
-import mrcfile
-import numpy as np
+import os, logging, json
+# import mrcfile
+# import numpy as np
 
-from scipy.ndimage.filters import gaussian_filter
-from skimage.transform import resize
+# from scipy.ndimage.filters import gaussian_filter
+# from skimage.transform import resize
 
-from PyQt5.QtCore import QThread
+from PyQt5.QtCore import QThread, QProcess
 
 from TomoNet.util.metadata import MetaData, Label
 from TomoNet.util.dict2attr import idx2list
-from TomoNet.util.filter import maxmask, stdmask
+# from TomoNet.util.filter import maxmask, stdmask
 
 class MaskGeneration(QThread):
 
     def __init__(self, d):
         super().__init__()
         self.d = d
+        self.p = None
 
         self.mask_folder = d['mask_folder']
         self.tomogram_star = d['tomogram_star'] 
@@ -52,7 +53,7 @@ class MaskGeneration(QThread):
                     md._setItemValue(it,Label('rlnMaskName'),None)
 
             tomo_idx = idx2list(self.tomo_idx)
-
+            
             for it in md:
                 if tomo_idx is None or str(it.rlnIndex) in tomo_idx:
                     if self.use_deconv_mask == 1:
@@ -65,7 +66,6 @@ class MaskGeneration(QThread):
                         tomo_file = it.rlnMicrographName
                     
                     tomo_root_name = os.path.splitext(os.path.basename(tomo_file))[0]
-
                     if os.path.isfile(tomo_file):
                         self.logger.info('Input map: {} | Mask save to: {} | Density%: {} | STD%: {} | Patch size: {}'.format(os.path.basename(tomo_file),
                         self.mask_folder, it.rlnMaskDensityPercentage, it.rlnMaskStdPercentage, self.patch_size_mask))                        
@@ -79,76 +79,128 @@ class MaskGeneration(QThread):
                               
                         mask_out_name = '{}/{}_mask.mrc'.format(self.mask_folder, tomo_root_name)
 
-                        self.make_mask_one(tomo_file,
-                                        mask_out_name, 
-                                        mask_boundary = mask_boundary, 
-                                        side = self.patch_size_mask, 
-                                        density_percentage = it.rlnMaskDensityPercentage,
-                                        std_percentage = it.rlnMaskStdPercentage,
-                                        surface = self.zAxis_crop_mask)
+                        try:
+                            temp_mask_param_file = self.generate_mask_json(tomo_file,
+                                                                        mask_out_name, 
+                                                                        mask_boundary, 
+                                                                        self.patch_size_mask, 
+                                                                        it.rlnMaskDensityPercentage,
+                                                                        it.rlnMaskStdPercentage,
+                                                                        self.zAxis_crop_mask,
+                                                                        self.mask_folder)
+                            cmd = "mask_one.py {}".format(temp_mask_param_file)
+                            self.logger.info("Running mask generation command: {}".format(cmd))
+                            self.p = QProcess()
+                            self.p.start(cmd)
+                            res = self.p.waitForFinished(86400)
+                            
+                            try:
+                                self.p.kill() 
+                            except:
+                                pass
+                            self.p = None
 
-                    md._setItemValue(it,Label('rlnMaskName'), mask_out_name)
-                    self.logger.info('##################Isonet done generating mask for tomo # {}##################\n'.format(it.rlnIndex))
+                        except Exception as err:
+                            self.logger.error(f"Unexpected {err=}, {type(err)=}")
+                        # try:
+                        #     os.remove(temp_mask_param_file)
+                        # except:
+                        #     pass
 
-                md.write(self.tomogram_star)
+                        # self.make_mask_one(tomo_file,
+                        #                 mask_out_name, 
+                        #                 mask_boundary = mask_boundary, 
+                        #                 side = self.patch_size_mask, 
+                        #                 density_percentage = it.rlnMaskDensityPercentage,
+                        #                 std_percentage = it.rlnMaskStdPercentage,
+                        #                 surface = self.zAxis_crop_mask)
+                        if res:
+                            md._setItemValue(it,Label('rlnMaskName'), mask_out_name)
+                            self.logger.info('##################Isonet done generating mask for tomo # {}##################\n'.format(it.rlnIndex))
+                        
+                            md.write(self.tomogram_star)
+                    else:
+                        self.logger.warning("input file {} does not exist, please double check it. Skip mask generation for this one.".format(tomo_file))
+                        continue
         except Exception as err:
             self.logger.error(f"Unexpected {err=}, {type(err)=}")
             return
 
-    def make_mask_one(self, tomo_path, mask_name, mask_boundary = None, side = 5, density_percentage=50.0, std_percentage=50.0, surface=None):
+    def generate_mask_json(self, tomo_file, mask_out_name, mask_boundary, side, 
+                            density_percentage, std_percentage, surface, mask_dir):
+        d = {}
+        d['tomo_file'] = tomo_file
+        d['mask_out_name'] = mask_out_name
+        d['mask_boundary'] = mask_boundary
+        d['side'] = side
+        d['density_percentage'] = density_percentage
+        d['std_percentage'] = std_percentage
+        d['surface'] = surface        
         
-        with mrcfile.open(tomo_path, permissive=True) as n:
-            header_input = n.header
-            pixel_size = n.voxel_size
-            tomo = n.data.astype(np.float32)
-        sp=np.array(tomo.shape)
-        sp2 = sp//2
-        bintomo = resize(tomo,sp2,anti_aliasing=True)
+        temp_file = "{}/temp_param_deconv.json".format(mask_dir)
+
+        with open(temp_file, 'w') as fp:
+            json.dump(d, fp, indent=2, default=int)
+        
+        return temp_file
+
+    # def make_mask_one(self, tomo_path, mask_name, mask_boundary = None, side = 5, density_percentage=50.0, std_percentage=50.0, surface=None):
+        
+    #     with mrcfile.open(tomo_path, permissive=True) as n:
+    #         header_input = n.header
+    #         pixel_size = n.voxel_size
+    #         tomo = n.data.astype(np.float32)
+    #     sp=np.array(tomo.shape)
+    #     sp2 = sp//2
+    #     bintomo = resize(tomo,sp2,anti_aliasing=True)
     
-        gauss = gaussian_filter(bintomo, side/2)
-        if density_percentage <=99.8:
-            mask1 = maxmask(gauss,side=side, percentile=density_percentage)
-        else:
-            mask1 = np.ones(sp2)
+    #     gauss = gaussian_filter(bintomo, side/2)
+    #     if density_percentage <=99.8:
+    #         mask1 = maxmask(gauss,side=side, percentile=density_percentage)
+    #     else:
+    #         mask1 = np.ones(sp2)
 
-        if std_percentage <=99.8:
-            mask2 = stdmask(gauss,side=side, threshold=std_percentage)
-        else:
-            mask2 = np.ones(sp2)
+    #     if std_percentage <=99.8:
+    #         mask2 = stdmask(gauss,side=side, threshold=std_percentage)
+    #     else:
+    #         mask2 = np.ones(sp2)
 
-        out_mask_bin = np.multiply(mask1,mask2)
+    #     out_mask_bin = np.multiply(mask1,mask2)
     
-        if mask_boundary is not None:
-            from TomoNet.util.filter import boundary_mask
-            mask3 = boundary_mask(bintomo, mask_boundary, logger=self.logger)
-            out_mask_bin = np.multiply(out_mask_bin, mask3)
+    #     if mask_boundary is not None:
+    #         from TomoNet.util.filter import boundary_mask
+    #         mask3 = boundary_mask(bintomo, mask_boundary, logger=self.logger)
+    #         out_mask_bin = np.multiply(out_mask_bin, mask3)
 
-        if (surface is not None) and surface < 1:
-            for i in range(int(surface*sp2[0])):
-                out_mask_bin[i] = 0
-            for i in range(int((1-surface)*sp2[0]),sp2[0]):
-                out_mask_bin[i] = 0
+    #     if (surface is not None) and surface < 1:
+    #         for i in range(int(surface*sp2[0])):
+    #             out_mask_bin[i] = 0
+    #         for i in range(int((1-surface)*sp2[0]),sp2[0]):
+    #             out_mask_bin[i] = 0
 
-        out_mask = np.zeros(sp)
-        out_mask[0:-1:2,0:-1:2,0:-1:2] = out_mask_bin
-        out_mask[0:-1:2,0:-1:2,1::2] = out_mask_bin
-        out_mask[0:-1:2,1::2,0:-1:2] = out_mask_bin
-        out_mask[0:-1:2,1::2,1::2] = out_mask_bin
-        out_mask[1::2,0:-1:2,0:-1:2] = out_mask_bin
-        out_mask[1::2,0:-1:2,1::2] = out_mask_bin
-        out_mask[1::2,1::2,0:-1:2] = out_mask_bin
-        out_mask[1::2,1::2,1::2] = out_mask_bin
-        out_mask = (out_mask>0.5).astype(np.uint8)
+    #     out_mask = np.zeros(sp)
+    #     out_mask[0:-1:2,0:-1:2,0:-1:2] = out_mask_bin
+    #     out_mask[0:-1:2,0:-1:2,1::2] = out_mask_bin
+    #     out_mask[0:-1:2,1::2,0:-1:2] = out_mask_bin
+    #     out_mask[0:-1:2,1::2,1::2] = out_mask_bin
+    #     out_mask[1::2,0:-1:2,0:-1:2] = out_mask_bin
+    #     out_mask[1::2,0:-1:2,1::2] = out_mask_bin
+    #     out_mask[1::2,1::2,0:-1:2] = out_mask_bin
+    #     out_mask[1::2,1::2,1::2] = out_mask_bin
+    #     out_mask = (out_mask>0.5).astype(np.uint8)
 
-        with mrcfile.new(mask_name,overwrite=True) as n:
-            n.set_data(out_mask)
+    #     with mrcfile.new(mask_name,overwrite=True) as n:
+    #         n.set_data(out_mask)
 
-            n.header.extra2 = header_input.extra2
-            n.header.origin = header_input.origin
-            n.header.nversion = header_input.nversion
-            n.voxel_size = pixel_size
+    #         n.header.extra2 = header_input.extra2
+    #         n.header.origin = header_input.origin
+    #         n.header.nversion = header_input.nversion
+    #         n.voxel_size = pixel_size
     
     def stop_process(self):
         self.terminate()
         self.quit()
         self.wait()
+    
+    def kill_process(self):
+        self.p.kill() 

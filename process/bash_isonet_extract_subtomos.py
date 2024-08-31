@@ -191,7 +191,7 @@ class ExtractSubtomos(QThread):
                 else:
                     self.logger.warning('Tomogram map {} was not detected.'.format(tomo_file))
                 
-        subtomo_md.write(self.subtomo_star)
+            subtomo_md.write(self.subtomo_star)
 
         self.logger.info( "Extraction Done --- {} mins ---".format(round((time.time() - start_time)/60, 2)))
 
