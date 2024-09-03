@@ -10,8 +10,9 @@ from .data_sequence import get_datasets, Predict_sets
 from TomoNet.util.io import log
 
 class Net:
-    def __init__(self,filter_base=64,out_channels=1, learning_rate = 3e-4, add_last=False, metrics=None):
+    def __init__(self,filter_base=64,out_channels=1, learning_rate = 3e-4, add_last=False, metrics=None,  logger = None):
         self.model = Unet(filter_base = filter_base,learning_rate=learning_rate, out_channels=out_channels, add_last=add_last, metrics=metrics)
+        self.logger = logger
 
     def load(self, path):
         checkpoint = torch.load(path)
@@ -33,6 +34,7 @@ class Net:
     def train(self, data_path, gpuID=[0,1,2,3], batch_size=None, 
               epochs = 10, steps_per_epoch=200, acc_batches =2,
               ncpus=8, precision=32, learning_rate=3e-4, enable_progress_bar=True):
+        
         self.model.learning_rate = learning_rate
 
         train_batches = int(steps_per_epoch*0.9)
@@ -54,13 +56,12 @@ class Net:
         
         self.model.train()
         if isinstance(gpuID, str):
-            gpuID = list(map(int,gpuID.split(',')))
+            gpuID = list(map(int, gpuID.split(',')))
         
         # if enable_progress_bar:
         #     callbacks = pl.callbacks.progress.ProgressBar(refresh_rate=5)
         # else:
         #     callbacks = None
-        
         trainer = pl.Trainer(
             accumulate_grad_batches=acc_batches,
             accelerator='gpu',
@@ -77,6 +78,7 @@ class Net:
             #callbacks=[callbacks],
             num_sanity_val_steps=0,
         )
+        
         trainer.fit(self.model, train_loader, val_loader)        
         return self.model.metrics
 
@@ -96,7 +98,7 @@ class Net:
                 subset = mrc_list[i*full_size:(i+1)*full_size]
 
             if i == iter or iter//4 == 0 or (i+1)%(iter//4) == 0:
-                log(logger, "{} out of {}".format(i*full_size + len(subset), full_length))
+                log(logger, "done {} out of {}".format(i*full_size + len(subset), full_length))
 
             bench_dataset = Predict_sets(subset, inverted=inverted)
             bench_loader = torch.utils.data.DataLoader(bench_dataset, batch_size=batch_size, num_workers=1)

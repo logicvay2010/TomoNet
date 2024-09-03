@@ -28,3 +28,6 @@ class TrainIsoNet(QThread):
 
     def kill_process(self):
         self.p.kill()
+        self.p.terminate()
+        #self.p.kill()
+        #self.p.close()

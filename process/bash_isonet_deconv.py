@@ -83,7 +83,7 @@ class Deconvolve(QThread):
                     #         pixel_size=it.rlnPixelSize, snrfalloff=it.rlnSnrFalloff, deconvstrength=it.rlnDeconvStrength, \
                     #             highpassnyquist=self.highpassnyquist, chunk_size=self.chunk_size, overlap_rate=self.overlap_rate, ncpu=self.ncpu, logger=self.logger)
                     try:
-                        self.p.kill() 
+                        self.p.terminate()#self.p.kill() 
                     except:
                         pass
                     self.p = None
@@ -130,4 +130,6 @@ class Deconvolve(QThread):
         self.wait()
     
     def kill_process(self):
-        self.p.kill() 
+        self.p.kill()
+        self.p.terminate()
+        #self.p.kill() 

@@ -2,12 +2,14 @@
 import os, sys, logging, shutil, subprocess, time
 import glob
 import mrcfile
+import torch
 import numpy as np
 import scipy.cluster.hierarchy as hcluster
 
 from TomoNet.util.io import log
 from TomoNet.util.utils import mkfolder
 from TomoNet.preprocessing.cubes import normalize
+from TomoNet.util.searchParam import SearchParam 
 
 # used for extract sort keys
 def natural_keys(text, delimiter='_', index=-2):
@@ -19,32 +21,97 @@ if __name__ == "__main__":
 
     from TomoNet.models.network_picking import Net
     
-    # read parameters
-    params = sys.argv
-    tomoName = sys.argv[1]
-    result_dir = sys.argv[2]
-    model_file = sys.argv[3]
-    crop_size = int(sys.argv[4])
-    cube_size = int(sys.argv[5])
-    mask_file = sys.argv[6]
-    repeat_unit = int(sys.argv[7])
-    min_patch_size = int(sys.argv[8])
-    y_label_size_predict = int(sys.argv[9])  
-    tolerance = float(sys.argv[10])  
-    save_seg_map = int(sys.argv[11])
+    log_file = "Autopick/autopick.log"
+
+    argv = sys.argv
     
-    #check whether running using terminal (12) or GUI (13) 
-    if len(params) == 13:
-        log_file = params[12]
-        logger = logging.getLogger(__name__)
-        handler = logging.FileHandler(filename=log_file, mode='a')
-        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        formatter.datefmt = "%y-%m-%d %H:%M:%S"
-        logger.handlers = [handler]
-        logger.setLevel(logging.INFO)
+    if not len(argv) == 2:
+        log(None, "{} only requires one input file in JSON format".format(os.path.basename(__file__)), "error")
+        sys.exit()
+    else:
+        try:
+            predict_params = SearchParam(argv[1])
+        except Exception as err:
+            log(None, err, "error")
+            log(None, "There is formating issue with the input JSON file {}".format(argv[1]), "error")
+            sys.exit()
+
+    if not predict_params.log_to_terminal:
+        try:
+            logger = logging.getLogger(__name__)
+            handler = logging.FileHandler(filename=log_file, mode='a')
+            formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+            handler.setFormatter(formatter)
+            formatter.datefmt = "%y-%m-%d %H:%M:%S"
+            logger.handlers = [handler]
+            logger.setLevel(logging.INFO)
+        except:
+            logger = None
     else:
         logger = None
+    # Reading params from JSON file
+    tomoName = predict_params.current_tomo
+    result_dir = predict_params.predict_result_path
+    model_file = predict_params.input_model
+    crop_size = predict_params.box_size_predict
+    cube_size = predict_params.box_size_predict - predict_params.margin
+    mask_file = predict_params.current_mask
+    repeat_unit = predict_params.unit_size_predict
+    min_patch_size = predict_params.min_patch_size_predict
+    y_label_size_predict = predict_params.y_label_size_predict
+    tolerance = predict_params.tolerance
+    save_seg_map = predict_params.save_seg_map
+    gpuID = predict_params.predict_gpuID
+
+    os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+    os.environ["CUDA_VISIBLE_DEVICES"]=gpuID
+
+    if isinstance(gpuID, str):
+        gpuID_list = list(map(int, gpuID.split(',')))
+        
+    gpu_device_count = torch.cuda.device_count()
+    if gpu_device_count == 0:
+        log(logger, "No available GPU detected, based on the requested GPU ID {}.".format(gpuID), "error")
+        sys.exit()
+    elif len(gpuID_list) > gpu_device_count:
+        log(logger, "No enough available GPUs ({} detected), based on the requested GPU ID {}. Available GPUs are:".format(gpu_device_count, gpuID), "error")
+        for i in range(gpu_device_count):
+            log(logger, torch.cuda.get_device_properties(i).name)
+        sys.exit()
+    else:
+        log(logger, "Run training on {} GPU(s):".format(len(gpuID_list)))
+        for i in range(len(gpuID_list)):
+            log(logger, torch.cuda.get_device_properties(i).name)
+
+    # # read parameters
+    # params = sys.argv
+    # tomoName = sys.argv[1]
+    # result_dir = sys.argv[2]
+    # model_file = sys.argv[3]
+    # crop_size = int(sys.argv[4])
+    # cube_size = int(sys.argv[5])
+    # mask_file = sys.argv[6]
+    # repeat_unit = int(sys.argv[7])
+    # min_patch_size = int(sys.argv[8])
+    # y_label_size_predict = int(sys.argv[9])  
+    # tolerance = float(sys.argv[10])  
+    # save_seg_map = int(sys.argv[11])
+    
+    # #check whether running using terminal (12) or GUI (13) 
+    # if len(params) == 13:
+    #     log_file = params[12]
+    #     logger = logging.getLogger(__name__)
+    #     handler = logging.FileHandler(filename=log_file, mode='a')
+    #     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    #     handler.setFormatter(formatter)
+    #     formatter.datefmt = "%y-%m-%d %H:%M:%S"
+    #     logger.handlers = [handler]
+    #     logger.setLevel(logging.INFO)
+    # else:
+    #     logger = None
+
+    # set visiable gpus
+
 
     # mode for output results for each patch (for debuging)
     save_patch_MODE = False
@@ -148,7 +215,7 @@ if __name__ == "__main__":
     mkfolder(pred_dir)
     log(logger,"trained_model={}".format(model_file))
     log(logger,"tolerance={}".format(tolerance))
-    network.predict(all_mrc_list[:], pred_dir, iter_count=0, inverted=False, filter_strength=tolerance)
+    network.predict(all_mrc_list[:], pred_dir, iter_count=0, inverted=False, filter_strength=tolerance, logger=logger)
     log(logger,"Subtomogram Predict Done --- {} mins ---".format(round((time.time() - start_time)/60, 2)))
     
     # Starting get coordinates info from the seg maps
@@ -274,7 +341,8 @@ if __name__ == "__main__":
             output_mrc.set_data(global_map)
 
     # create a link of mrc file #
-    cmd_linkMrc = "cd {}/{}; ln -s {} ./".format(result_dir, tomoName_final, tomoName)
+    
+    cmd_linkMrc = "cd {}/{}; ln -s {}/{} ./".format(result_dir, tomoName_final, os.getcwd(), tomoName)
     subprocess.check_output(cmd_linkMrc, shell=True)
     
     # check if particle number > 0 (valid outcomes), if so generate a mod file presenting all particles

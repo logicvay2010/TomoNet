@@ -95,7 +95,8 @@ class MaskGeneration(QThread):
                             res = self.p.waitForFinished(86400)
                             
                             try:
-                                self.p.kill() 
+                                self.p.terminate()
+                                #self.p.kill() 
                             except:
                                 pass
                             self.p = None
@@ -203,4 +204,6 @@ class MaskGeneration(QThread):
         self.wait()
     
     def kill_process(self):
-        self.p.kill() 
+        self.p.kill()
+        self.p.terminate()
+        #self.p.kill() 
