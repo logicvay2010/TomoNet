@@ -73,7 +73,7 @@ class Net:
             num_sanity_val_steps=0
         )
         trainer.fit(self.model, train_loader, val_loader)        
-        return  self.model.metrics
+        return self.model.metrics
 
     def predict(self, mrc_list, result_dir, iter_count):    
 

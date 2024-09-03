@@ -7,6 +7,7 @@ import numpy as np
 from TomoNet.util.io import log
 from TomoNet.util.utils import mkfolder
 from TomoNet.preprocessing.cubes import create_cube_seeds_new, crop_cubes, normalize
+from TomoNet.util.searchParam import SearchParam 
 
 # check if coord d is inside the cube with center c
 def inZone(c, d, crop_size):
@@ -27,9 +28,12 @@ def getNewCoords(new_centers, old_coords, crop_size):
 def extract_subtomos_one(tomoName, maskName, coordsFile, data_dir, label_size, numberSubtomo, crop_size, bin, check_folder=True, logger=None):
 
     log(logger, "######## Extracting subtomograms from {} ########".format(tomoName))
-    
     # read 3D volume
-    baseName = os.path.basename(tomoName.split(".")[0])
+    # if tomoName.startswith('.'):
+    #     baseName = os.path.basename(tomoName.split(".")[1])
+    # else:
+    baseName = os.path.basename(tomoName).split(".")[0]
+
     with mrcfile.open(tomoName) as mrcData:
         orig_data = mrcData.data.astype(np.float32)
     
@@ -48,7 +52,7 @@ def extract_subtomos_one(tomoName, maskName, coordsFile, data_dir, label_size, n
 
     # scale coords
     centers = (np.array(centers)*bin).astype(int)
-    
+        
     # handling mask
     if maskName in [None, "None"]:
         sp = orig_data.shape
@@ -199,36 +203,74 @@ def split_data(data_dir):
             
 if __name__ == "__main__":
 
-    import time
-    start_time = time.time()
+    log_file = "Autopick/autopick.log"
+
+    argv = sys.argv
+
+    if not len(argv) == 2:
+        log(None, "{} only requires one input file in JSON format".format(os.path.basename(__file__)), "error")
+        sys.exit()
+    else:
+        try:
+            train_params = SearchParam(argv[1])
+        except Exception as err:
+            log(None, err, "error")
+            log(None, "There is formating issue with the input JSON file {}".format(argv[1]), "error")
+            sys.exit()
     
-    # read params #
-    params = sys.argv    
-    input_folder = params[1]
-    tomoNameList = params[2].split(",")
-    result_dir= params[3]
-    continue_from_model = params[4]
-    label_size = int(params[5])
-    subtomo_num = int(params[6])
-    cube_size = int(params[7])
-    coords_scale = float(params[8])
-    
-    # a binning factor to match coordinates with input tomograms (default 1)#
-    bin = coords_scale
-    
-    # logger variable for GUI #
-    if len(params) == 10:
-        log_file = params[9]
-        logger = logging.getLogger(__name__)
-        handler = logging.FileHandler(filename=log_file, mode='a')
-        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        formatter.datefmt = "%y-%m-%d %H:%M:%S"
-        logger.handlers = [handler]
-        logger.setLevel(logging.INFO)
+    if not train_params.log_to_terminal:
+        try:
+            logger = logging.getLogger(__name__)
+            handler = logging.FileHandler(filename=log_file, mode='a')
+            formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+            handler.setFormatter(formatter)
+            formatter.datefmt = "%y-%m-%d %H:%M:%S"
+            logger.handlers = [handler]
+            logger.setLevel(logging.INFO)
+        except:
+            logger = None
     else:
         logger = None
-    ###########################
+    
+    input_folder = train_params.input_folder_train
+    tomoNameList = train_params.tomo_list
+    result_dir= train_params.result_folder_train
+    continue_from_model = train_params.continue_from_model
+    label_size = train_params.label_size
+    subtomo_num = train_params.subtomo_num
+    cube_size = train_params.subtomo_box_size
+    bin = train_params.coords_scale
+
+    # # read params #
+    # params = sys.argv    
+    # input_folder = params[1]
+    # tomoNameList = params[2].split(",")
+    # result_dir= params[3]
+    # continue_from_model = params[4]
+    # label_size = int(params[5])
+    # subtomo_num = int(params[6])
+    # cube_size = int(params[7])
+    # coords_scale = float(params[8])
+    
+    # # a binning factor to match coordinates with input tomograms (default 1)#
+    # bin = coords_scale
+    
+    # # logger variable for GUI #
+    # if len(params) == 10:
+    #     log_file = params[9]
+    #     logger = logging.getLogger(__name__)
+    #     handler = logging.FileHandler(filename=log_file, mode='a')
+    #     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    #     handler.setFormatter(formatter)
+    #     formatter.datefmt = "%y-%m-%d %H:%M:%S"
+    #     logger.handlers = [handler]
+    #     logger.setLevel(logging.INFO)
+    # else:
+    #     logger = None
+    # ###########################
+    
+    import time
+    start_time = time.time()
 
     # set up folder for subtomograms #
     try:
@@ -292,6 +334,7 @@ if __name__ == "__main__":
 
     # extraction
     log(logger, "Start subtomograms Extraction!")
+
     extract_subtomos_one(tomoList[0], maskList[0], coordsList[0], data_dir, label_size, subtomo_num, cube_size, logger=logger, bin=bin)
     
     for i, tomo in enumerate(tomoList[1:]):

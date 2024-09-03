@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 import scipy.cluster.hierarchy as hcluster
 
@@ -44,6 +45,9 @@ def create_cube_seeds_new(img3D, nCubesPerImg, cubeSideLen, coords, mask=None, l
 
     valid_inds = np.where(merged_mask[border_slices])
     valid_inds = [v + s.start for s, v in zip(border_slices, valid_inds)]
+    if len(valid_inds[0]) == 0:
+        log(logger, "Cannot generate subtomogram, possiable cause: 1. 'subtomo_box_size' ({}) is too large for the trained tomogram. 2. coordinates is not at the same binning scale with input tomograms".format(cubeSideLen), "error")
+        sys.exit()
     sample_inds = np.random.choice(len(valid_inds[0]), nCubesPerImg, replace=len(valid_inds[0]) < nCubesPerImg)
     rand_inds = [v[sample_inds] for v in valid_inds]
     

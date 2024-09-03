@@ -433,6 +433,18 @@ class Autopick(QTabWidget):
         self.lineEdit_y_label_size_predict.setObjectName("lineEdit_y_label_size_predict")
         self.horizontalLayout_7.addWidget(self.lineEdit_y_label_size_predict)
 
+        self.label_predict_gpuID = QtWidgets.QLabel(self.tab_2)
+        self.label_predict_gpuID.setSizePolicy(sizePolicy)
+        self.label_predict_gpuID.setMinimumSize(QtCore.QSize(60, 0))
+        self.label_predict_gpuID.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_predict_gpuID.setObjectName("label_predict_gpuID")
+        self.horizontalLayout_7.addWidget(self.label_predict_gpuID)
+
+        self.lineEdit_predict_gpuID = QtWidgets.QLineEdit(self.tab_2)
+        self.lineEdit_predict_gpuID.setInputMask("")
+        self.lineEdit_predict_gpuID.setObjectName("lineEdit_predict_gpuID")
+        self.horizontalLayout_7.addWidget(self.lineEdit_predict_gpuID)
+
         self.groupBox_1 = QtWidgets.QGroupBox()
 
         self.verticalLayout_1 = QtWidgets.QVBoxLayout()
@@ -805,6 +817,12 @@ class Autopick(QTabWidget):
             font-size:9pt;\">This value should be consistent with your training input y label size.\
             </span></p></body></html>"))
         
+        self.label_predict_gpuID.setText(_translate("Form", "GPU ID:"))
+        self.lineEdit_predict_gpuID.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            font-size:9pt;\">GPUs to be used for prediction.\
+            </span></p></body></html>"))
+        
         self.groupBox_1.setTitle("Advanced")
         self.groupBox_1.setFlat(False)
 
@@ -907,6 +925,7 @@ class Autopick(QTabWidget):
         data['unit_size_predict'] = ""
         data['min_patch_size_predict'] = ""
         data['y_label_size_predict'] = ""
+        data['predict_gpuID'] = ""
         data['tolerance'] = ""
         data['margin'] = ""
         data['save_seg_map'] = "No"
@@ -947,6 +966,7 @@ class Autopick(QTabWidget):
         self.lineEdit_box_size_predict.setText(data['box_size_predict'])
         self.lineEdit_min_patch_size_predict.setText(data['min_patch_size_predict'])
         self.lineEdit_y_label_size_predict.setText(data['y_label_size_predict'])
+        self.lineEdit_predict_gpuID.setText(data['predict_gpuID'])
         self.lineEdit_tolerance.setText(data['tolerance'])
         self.lineEdit_margin.setText(data['margin'])
         self.comboBox_save_seg_map.setCurrentText(data['save_seg_map'])
@@ -971,6 +991,7 @@ class Autopick(QTabWidget):
         param['unit_size_predict'] = self.lineEdit_unit_size_predict.text()
         param['min_patch_size_predict'] = self.lineEdit_min_patch_size_predict.text()
         param['y_label_size_predict'] = self.lineEdit_y_label_size_predict.text()
+        param['predict_gpuID'] = self.lineEdit_predict_gpuID.text()
         param['tolerance'] = self.lineEdit_tolerance.text()
         param['margin'] = self.lineEdit_margin.text()
         param['save_seg_map'] = self.comboBox_save_seg_map.currentText()
@@ -1016,7 +1037,7 @@ class Autopick(QTabWidget):
                 epoch_num = string2int(epoch_num)
 
         if not len(self.lineEdit_GPU_id.text()) > 0:
-            GPU_id = 0
+            GPU_id = "0"
         else:
             GPU_id = self.lineEdit_GPU_id.text()
 
@@ -1133,6 +1154,7 @@ class Autopick(QTabWidget):
             if ret == QMessageBox.Yes:
                 self.cmd_finished(self.pushButton_train_network, "Train")
                 try:
+                    self.thread_train_network.kill_process()
                     self.thread_train_network.stop_process()
                 except:
                     self.logger.warning("no thread are running!")
@@ -1185,6 +1207,11 @@ class Autopick(QTabWidget):
             else:
                 y_label_size_predict = string2int(y_label_size_predict)
 
+        if not len(self.lineEdit_predict_gpuID.text()) > 0:
+            predict_gpuID = "0"
+        else:
+            predict_gpuID = self.lineEdit_predict_gpuID.text()
+
         if not len(self.lineEdit_tolerance.text()) > 0:
             tolerance = 0.5
         else:
@@ -1212,6 +1239,7 @@ class Autopick(QTabWidget):
         params['unit_size_predict'] = unit_size_predict
         params['min_patch_size_predict'] = min_patch_size_predict
         params['y_label_size_predict'] = y_label_size_predict
+        params['predict_gpuID'] = predict_gpuID
         params['tolerance'] = tolerance
         params['margin'] = margin
         params['save_seg_map'] = save_seg_map
@@ -1250,6 +1278,7 @@ class Autopick(QTabWidget):
             if ret == QMessageBox.Yes:
                 self.cmd_finished(self.pushButton_predict_network, "Predict")
                 try:
+                    self.thread_predict_network.kill_process()
                     self.thread_predict_network.stop_process()
                 except:
                     self.logger.warning("no thread are running!")
@@ -1375,4 +1404,5 @@ class Autopick(QTabWidget):
         button.setText(text)
         button.setStyleSheet("QPushButton {color: black;}")
         self.model_folder_changed()
-        self.reload_table()
+        if not text == "Train":
+            self.reload_table()
