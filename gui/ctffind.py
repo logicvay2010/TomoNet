@@ -381,7 +381,7 @@ class Ctffind(QTabWidget):
         
         self.label_ts_tlt_folder.setText(_translate("Form", "Tilt series folder:"))
         self.lineEdit_ts_tlt_folder.setPlaceholderText(_translate("Form", \
-            "Recon/ts_tlt"))
+            "xxx/tomoNet_root/Recon/ts_tlt"))
         self.lineEdit_ts_tlt_folder.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
             font-size:9pt;\">Path to the folder stores stacked tilt series. Default: 'Recon/ts_tlt'.\
@@ -687,7 +687,7 @@ class Ctffind(QTabWidget):
         
         if not len(self.lineEdit_ts_tlt_folder.text()) > 0:
             #return "Please provide path to your tilt series folder!"
-            ts_tlt_folder = self.ts_tlt_folder
+            ts_tlt_folder = "{}/{}".format(os.getcwd(), self.ts_tlt_folder)
         else:
             ts_tlt_folder = self.lineEdit_ts_tlt_folder.text()
 
