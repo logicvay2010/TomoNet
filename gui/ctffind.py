@@ -1,11 +1,11 @@
 import os, glob, logging
 import numpy as np
-# import matplotlib
+import matplotlib
 import matplotlib.pyplot as plt
-# try:
-#     matplotlib.use('TkAgg')
-# except:
-#     "no tkinter detected, suggest to install it by run in terminal < sudo apt install python3-tk >"
+try:
+    matplotlib.use('TkAgg')
+except:
+    "no tkinter detected, suggest to install it by run in terminal < sudo apt install python3-tk >"
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QFont
