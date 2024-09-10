@@ -1,4 +1,4 @@
-# Note: This package is actively been updated. I recommend user using Git to install this package such that you can use Git pull to easily catch up the updates. #
+## Note: This package is actively been updated. I recommend user using Git to install this package such that you can use Git pull to easily catch up the updates. ##
 
 ## Installation and Mannual ##
 Please check this user manual for usage of TomoNet: 
