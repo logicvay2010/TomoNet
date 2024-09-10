@@ -41,10 +41,11 @@ def browseSlot(lineEdit, type='*', location=""):
                     flt,
                     options=options)
     if fileName:
-        try:
-            lineEdit.setText(sim_path(fileName))
-        except:
-            lineEdit.setText(fileName)
+        # try:
+        #     lineEdit.setText(sim_path(fileName))
+        # except:
+        #     lineEdit.setText(fileName)
+        lineEdit.setText(fileName)
 
 def browseFolderSlot(lineEdit, location=""):
     ''' 
@@ -57,10 +58,11 @@ def browseFolderSlot(lineEdit, location=""):
         dir_path=QtWidgets.QFileDialog.getExistingDirectory(None, "Choose Directory", location)
 
         if len(dir_path) > 0:
-            try:
-                lineEdit.setText(sim_path(dir_path))
-            except:
-                lineEdit.setText(dir_path)
+            # try:
+            #     lineEdit.setText(sim_path(dir_path))
+            # except:
+            #     lineEdit.setText(dir_path)
+            lineEdit.setText(dir_path)
     except:
         ##TODO: record to log.
         pass

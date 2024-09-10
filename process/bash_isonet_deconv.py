@@ -88,7 +88,7 @@ class Deconvolve(QThread):
                         pass
                     self.p = None
                 except Exception as err:
-                    self.logger.error(f"Unexpected {err=}, {type(err)=}")
+                    self.logger.error("error")
                 try:
                     os.remove(temp_deconv_param_file)
                 except:
