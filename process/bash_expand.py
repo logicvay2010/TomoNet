@@ -28,7 +28,7 @@ class Expand_CMDS(QThread):
             
             self.p = QProcess()
             self.p.start(cmd)
-            res = self.p.waitForFinished(86400)
+            res = self.p.waitForFinished(8.64e7)
 
             if res:
                 try:

@@ -92,7 +92,7 @@ class MaskGeneration(QThread):
                             self.logger.info("Running mask generation command: {}".format(cmd))
                             self.p = QProcess()
                             self.p.start(cmd)
-                            res = self.p.waitForFinished(86400)
+                            res = self.p.waitForFinished(60000*30)
                             
                             try:
                                 self.p.terminate()
