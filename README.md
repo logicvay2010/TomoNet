@@ -1,3 +1,5 @@
+# Note: This package is actively been updated. I recommend user using Git to install this package such that you can use Git pull to easily catch up the updates. #
+
 ## Installation and Mannual ##
 Please check this user manual for usage of TomoNet: 
 https://mercurial-carriage-b95.notion.site/TomoNet-Tutorial-Version-08302023-66c15fe1c9d24d50a03696700890fe10?pvs=4
