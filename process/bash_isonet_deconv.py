@@ -78,7 +78,7 @@ class Deconvolve(QThread):
                     self.logger.info("Running deconv command: {}".format(cmd))
                     self.p = QProcess()
                     self.p.start(cmd)
-                    res = self.p.waitForFinished(86400)
+                    res = self.p.waitForFinished(60000*30)
                     # deconv_one(it.rlnMicrographName, deconv_tomo_name, self.isonet_folder, voltage=self.voltage, cs=self.cs, defocus=it.rlnDefocus/10000.0, \
                     #         pixel_size=it.rlnPixelSize, snrfalloff=it.rlnSnrFalloff, deconvstrength=it.rlnDeconvStrength, \
                     #             highpassnyquist=self.highpassnyquist, chunk_size=self.chunk_size, overlap_rate=self.overlap_rate, ncpu=self.ncpu, logger=self.logger)

@@ -58,7 +58,7 @@ class Train_network(QThread):
             self.p = QProcess()
             self.p.start(cmd)
             #self.logger.info("PID {}".format(self.p.pid()))
-            res = self.p.waitForFinished(86400)
+            res = self.p.waitForFinished(8.64e7*3)
             #subprocess.run(cmd, shell=True, encoding="utf-8", stdout=subprocess.PIPE)
             
             # with open("{}/train_params.json".format(self.d['result_folder_train']), 'w') as fp:
@@ -66,7 +66,7 @@ class Train_network(QThread):
             
             #clean process 
             try:
-                self.p.terminate() 
+                self.p.terminate(8.64e7*3) 
                 #self.p.close()
             except:
                 pass

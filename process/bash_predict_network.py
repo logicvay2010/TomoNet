@@ -74,7 +74,7 @@ class Predict_network(QThread):
                 self.p = QProcess()
                 self.p.start(cmd)
                 #self.logger.info("PID {}".format(self.p.pid()))
-                res = self.p.waitForFinished(86400)
+                res = self.p.waitForFinished(8.64e7)
 
                 try:
                     self.p.terminate() 

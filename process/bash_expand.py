@@ -27,17 +27,19 @@ class Expand_CMDS(QThread):
             #subprocess.check_output(cmd, shell=True)
             
             self.p = QProcess()
-
             self.p.start(cmd)
-            res = self.p.waitForFinished(86400)
-            
-            try:
-                if cmd.split()[4] == '0':
-                    self.logger.info("Finish generating a new final folder for {}".format(cmd.split()[3]))
-                else:
-                    self.logger.info("Finish expand {} for {} rounds".format(cmd.split()[3],cmd.split()[4]))
-            except:
-                pass
+            res = self.p.waitForFinished(8.64e7)
+
+            if res:
+                try:
+                    if cmd.split()[4] == '0':
+                        self.logger.info("Finish generating a new final folder for {}".format(cmd.split()[3]))
+                    else:
+                        self.logger.info("Finish expand {} for {} rounds".format(cmd.split()[3],cmd.split()[4]))
+                except:
+                    pass
+            else:
+                self.logger.error("Expand failed for {}".format(cmd.split()[3]))
             try:
                 self.kill_process()
             except:

@@ -14,7 +14,7 @@ class PredictIsoNet(QThread):
         self.p = QProcess()
 
         self.p.start(self.cmd)
-        res = self.p.waitForFinished(86400)
+        res = self.p.waitForFinished(8.64e7)
         #self.p.finished.connect(self.kill_process)
     
     def stop_process(self):

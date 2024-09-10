@@ -8,7 +8,7 @@ from TomoNet.util.filter import maxmask, stdmask
 from TomoNet.util.io import log
 from TomoNet.util.searchParam import SearchParam 
 
-def make_mask_one(tomo_path, mask_name, mask_boundary = None, side = 5, density_percentage=50.0, std_percentage=50.0, surface=None):
+def make_mask_one(tomo_path, mask_name, mask_boundary = None, side = 5, density_percentage=50.0, std_percentage=50.0, surface=None, logger=None):
         
         with mrcfile.open(tomo_path, permissive=True) as n:
             header_input = n.header
@@ -33,7 +33,7 @@ def make_mask_one(tomo_path, mask_name, mask_boundary = None, side = 5, density_
     
         if mask_boundary is not None:
             from TomoNet.util.filter import boundary_mask
-            mask3 = boundary_mask(bintomo, mask_boundary, logger=self.logger)
+            mask3 = boundary_mask(bintomo, mask_boundary, logger=logger)
             out_mask_bin = np.multiply(out_mask_bin, mask3)
 
         if (surface is not None) and surface < 1:
@@ -92,6 +92,6 @@ if __name__ == "__main__":
 
     make_mask_one(mask_params.tomo_file, mask_params.mask_out_name, mask_params.mask_boundary, 
                   mask_params.side, mask_params.density_percentage, 
-                  mask_params.std_percentage, mask_params.surface)
+                  mask_params.std_percentage, mask_params.surface, logger=logger)
     
     log(logger, 'time consumed: {:10.4f} s'.format(time.time()-t1))
