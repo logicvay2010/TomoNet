@@ -1607,8 +1607,8 @@ class IsoNet(QTabWidget):
     
     def setTableWidget(self, tw, md):
 
-        import time
-        start_time = time.time()
+        #import time
+        #start_time = time.time()
         tw.setRowCount(0)
         nRows = len(md)
         labels = md.getLabels()
@@ -1616,8 +1616,8 @@ class IsoNet(QTabWidget):
         #tw.setUpdatesEnabled(False)
         tw.setColumnCount(nColumns- 1) 
         tw.setRowCount(nRows)
-        self.logger.info(1)
-        self.logger.info(time.time() - start_time) #1
+        #self.logger.info(1)
+        #self.logger.info(time.time() - start_time) #1
         label_2 = [label for label in labels]
         for i, lab in enumerate(label_2):
             #tw.horizontalHeaderItem(i).setToolTip(get_toolTip(lab))
@@ -1631,16 +1631,16 @@ class IsoNet(QTabWidget):
             if i > 0:
                 tw.horizontalHeaderItem(i-1).setToolTip(self.get_toolTip(lab))
         # data insertion
-        self.logger.info(4)
-        self.logger.info(time.time() - start_time) 
+        #self.logger.info(4)
+        #self.logger.info(time.time() - start_time) 
 
         for i in range(len(md._data)):
             it = md._data[i]
         #i=0
         #for it in md._data:
-            if i%10==1:
-                print(i)
-                print(time.time() - start_time) 
+            #if i%10==1:
+                #print(i)
+                #print(time.time() - start_time) 
             for j in range(tw.columnCount()):
                 tw.setItem(i, j, QTableWidgetItem(str(getattr(it, labels[j+1]))))
             # if i%10==1:
@@ -1648,8 +1648,8 @@ class IsoNet(QTabWidget):
                 # print(time.time() - start_time) 
             # i+=1
         #tw.setUpdatesEnabled(True)
-        self.logger.info(5)
-        self.logger.info(time.time() - start_time) 
+        #self.logger.info(5)
+        #self.logger.info(time.time() - start_time) 
     
     def read_star(self):
         if not self.isValid(self.tomogram_star):
