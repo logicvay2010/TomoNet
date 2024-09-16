@@ -41,7 +41,7 @@ class IsoNet(QTabWidget):
         
         self.table_header = []
 
-        self.read_star()
+        #self.read_star()
         
         self.thread_deconvolve = None
         self.thread_generate_mask = None
@@ -86,15 +86,18 @@ class IsoNet(QTabWidget):
         self.setUI_predict()
         self.addTab(self.tab_4, "Missing-Wedge Compensation (beta)")
         
-        self.setTableWidget(self.tableWidget, self.md)
-
-        self.setTableWidget(self.tableWidget_2, self.md)
+        if self.md:
+            self.setTableWidget(self.tableWidget, self.md)
+        if self.md:
+            self.setTableWidget(self.tableWidget_2, self.md)
         
         self.tableWidget.cellDoubleClicked[int, int].connect(self.browseSlotTable)
         self.tableWidget.cellChanged[int,int].connect(self.updateMDItem) 
+        self.tableWidget.setSortingEnabled(False)
 
         self.tableWidget_2.cellDoubleClicked[int, int].connect(self.browseSlotTable)
         self.tableWidget_2.cellChanged[int,int].connect(self.updateMDItem) 
+        self.tableWidget_2.setSortingEnabled(False)
 
         self.pushButton_insert.clicked.connect(self.copyRow)
         self.pushButton_delete.clicked.connect(self.removeRow)
@@ -1603,20 +1606,24 @@ class IsoNet(QTabWidget):
         return switcher.get(label, "None")
     
     def setTableWidget(self, tw, md):
-        
+
+        import time
+        start_time = time.time()
+        tw.setRowCount(0)
         nRows = len(md)
         labels = md.getLabels()
         nColumns = len(labels)
+        #tw.setUpdatesEnabled(False)
         tw.setColumnCount(nColumns- 1) 
         tw.setRowCount(nRows)
-
+        self.logger.info(1)
+        self.logger.info(time.time() - start_time) #1
         label_2 = [label for label in labels]
         for i, lab in enumerate(label_2):
             #tw.horizontalHeaderItem(i).setToolTip(get_toolTip(lab))
             label_2[i] = self.get_display_name(lab)
             #if lab == 'Defocus' or lab == 'PixelSize':
             #    label_2[i] =  lab+" (A)"
-
         tw.setHorizontalHeaderLabels(label_2[1:])
         tw.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
         tw.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
@@ -1624,9 +1631,25 @@ class IsoNet(QTabWidget):
             if i > 0:
                 tw.horizontalHeaderItem(i-1).setToolTip(self.get_toolTip(lab))
         # data insertion
-        for i, it in enumerate(md):
+        self.logger.info(4)
+        self.logger.info(time.time() - start_time) 
+
+        for i in range(len(md._data)):
+            it = md._data[i]
+        #i=0
+        #for it in md._data:
+            if i%10==1:
+                print(i)
+                print(time.time() - start_time) 
             for j in range(tw.columnCount()):
-                tw.setItem(i, j, QTableWidgetItem(str(getattr(it,labels[j+1]))))
+                tw.setItem(i, j, QTableWidgetItem(str(getattr(it, labels[j+1]))))
+            # if i%10==1:
+                # print(i)
+                # print(time.time() - start_time) 
+            # i+=1
+        #tw.setUpdatesEnabled(True)
+        self.logger.info(5)
+        self.logger.info(time.time() - start_time) 
     
     def read_star(self):
         if not self.isValid(self.tomogram_star):
