@@ -1606,7 +1606,6 @@ class IsoNet(QTabWidget):
         return switcher.get(label, "None")
     
     def setTableWidget(self, tw, md):
-
         #import time
         #start_time = time.time()
         tw.setRowCount(0)
@@ -2043,7 +2042,7 @@ class IsoNet(QTabWidget):
                 if self.currentIndex() == 0:
                     self.setTableWidget(self.tableWidget, self.md)
                     self.setTableWidget(self.tableWidget_2, self.md)
-                else:
+                elif self.currentIndex() == 1:
                     self.setTableWidget(self.tableWidget_2, self.md)
                     self.setTableWidget(self.tableWidget, self.md)
             self.save_setting()
@@ -2334,7 +2333,7 @@ class IsoNet(QTabWidget):
         if self.lineEdit_tomo_index_subtomo.text():
             tomo_index_subtomo = self.lineEdit_tomo_index_subtomo.text()
         else:
-            return None
+            tomo_index_subtomo = None
 
         param['tomogram_star'] = tomogram_star
         param['subtomo_dir'] = subtomo_dir
@@ -2666,7 +2665,7 @@ class IsoNet(QTabWidget):
         if self.lineEdit_predict_tomo_index.text():
             predict_tomo_index = self.lineEdit_predict_tomo_index.text()
         else:
-            return None
+            predict_tomo_index = None
         
         if self.lineEdit_predict_cube_size.text():
             if not string2int(self.lineEdit_predict_cube_size.text()) == None:
