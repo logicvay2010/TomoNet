@@ -1566,7 +1566,7 @@ class Recon(QTabWidget):
                 pass
             else:
                 tomoName = self.tableView.item(i, 0).text()
-                rec_path = self.read_recon_folder(tomoName, self.etomo_folder)[6]
+                rec_path = self.read_recon_folder(tomoName, self.etomo_folder, 1)[6]
                 cmd = "3dmod {}".format(rec_path)
                 os.system(cmd)
                 #subprocess.check_output(cmd, shell=True)
@@ -1601,7 +1601,7 @@ class Recon(QTabWidget):
                     pass
                 else:
                     tomoName = self.tableView_aretomo.item(i, 0).text()
-                    rec_path = self.read_recon_folder(tomoName, self.areTomo_folder)[6]
+                    rec_path = self.read_recon_folder(tomoName, self.areTomo_folder, 2)[6]
                     cmd = "3dmod {}".format(rec_path)
                     os.system(cmd)
             except:
@@ -1630,14 +1630,19 @@ class Recon(QTabWidget):
             params[tableView.item(i, 0).text()] = tableView.item(i, index).text()
         return params
 
-    def read_recon_folder(self, tomoName, rec_root):
+    def read_recon_folder(self, tomoName, rec_root, tab_index=1):
 
         tilt_num, re_mean, re_range, binning, thickness_nm, skipped_view = ["", "", "", "", "", ""]
         recon_path = "{}/{}".format(rec_root, tomoName)
 
         tiltcom_path = "{}/{}".format(recon_path, "tilt.com")
         #st_path = "{}/{}.st".format(recon_path, tomoName)
-        st_path = "{}/{}.st".format(self.aretomo_ts_folder, tomoName)
+        if tab_index == 1:
+            st_path = "{}/{}.st".format(self.etomo_ts_folder, tomoName)
+        elif tab_index == 2:
+            st_path = "{}/{}.st".format(self.aretomo_ts_folder, tomoName)
+        else:
+            st_path = "{}/{}.st".format(self.etomo_ts_folder, tomoName)
         rec_path = "{}/{}.rec".format(recon_path, tomoName)
         mrc_path = "{}/{}_rec.mrc".format(recon_path, tomoName)
 
@@ -1675,10 +1680,10 @@ class Recon(QTabWidget):
                 with open(tiltcom_path) as f:
                     skipped_view = ''
                     for line in f:
-                        if "EXCLUDELIST" in line:
-                            skipped_view = line.split('EXCLUDELIST')[-1].strip().replace(' ','')
                         if "EXCLUDELIST2" in line:
                             skipped_view2 = line.split('EXCLUDELIST2')[-1].strip().replace(' ','')
+                        elif "EXCLUDELIST" in line:
+                            skipped_view = line.split('EXCLUDELIST')[-1].strip().replace(' ','')
                     skipped_view = skipped_view2 if len(skipped_view2) > len(skipped_view) else skipped_view
             except:
                 pass                                
@@ -1737,7 +1742,7 @@ class Recon(QTabWidget):
                 action_ODD_EVN.setFont(QFont("sans-serif", 8, QFont.Bold))
                 self.tableView.setItem(i, 5, action_ODD_EVN)
                 
-                items = self.read_recon_folder(tomo, self.etomo_folder)
+                items = self.read_recon_folder(tomo, self.etomo_folder, 1)
 
                 if len(items[6]) > 0:
                     action_view = QTableWidgetItem(os.path.basename(items[6]))
@@ -1778,7 +1783,7 @@ class Recon(QTabWidget):
                 action_check.setFont(QFont("sans-serif", 8, QFont.Bold))
                 self.tableView_aretomo.setItem(i, 1, action_check)
                 
-                items = self.read_recon_folder(tomo, self.areTomo_folder)
+                items = self.read_recon_folder(tomo, self.areTomo_folder, 2)
 
                 if len(items[6]) > 0:
                     action_view = QTableWidgetItem(os.path.basename(items[6]))
