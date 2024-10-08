@@ -14,9 +14,7 @@ Any issues related to usage of TomoNet can be posted here or sent to email: logi
 Google group: https://groups.google.com/g/tomonet_cryoet
 
 ## Reference ##
-Our Paper is published here: http://dx.doi.org/10.1017/S2633903X24000060
-
-Our preprint is available here: https://www.biorxiv.org/content/10.1101/2024.02.17.580557v1
+This software is supported by NIH grant, and the Paper is published here: http://dx.doi.org/10.1017/S2633903X24000060. Please cite our work if it helps with your data processing, thanks!
 
 Please also cite the corresponding tools/packages if specific modules were used in your workflow:
 ###
@@ -34,7 +32,9 @@ Please also cite the corresponding tools/packages if specific modules were used 
 ###
 **Auto Exp.**: PEET
 ###
-
+###
+**Missing wedge compensation.**: IsoNet
+###
 
 ## Examples of TomoNet Application ##
 ### <p align="center"> HIV Gag 2D lattice </p> ###
