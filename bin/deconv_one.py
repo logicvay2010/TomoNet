@@ -7,6 +7,7 @@ import numpy as np
 
 from TomoNet.util.io import log
 from TomoNet.util.searchParam import SearchParam 
+from TomoNet.preprocessing.cubes import normalize_256
 
 
 def tom_ctf1d(pixelsize, voltage, cs, defocus, amplitude, phaseshift, bfactor, length=2048):
@@ -45,12 +46,13 @@ def wiener1d(angpix, voltage, cs, defocus, snrfalloff, deconvstrength, highpassn
     wiener = ctf/(ctf*ctf+1/snr)
     return ctf, wiener
 
-def tom_deconv_tomo(vol_file, out_file,angpix, voltage, cs, defocus, snrfalloff, deconvstrength, highpassnyquist, phaseflipped, phaseshift, ncpu=8):
+def tom_deconv_tomo(vol_file, out_file, angpix, voltage, cs, defocus, snrfalloff, deconvstrength, highpassnyquist, phaseflipped, phaseshift, ncpu=8, \
+                    global_min = None, global_max = None):
     with mrcfile.open(vol_file, permissive=True) as f:
         header_in = f.header
         vol = f.data
         voxelsize = f.voxel_size
-    data = np.arange(0,1+1/2047.,1/2047.)
+    data = np.arange(0, 1+1/2047., 1/2047.)
     highpass = np.minimum(np.ones(data.shape[0]), data/highpassnyquist) * np.pi
     highpass = 1-np.cos(highpass)
     eps = 1e-6
@@ -62,7 +64,7 @@ def tom_deconv_tomo(vol_file, out_file,angpix, voltage, cs, defocus, snrfalloff,
 
     wiener = ctf/(ctf*ctf+1/snr)
 
-    denom = ctf*ctf+1/snr
+    #denom = ctf*ctf+1/snr
     #np.savetxt('den.txt',denom)
     #np.savetxt('snr.txt',snr)
     #np.savetxt('hipass.txt',highpass)
@@ -71,11 +73,11 @@ def tom_deconv_tomo(vol_file, out_file,angpix, voltage, cs, defocus, snrfalloff,
 
     s1 = - int(np.shape(vol)[1] / 2)
     f1 = s1 + np.shape(vol)[1] - 1
-    m1 = np.arange(s1,f1+1)
+    m1 = np.arange(s1, f1+1)
 
     s2 = - int(np.shape(vol)[0] / 2)
     f2 = s2 + np.shape(vol)[0] - 1
-    m2 = np.arange(s2,f2+1)
+    m2 = np.arange(s2, f2+1)
 
     s3 = - int(np.shape(vol)[2] / 2)
     f3 = s3 + np.shape(vol)[2] - 1
@@ -83,7 +85,7 @@ def tom_deconv_tomo(vol_file, out_file,angpix, voltage, cs, defocus, snrfalloff,
 
 #s3 = -floor(size(vol,3)/2);
 #f3 = s3 + size(vol,3) - 1;
-    x, y, z = np.meshgrid(m1,m2,m3)
+    x, y, z = np.meshgrid(m1, m2, m3)
     x = x.astype(np.float32) / np.abs(s1)
     y = y.astype(np.float32) / np.abs(s2)
     z = z.astype(np.float32) / np.maximum(1, np.abs(s3))
@@ -108,16 +110,24 @@ def tom_deconv_tomo(vol_file, out_file,angpix, voltage, cs, defocus, snrfalloff,
     del vol,ramp
     gc.collect()
     # deconv = deconv/std_deconv* std_vol + ave_vol
+    # print("a:" , np.min(deconv), np.max(deconv))
+    # print(std_deconv)
     deconv /= std_deconv
+    # print("b:" , np.min(deconv), np.max(deconv))
+    # print(std_vol)
     deconv *= std_vol
+    # print("c:" , np.min(deconv), np.max(deconv))
+    # print(ave_vol)
     deconv += ave_vol
+    # print("d:" , np.min(deconv), np.max(deconv))
+
+    deconv = normalize_256(deconv, global_min = global_min, global_max = global_max)
+
     gc.collect()
     if out_file is not None:
         out_name = out_file
     else:
         out_name = os.path.splitext(vol_file)[0]+'_deconv.mrc'
-    
-
     
     with mrcfile.new(out_name,overwrite=True) as n:
         n.set_data(deconv) #.astype(type(vol[0,0,0]))
@@ -128,9 +138,9 @@ def tom_deconv_tomo(vol_file, out_file,angpix, voltage, cs, defocus, snrfalloff,
     return os.path.splitext(vol_file)[0]+'_deconv.mrc'
 
 class Chunks:
-    def __init__(self,chunk_size=200,overlap=0.25):
+    def __init__(self, chunk_size=200, overlap=0.25):
         self.overlap = overlap
-        self.isonet_folder = "./IsoNet"
+        self.isonet_folder = "IsoNet"
         #num can be either int or tuple
         self.chunk_size = int(chunk_size)
 
@@ -162,7 +172,7 @@ class Chunks:
                     chunks_file_list.append(file_name)
         return chunks_file_list
 
-    def restore(self,new_file_list):
+    def restore(self, new_file_list):
         cropsize = int(self.chunk_size*(1+self.overlap))
         cubesize = self.chunk_size
         new = np.zeros((self._N[0]*cubesize,self._N[1]*cubesize,self._N[2]*cubesize),dtype = np.float32)
@@ -177,7 +187,7 @@ class Chunks:
                     new[i*cubesize:(i+1)*cubesize,j*cubesize:(j+1)*cubesize,k*cubesize:(k+1)*cubesize] \
                             = one_chunk_data[start:end,start:end,start:end]
                     
-        return new[0:self._sp[0],0:self._sp[1],0:self._sp[2]]
+        return new[0:self._sp[0], 0:self._sp[1], 0:self._sp[2]]
 
 def deconv_one(tomo, out_tomo, isonet_folder="IsoNet", voltage=300.0, \
                 cs=2.7, defocus=1.0, pixel_size=1.0, \
@@ -186,7 +196,6 @@ def deconv_one(tomo, out_tomo, isonet_folder="IsoNet", voltage=300.0, \
     import mrcfile
     from multiprocessing import Pool
     from functools import partial
-    #from TomoNet.process.deconvolution import tom_deconv_tomo, Chunks
     import shutil
     import time
     t1 = time.time()
@@ -196,18 +205,23 @@ def deconv_one(tomo, out_tomo, isonet_folder="IsoNet", voltage=300.0, \
     os.mkdir('{}/deconv_temp'.format(isonet_folder))
 
     if not logger == None:
-        log(logger, 'Input map: {} | Pixel size: {} | Defocus: {} µm | Snrfalloff:{} | Deconvstrength:{}'.format(os.path.basename(tomo), pixel_size, defocus ,snrfalloff, deconvstrength))
+        log(logger, 'Input map: {} | Pixel size: {} | Defocus: {} µm | Snrfalloff:{} | Deconvstrength:{}'.format(os.path.basename(tomo), pixel_size, defocus, snrfalloff, deconvstrength))
     if chunk_size is None:
-        tom_deconv_tomo(tomo,out_tomo,pixel_size, voltage, cs, defocus,snrfalloff,deconvstrength,highpassnyquist,phaseflipped=False, phaseshift=0,ncpu=ncpu)
+        tom_deconv_tomo(tomo, out_tomo, pixel_size, voltage, cs, defocus, snrfalloff, deconvstrength, highpassnyquist, phaseflipped=False, phaseshift=0, ncpu=ncpu)
     else:    
-        c = Chunks(chunk_size=chunk_size,overlap=overlap_rate)
+        with mrcfile.open(tomo, permissive=True) as f:
+            vol = f.data
+            global_min = np.percentile(vol, 1, axis = None, keepdims=True)
+            global_max = np.percentile(vol, 99, axis = None, keepdims=True)
+        
+        c = Chunks(chunk_size=chunk_size, overlap=overlap_rate)
         chunks_list = c.get_chunks(tomo) # list of name of subtomograms
         # chunks_gpu_num_list = [[array,j%num_gpu] for j,array in enumerate(chunks_list)]
         chunks_deconv_list = []
         with Pool(ncpu) as p:
-            partial_func = partial(tom_deconv_tomo,out_file=None,angpix=pixel_size,voltage=voltage, cs=cs, defocus=defocus, snrfalloff=snrfalloff,
-                    deconvstrength=deconvstrength, highpassnyquist=highpassnyquist, phaseflipped=False, phaseshift=0,ncpu=1) 
-            chunks_deconv_list = list(p.map(partial_func,chunks_list))
+            partial_func = partial(tom_deconv_tomo, out_file=None, angpix=pixel_size, voltage=voltage, cs=cs, defocus=defocus, snrfalloff=snrfalloff,
+                    deconvstrength=deconvstrength, highpassnyquist=highpassnyquist, phaseflipped=False, phaseshift=0, ncpu=1, global_min = global_min, global_max = global_max) 
+            chunks_deconv_list = list(p.map(partial_func, chunks_list))
         vol_restored = c.restore(chunks_deconv_list)
         
         with mrcfile.open(tomo, permissive=True) as n:

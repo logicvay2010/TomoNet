@@ -342,7 +342,8 @@ if __name__ == "__main__":
 
     # create a link of mrc file #
     
-    cmd_linkMrc = "cd {}/{}; ln -s {}/{} ./".format(result_dir, tomoName_final, os.getcwd(), tomoName)
+    cmd_linkMrc = "cd {}/{}; ln -s {} ./".format(result_dir, tomoName_final, tomoName)
+    #cmd_linkMrc = "cd {}/{}; ln -s {}/{} ./".format(result_dir, tomoName_final, os.getcwd(), tomoName)
     subprocess.check_output(cmd_linkMrc, shell=True)
     
     # check if particle number > 0 (valid outcomes), if so generate a mod file presenting all particles

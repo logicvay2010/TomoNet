@@ -108,7 +108,7 @@ def get_cubes_one(data_X, data_Y, settings, start = 0, mask = None, add_noise = 
         output_mrc.set_data(data_Y.astype(np.float32))
     return 0
 
-def get_cubes(inp,settings):
+def get_cubes(inp, settings):
     '''
     current iteration mrc(in the 'results') + infomation from orignal subtomo
     normalized predicted + normalized orig -> normalize
@@ -170,7 +170,7 @@ def get_cubes_list(settings):
         if not os.path.exists(folder):
             os.makedirs(folder)
     inp=[]
-    for i,mrc in enumerate(settings.mrc_list):
+    for i, mrc in enumerate(settings.mrc_list):
         inp.append((mrc, i*len(rotation_list)))
     
     # inp: list 0f (mrc_dir, index * rotation times)

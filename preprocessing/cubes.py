@@ -93,6 +93,50 @@ def normalize(x, percentile = True, pmin=4.0, pmax=96.0, axis=None, clip=False, 
         out = out.astype(np.float32)
         return out
 
+def normalize(x, percentile = True, pmin=1.0, pmax=99.0, axis=None, eps=1e-20, global_min=None, global_max=None):
+    """Percentile-based image normalization."""
+    if global_min is not None:
+        mi = global_min
+    else:
+        mi = np.percentile(x, pmin, axis=axis, keepdims=True)
+    
+    if global_max is not None:
+        ma = global_max
+    else:
+        ma = np.percentile(x, pmax, axis=axis, keepdims=True)
+    
+    mi_v = mi[0][0][0]
+    ma_v = ma[0][0][0]
+    x[x < mi_v] = mi_v
+    x[x > ma_v] = ma_v
+
+    out = (x - mi) / ( ma - mi + eps ) * 255
+    out = out.astype(np.float32)
+    return out
+    
+
+def normalize_256(x, pmin=1.0, pmax=99.0, axis=None, eps=1e-20, global_min=None, global_max=None):
+    """Percentile-based image normalization."""
+
+    if global_min is not None:
+        mi = global_min
+    else:
+        mi = np.percentile(x, pmin, axis=axis, keepdims=True)
+    
+    if global_max is not None:
+        ma = global_max
+    else:
+        ma = np.percentile(x, pmax, axis=axis, keepdims=True)
+    
+    mi_v = mi[0][0][0]
+    ma_v = ma[0][0][0]
+    x[x < mi_v] = mi_v
+    x[x > ma_v] = ma_v
+
+    out = (x - mi) / ( ma - mi + eps ) * 255
+    out = out.astype(np.float32)
+    return out
+
 def crop_cubes(img3D, seeds, cubeSideLen):
     #size=len(seeds[0])
     cube_size=(cubeSideLen,cubeSideLen,cubeSideLen)

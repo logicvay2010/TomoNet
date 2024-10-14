@@ -3,7 +3,7 @@ from PyQt5.QtCore import QThread, QProcess
 
 from TomoNet.util.metadata import MetaData, Label
 from TomoNet.util.dict2attr import idx2list
-from TomoNet.process.deconvolution import deconv_one
+#from TomoNet.process.deconvolution import deconv_one
 
 class Deconvolve(QThread):
 
