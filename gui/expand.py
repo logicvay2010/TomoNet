@@ -1628,7 +1628,7 @@ class Expand(QTabWidget):
             if "Pixel spacing" in line:
                 apix = line.strip().split()[-1]
                 d['apix'] = float(apix)
-            if "Number of columns" in line:
+            if "Number of columns" in line or "Image Size" in line:
                 sections = line.strip().split()[-3:]
                 d['dimensions'] = [int(x) for x in sections]
         return d            
