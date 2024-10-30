@@ -115,7 +115,7 @@ def normalize(x, percentile = True, pmin=1.0, pmax=99.0, axis=None, eps=1e-20, g
     return out
     
 
-def normalize_256(x, pmin=1.0, pmax=99.0, axis=None, eps=1e-20, global_min=None, global_max=None):
+def normalize_256(x, pmin=4.0, pmax=96.0, axis=None, eps=1e-20, global_min=None, global_max=None):
     """Percentile-based image normalization."""
 
     if global_min is not None:

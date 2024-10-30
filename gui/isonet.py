@@ -2045,6 +2045,7 @@ class IsoNet(QTabWidget):
             def_dict = {}
             if tableCtf.rowCount() == 0:
                 self.logger.warning("No defocus detected. If CTF Estimation was performed, please go to the CTF Estimation tab for a table refreshment.")
+                return 
             else:
                 for i in range(tableCtf.rowCount()): 
                     c1 = 0
@@ -2075,6 +2076,8 @@ class IsoNet(QTabWidget):
 
         except Exception as err:
             self.logger.info(err)
+            return 
+        self.logger.info("defocus updated.")
     
     def open_star_fileName(self, fileName):
         try:
