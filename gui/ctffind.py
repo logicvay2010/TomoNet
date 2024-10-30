@@ -19,6 +19,8 @@ class Ctffind(QTabWidget):
     def __init__(self):
         super().__init__()
         
+        self.setObjectName("ctffind")
+
         self.setting_file ="Ctffind/ctffind.setting"
         
         self.log_file = "Ctffind/ctffind.log"

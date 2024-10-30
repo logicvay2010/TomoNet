@@ -2149,37 +2149,43 @@ class Recon(QTabWidget):
             self.logger.error("No Tomogram has detected yet! Please adjust your tilt series folder!")
         elif type(d) is dict:
             
-            if not (which('AreTomo2') is None):
-                d['aretomo_name'] = 'AreTomo2'
-                cmd = '{} --version'.format(d['aretomo_name'])
-                try:
-                    result_output = subprocess.check_output(cmd, shell=True).decode()
-                    try: 
-                        result_output = result_output.split('\n')[0]
-                    except:
-                        pass
-
-                    self.logger.info("{} detected: {}.\n Note that if you want to use AreTomo instead, you need to disable AreTomo2 first.".format(d['aretomo_name'], result_output))
-                except:
-                    self.logger.error("AreTomo2 is detected, but is not working properly.")
-                    return -1
-            elif not (which('AreTomo') is None):
-                d['aretomo_name'] = 'AreTomo'
-                cmd = '{} --version'.format(d['aretomo_name'])
-                try:
-                    result_output = subprocess.check_output(cmd, shell=True).decode()
-                    try: 
-                        result_output = result_output.split('\n')[0]
-                    except:
-                        pass
-                    self.logger.info("{} detected: {}".format(d['aretomo_name'], result_output))
-                except:
-                    self.logger.error("AreTomo is detected, but is not working properly.")
-                    return -1
-            else:
-                self.logger.error("Either AreTomo or AreTomo2 is detected, Please check the installation and make sure `which AreTomo` gives right print out.")
-                return -1
             if self.pushButton_run_aretomo.text() == "RUN":
+                install_well_1 = True
+                install_well_2 = True
+                if not (which('AreTomo2') is None):
+                    d['aretomo_name'] = 'AreTomo2'
+                    cmd = '{} --version'.format(d['aretomo_name'])
+                    try:
+                        result_output = subprocess.check_output(cmd, shell=True).decode()
+                        try: 
+                            result_output = result_output.split('\n')[0]
+                        except:
+                            pass
+
+                        self.logger.info("{} detected: {}.\n Note that if you want to use AreTomo instead, you need to disable AreTomo2 first.".format(d['aretomo_name'], result_output))
+                    except:
+                        self.logger.error("AreTomo2 is detected, but is not working properly.")
+                        install_well_2 = False
+                elif not (which('AreTomo') is None):
+                    d['aretomo_name'] = 'AreTomo'
+                    cmd = '{} --version'.format(d['aretomo_name'])
+                    try:
+                        result_output = subprocess.check_output(cmd, shell=True).decode()
+                        try: 
+                            result_output = result_output.split('\n')[0]
+                        except:
+                            pass
+                        self.logger.info("{} detected: {}".format(d['aretomo_name'], result_output))
+                    except:
+                        self.logger.error("AreTomo is detected, but is not working properly.")
+                        install_well_1 = False
+                else:
+                    self.logger.error("Either AreTomo or AreTomo2 is detected, Please check the installation and make sure `which AreTomo` gives right print out.")
+                    return -1
+                
+                if not install_well_1 or not install_well_2:
+                    self.logger.error("Either AreTomo or AreTomo2 is well installed, Please check the installation and make sure `which AreTomo` or `which AreTomo2` gives right print out.")
+                    return -1
                 ret = QMessageBox.question(self, 'Run AreTomo Reconstruction!', \
                     "Run AreTomo for all the image from {}. \
                     \nContinue?\n".format(d['aretomo_input_folder'])\
