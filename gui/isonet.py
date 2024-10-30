@@ -104,6 +104,7 @@ class IsoNet(QTabWidget):
         self.pushButton_generate_star.clicked.connect(self.new_star)
         self.pushButton_open_star.clicked.connect(self.open_star)
         self.pushButton_3dmod.clicked.connect(self.view_3dmod)
+        self.pushButton_update_defocus.clicked.connect(self.update_defocus)
 
         self.pushButton_insert_2.clicked.connect(self.copyRow)
         self.pushButton_delete_2.clicked.connect(self.removeRow)
@@ -185,6 +186,10 @@ class IsoNet(QTabWidget):
         self.pushButton_delete = QtWidgets.QPushButton(self.tab)
         self.pushButton_delete.setObjectName("pushButton_delete")
         self.verticalLayout_1.addWidget(self.pushButton_delete)
+
+        self.pushButton_update_defocus = QtWidgets.QPushButton(self.tab)
+        self.pushButton_update_defocus.setObjectName("pushButton_update_defocus")
+        self.verticalLayout_1.addWidget(self.pushButton_update_defocus)
         
         self.pushButton_3dmod = QtWidgets.QPushButton(self.tab)
         self.pushButton_3dmod.setObjectName("pushButton_3dmod")
@@ -1118,6 +1123,8 @@ class IsoNet(QTabWidget):
         self.pushButton_insert.setText(_translate("Form", "Insert Row(s)"))
         self.pushButton_delete.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">Delete items from the star file</span></p></body></html>"))
         self.pushButton_delete.setText(_translate("Form", "Delete Row(s)"))
+        self.pushButton_update_defocus.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">Update all defocus value from CTF Estimation tab for all tomograms</span></p></body></html>"))
+        self.pushButton_update_defocus.setText(_translate("Form", "Update Defocus"))
         self.pushButton_3dmod.setToolTip(_translate("Form", "<html><head/><body><p><span style=\" font-size:9pt;\">open selected maps in 3dmod view.</span></p></body></html>"))
         self.pushButton_3dmod.setText(_translate("Form", "3dmod View"))
 
@@ -2031,6 +2038,44 @@ class IsoNet(QTabWidget):
                 pass
         self.save_setting()
 
+    def update_defocus(self):
+        try:
+            tableCtf = self.parentWidget().parentWidget().children()[2].findChild(QTabWidget, "ctffind").tableView
+            
+            def_dict = {}
+            if tableCtf.rowCount() == 0:
+                self.logger.warning("No defocus detected. If CTF Estimation was performed, please go to the CTF Estimation tab for a table refreshment.")
+            else:
+                for i in range(tableCtf.rowCount()): 
+                    c1 = 0
+                    c2 = 2
+                    tomoname_i = tableCtf.item(i, c1).text()
+                    defocus_i = tableCtf.item(i, c2).text()
+                    def_dict[tomoname_i] = defocus_i
+                
+                for i in range(self.tableWidget.rowCount()): 
+                    c1 = 0
+                    c2 = 2
+                    full_tomoname_i = self.tableWidget.item(i, c1).text()
+                    basename = os.path.basename(full_tomoname_i)
+                    if basename.endswith("_rec.mrc"):
+                        tomoname_i = basename.split("_rec.mrc")[0]
+                    elif basename.endswith(".mrc"):
+                        tomoname_i = basename.split(".mrc")[0]
+                    elif basename.endswith(".rec"):
+                        tomoname_i = basename.split(".rec")[0]
+                    else:
+                        tomoname_i = basename.split(".")[0]
+                    try:
+                        def_value = def_dict[tomoname_i]
+                    except:
+                        self.logger.warning("defocus value was not detected for {}".format(tomoname_i))
+                        continue
+                    self.tableWidget.setItem(i, c2, QTableWidgetItem(def_value))
+
+        except Exception as err:
+            self.logger.info(err)
+    
     def open_star_fileName(self, fileName):
         try:
             #tomo_file = self.sim_path(self.pwd, fileName)

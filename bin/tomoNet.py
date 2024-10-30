@@ -176,7 +176,7 @@ QPushButton#run {
     font-weight: bold;
 }
 
-QPushButton#pushButton_open_star, QPushButton#pushButton_insert, QPushButton#pushButton_delete, QPushButton#pushButton_3dmod, QPushButton#pushButton_generate_star{
+QPushButton#pushButton_open_star, QPushButton#pushButton_insert, QPushButton#pushButton_delete, QPushButton#pushButton_update_defocus, QPushButton#pushButton_3dmod, QPushButton#pushButton_generate_star{
     font: 15px;
     font-weight: bold;
     height:30px
