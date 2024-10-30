@@ -2193,8 +2193,8 @@ class IsoNet(QTabWidget):
             chunk_size = 200
         
         if self.lineEdit_overlap.text():
-            if not string2float(self.lineEdit_overlap_rate.text()) == None:
-                overlap_rate = string2float(self.lineEdit_overlap_rate.text())
+            if not string2float(self.lineEdit_overlap.text()) == None:
+                overlap_rate = string2float(self.lineEdit_overlap.text())
                 if not (overlap_rate >= 0 and overlap_rate <= 1 ):
                     return "Please use the valid format for the overlap rate!"
             else:
