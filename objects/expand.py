@@ -99,7 +99,11 @@ class Expand:
         cmd = "cd {}/exp; head -n 1 {}_MOTL.csv > {}_exp_MOTL.csv".format(self.target_cache_folder, self.tomo.tomoName, self.tomo.tomoName)
         subprocess.run(cmd,shell=True)
 
-        if len(coords) > 5:
+        try:
+            min_count_to_continue = self.search_param.min_count_to_continue
+        except:
+            min_count_to_continue = 5
+        if len(coords) > min_count_to_continue:
             with open('{}/exp/{}_exp.pts'.format(self.target_cache_folder,self.tomo.tomoName),"w") as fcoord:
                 with open('{}/exp/{}_exp_MOTL.csv'.format(self.target_cache_folder,self.tomo.tomoName),"a") as fmotl:
                     with open('{}/exp/{}_exp_RotAxes.csv'.format(self.target_cache_folder,self.tomo.tomoName),"w") as frot:
