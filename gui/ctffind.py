@@ -39,9 +39,9 @@ class Ctffind(QTabWidget):
 
         self.total_tomo_num = 0
 
-        self.table_display_interval = 4
+        self.table_display_interval = 20
 
-        self.table_display_range = [1, 2]
+        self.table_display_range = [1,20]
 
         self.logger = logging.getLogger(__name__)
         handler = logging.FileHandler(filename=self.log_file, mode='a')
