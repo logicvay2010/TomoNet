@@ -41,7 +41,7 @@ class Ctffind(QTabWidget):
 
         self.table_display_interval = 20
 
-        self.table_display_range = [1, 20]
+        self.table_display_range = [1,20]
 
         self.logger = logging.getLogger(__name__)
         handler = logging.FileHandler(filename=self.log_file, mode='a')
@@ -674,10 +674,10 @@ class Ctffind(QTabWidget):
         self.comboBox_display_range.clear()
         for i in range(range_num):
             self.comboBox_display_range.addItem("")
-            self.comboBox_display_range.setItemText(i, "[{}, {})".format(self.table_display_interval*i+1, self.table_display_interval*(i+1)))
+            self.comboBox_display_range.setItemText(i, "[{}, {}]".format(self.table_display_interval*i+1, self.table_display_interval*(i+1)))
         if range_mod > 0:
             self.comboBox_display_range.addItem("")
-            self.comboBox_display_range.setItemText(range_num, "[{}, {})".format(self.table_display_interval*range_num+1, total_number))
+            self.comboBox_display_range.setItemText(range_num, "[{}, {}]".format(self.table_display_interval*range_num+1, total_number))
 
         self.range_changed()
         
@@ -702,6 +702,8 @@ class Ctffind(QTabWidget):
             self.tableView.setRowCount(self.table_display_range[1] - self.table_display_range[0] + 1)
             self.label_recon.setText("Summary of CTFFIND Defocus Estimation < {} tomos >".format(self.total_tomo_num))
             display_i = 0
+            self.tableView.setVerticalHeaderLabels([str(x) for x in np.arange(self.table_display_range[0], self.table_display_range[1] + 1, dtype=int)])
+
             for i, tomo in enumerate(tomoNames):
                 if i+1 >= self.table_display_range[0] and i < self.table_display_range[1]:
                     self.tableView.setItem(display_i, 0, QTableWidgetItem(tomo))
