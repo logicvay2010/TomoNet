@@ -13,8 +13,6 @@ header_labels_manual = ['Tomo Name', 'Top(one point)', 'Bottom(one point)', \
 
 header_labels_ctffind = ['Tomo Name', 'Tilt #', 'defocus (Å)', 'Best CTF ring fit at (Å)', 'Action', 'Action']
 
-header_labels_IsoNet = ['Tomo Name', 'Rounds # ', 'Final Particle #', 'Action', 'Action']
-
 header_labels_expand = ['Tomo Name', 'Rounds # ', 'Final Particle #', 'Action', 'Action']
 
 newst_com_params = ['AntialiasFilter', 'TransformFile', 'TaperAtFill', 'AdjustOrigin', 'SizeToOutputInXandY',\
