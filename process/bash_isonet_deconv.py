@@ -89,10 +89,10 @@ class Deconvolve(QThread):
                     self.p = None
                 except Exception as err:
                     self.logger.error("error")
-                try:
-                    os.remove(temp_deconv_param_file)
-                except:
-                    pass
+                # try:
+                #     os.remove(temp_deconv_param_file)
+                # except:
+                #     pass
                 if res:
                     self.md._setItemValue(it, Label('rlnDeconvTomoName'), deconv_tomo_name)
                 

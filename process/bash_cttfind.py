@@ -124,6 +124,9 @@ class Ctffind4(QThread):
             self.params.append(param)
 
     def run(self):
+        if len(self.params) == 0:
+            self.logger.warning("######## No Tilt Series was detected in this location:{} ########".format(self.d['ts_tlt_folder']))
+            return 
         self.logger.info("########Processing Ctf Estimation for {} Tilt Series########".format(len(self.params)))
         self.logger.info("########The results will be saved in folder {} individually########".format(self.ctf_folder))
         

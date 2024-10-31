@@ -81,10 +81,10 @@ def tom_deconv_tomo(vol_file, out_file, angpix, voltage, cs, defocus, snrfalloff
 
     s3 = - int(np.shape(vol)[2] / 2)
     f3 = s3 + np.shape(vol)[2] - 1
-    m3 = np.arange(s3,f3+1)
+    m3 = np.arange(s3, f3+1)
 
-#s3 = -floor(size(vol,3)/2);
-#f3 = s3 + size(vol,3) - 1;
+    #s3 = -floor(size(vol,3)/2);
+    #f3 = s3 + size(vol,3) - 1;
     x, y, z = np.meshgrid(m1, m2, m3)
     x = x.astype(np.float32) / np.abs(s1)
     y = y.astype(np.float32) / np.abs(s2)
@@ -97,7 +97,7 @@ def tom_deconv_tomo(vol_file, out_file, angpix, voltage, cs, defocus, snrfalloff
     r = np.fft.ifftshift(r)
 
     #x = 0:1/2047:1;
-    ramp = np.interp(r, data,wiener).astype(np.float32)
+    ramp = np.interp(r, data, wiener).astype(np.float32)
     del r
     gc.collect()
         
@@ -127,15 +127,15 @@ def tom_deconv_tomo(vol_file, out_file, angpix, voltage, cs, defocus, snrfalloff
     if out_file is not None:
         out_name = out_file
     else:
-        out_name = os.path.splitext(vol_file)[0]+'_deconv.mrc'
+        out_name = os.path.splitext(vol_file)[0]+'.mrc'
     
-    with mrcfile.new(out_name,overwrite=True) as n:
+    with mrcfile.new(out_name, overwrite=True) as n:
         n.set_data(deconv) #.astype(type(vol[0,0,0]))
         n.voxel_size = voxelsize
         n.header.origin = header_in.origin
         n.header.nversion = header_in.nversion
     #return real(ifftn(fftn(single(vol)).*ramp));
-    return os.path.splitext(vol_file)[0]+'_deconv.mrc'
+    return os.path.splitext(vol_file)[0]+'.mrc'
 
 class Chunks:
     def __init__(self, chunk_size=200, overlap=0.25):
@@ -193,7 +193,7 @@ def deconv_one(tomo, out_tomo, isonet_folder="IsoNet", voltage=300.0, \
                 cs=2.7, defocus=1.0, pixel_size=1.0, \
                 snrfalloff=1.0, deconvstrength=1.0, highpassnyquist=0.02, \
                 chunk_size=200, overlap_rate = 0.25, ncpu=4, logger=None):
-    import mrcfile
+    
     from multiprocessing import Pool
     from functools import partial
     import shutil
@@ -206,13 +206,13 @@ def deconv_one(tomo, out_tomo, isonet_folder="IsoNet", voltage=300.0, \
 
     if not logger == None:
         log(logger, 'Input map: {} | Pixel size: {} | Defocus: {} µm | Snrfalloff:{} | Deconvstrength:{}'.format(os.path.basename(tomo), pixel_size, defocus, snrfalloff, deconvstrength))
-    if chunk_size is None:
+    if chunk_size is None or chunk_size == 0:
         tom_deconv_tomo(tomo, out_tomo, pixel_size, voltage, cs, defocus, snrfalloff, deconvstrength, highpassnyquist, phaseflipped=False, phaseshift=0, ncpu=ncpu)
     else:    
         with mrcfile.open(tomo, permissive=True) as f:
             vol = f.data
-            global_min = np.percentile(vol, 1, axis = None, keepdims=True)
-            global_max = np.percentile(vol, 99, axis = None, keepdims=True)
+            global_min = np.percentile(vol, 4, axis = None, keepdims=True)
+            global_max = np.percentile(vol, 96, axis = None, keepdims=True)
         
         c = Chunks(chunk_size=chunk_size, overlap=overlap_rate)
         chunks_list = c.get_chunks(tomo) # list of name of subtomograms

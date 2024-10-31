@@ -2190,7 +2190,7 @@ class IsoNet(QTabWidget):
             else:
                 return "Please use the valid format for the chunk size!"
         else:
-            chunk_size = 200
+            chunk_size = 0
         
         if self.lineEdit_overlap.text():
             if not string2float(self.lineEdit_overlap.text()) == None:

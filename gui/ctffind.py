@@ -37,6 +37,12 @@ class Ctffind(QTabWidget):
 
         self.ctf_results = None
 
+        self.total_tomo_num = 0
+
+        self.table_display_interval = 20
+
+        self.table_display_range = [1, 20]
+
         self.logger = logging.getLogger(__name__)
         handler = logging.FileHandler(filename=self.log_file, mode='a')
         formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
@@ -322,6 +328,21 @@ class Ctffind(QTabWidget):
         self.pushButton_reload = QtWidgets.QPushButton(self.tab)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
 
+        self.label_dispaly_range = QtWidgets.QLabel(self.tab)
+        self.label_dispaly_range.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.label_dispaly_range.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_dispaly_range.setMaximumSize(QtCore.QSize(80, 30))
+        self.label_dispaly_range.setObjectName("label_dispaly_range")
+        self.label_dispaly_range.setText("Displaying")
+        self.horizontalLayout_summary.addWidget(self.label_dispaly_range)
+
+        self.comboBox_display_range = QtWidgets.QComboBox(self.tab)
+        self.comboBox_display_range.setObjectName("comboBox_display_range")
+        self.comboBox_display_range.setMaximumSize(QtCore.QSize(85, 30))
+        # self.comboBox_display_range.addItem("")
+        # self.comboBox_display_range.addItem("")
+        self.horizontalLayout_summary.addWidget(self.comboBox_display_range)
+        
         self.pushButton_reload.setSizePolicy(sizePolicy)
         self.pushButton_reload.setMinimumSize(QtCore.QSize(60, 20))
         self.pushButton_reload.setLayoutDirection(QtCore.Qt.LeftToRight)
@@ -376,6 +397,8 @@ class Ctffind(QTabWidget):
 
         for child in self.findChildren(QtWidgets.QComboBox):
             child.currentIndexChanged.connect(self.save_setting)
+
+        self.comboBox_display_range.currentIndexChanged.connect(self.range_changed)
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
@@ -641,7 +664,78 @@ class Ctffind(QTabWidget):
         
         return results
     
+    def init_range_comboBox(self):
+        
+        results = self.read_ctffind_result()
+        total_number = len(results['tomoNames'])
+        self.total_tomo_num = total_number
+        range_num = total_number // self.table_display_interval
+        range_mod = total_number % self.table_display_interval
+        self.comboBox_display_range.clear()
+        for i in range(range_num):
+            self.comboBox_display_range.addItem("")
+            self.comboBox_display_range.setItemText(i, "[{}, {})".format(self.table_display_interval*i+1, self.table_display_interval*(i+1)))
+        if range_mod > 0:
+            self.comboBox_display_range.addItem("")
+            self.comboBox_display_range.setItemText(range_num, "[{}, {})".format(self.table_display_interval*range_num+1, total_number))
+
+        self.range_changed()
+        
+    def range_changed(self):
+        current_range = self.comboBox_display_range.currentText()
+        if current_range:
+            #print(current_range)
+            min_i, max_i = current_range[1:-1].split(",")
+            self.table_display_range = [int(min_i), int(max_i)]
+        self.reload_table()
+
     def reload_table(self):
+        results = self.read_ctffind_result()
+        tomoNames = results['tomoNames']
+        tilt_nums = results['tilt_nums']
+        defocus = results['defocus']
+        best_ctf_rings = results['best_ctf_rings']
+        self.ctf_results = results
+        self.tableView.setRowCount(0)
+        
+        if len(tomoNames) > 0:
+            self.tableView.setRowCount(self.table_display_range[1] - self.table_display_range[0] + 1)
+            self.label_recon.setText("Summary of CTFFIND Defocus Estimation < {} tomos >".format(self.total_tomo_num))
+            display_i = 0
+            for i, tomo in enumerate(tomoNames):
+                if i+1 >= self.table_display_range[0] and i < self.table_display_range[1]:
+                    self.tableView.setItem(display_i, 0, QTableWidgetItem(tomo))
+                    tilt_num_i = str(tilt_nums[i])
+                    action_defocus = QTableWidgetItem(tilt_num_i)
+                    action_defocus.setBackground(QtGui.QColor("#4CAF50"))
+                    action_defocus.setFont(QFont("sans-serif", 8, QFont.Bold))
+                    self.tableView.setItem(display_i, 1, action_defocus)
+
+                    defoci = defocus[i][len(defocus[i])//2] if len(defocus[i]) > 0 else 'NA'
+                    action_plot_1 = QTableWidgetItem(str(defoci))
+                    action_plot_1.setBackground(QtGui.QColor("#008CBA"))
+                    action_plot_1.setFont(QFont("sans-serif", 8, QFont.Bold))
+                    self.tableView.setItem(display_i, 2, action_plot_1)
+
+                    best_ctf_fit = min(best_ctf_rings[i]) if len(best_ctf_rings[i]) > 0 else 'NA'
+                    action_plot_2 = QTableWidgetItem(str(best_ctf_fit))
+                    action_plot_2.setBackground(QtGui.QColor("#a0d2eb"))
+                    action_plot_2.setFont(QFont("sans-serif", 8, QFont.Bold))
+                    self.tableView.setItem(display_i, 3, action_plot_2)
+
+                    action_plot_3 = QTableWidgetItem("Plot all tilt")
+                    action_plot_3.setBackground(QtGui.QColor("#f75990"))
+                    action_plot_3.setFont(QFont("sans-serif", 8, QFont.Bold))
+                    self.tableView.setItem(display_i, 4, action_plot_3)
+
+                    action_plot_4 = QTableWidgetItem("Plot Thon-ring")
+                    action_plot_4.setBackground(QtGui.QColor("#d0bdf4"))
+                    action_plot_4.setFont(QFont("sans-serif", 8, QFont.Bold))
+                    self.tableView.setItem(display_i, 5, action_plot_4)
+
+                    display_i+=1
+
+    def reload_table_old(self):
         results = self.read_ctffind_result()
         tomoNames = results['tomoNames']
         tilt_nums = results['tilt_nums']
@@ -683,6 +777,7 @@ class Ctffind(QTabWidget):
 
     def list_row_changed(self, i):
         if i == 2:
+            self.init_range_comboBox()
             self.reload_table()
     ##### 2023/06/06 to be changed to adapt ctffind section
     def get_params(self):
@@ -889,7 +984,7 @@ class Ctffind(QTabWidget):
             return None
     
     def table_click(self, item):
-        i = item.row()
+        i = item.row() + self.table_display_range[0] - 1
         j = item.column()
         tomoName = self.ctf_results['tomoNames'][i]
         if j == 4:
