@@ -1,9 +1,15 @@
 LIST_NAMES = ["Motion Correction", "3D Reconstruction", "CTF Estimation", "IsoNet", "Manual Picking", "Auto Expansion", "AI AutoPicking", "Other Utilities"]
 
 header_labels_recon = ['Tomo Name', 'Action', 'Action', 'Action', 'Action', 'Action', 'Recon Map', 'Tilts #', \
+    'RE mean', 'RE range', 'Binning', 'Skipped view(s)', 'Notes']
+
+header_labels_recon_old = ['Tomo Name', 'Action', 'Action', 'Action', 'Action', 'Action', 'Recon Map', 'Tilts #', \
     'RE mean', 'RE range', 'Binning', 'Thickness', 'Skipped view(s)', 'Notes']
 
 header_labels_aretomo = ['Tomo Name', 'Action', 'Recon Map', 'Tilts #', \
+    'Binning', 'Skipped view(s)', 'Notes']
+
+header_labels_aretomo_old = ['Tomo Name', 'Action', 'Recon Map', 'Tilts #', \
     'Binning', 'Thickness', 'Skipped view(s)', 'Notes']
 
 header_labels_prediction = ['Tomo Name', 'Particle #', 'Action']
