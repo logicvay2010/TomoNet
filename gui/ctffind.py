@@ -671,6 +671,7 @@ class Ctffind(QTabWidget):
         self.total_tomo_num = total_number
         range_num = total_number // self.table_display_interval
         range_mod = total_number % self.table_display_interval
+        self.comboBox_display_range.currentIndexChanged.disconnect(self.range_changed)
         self.comboBox_display_range.clear()
         for i in range(range_num):
             self.comboBox_display_range.addItem("")
@@ -679,7 +680,13 @@ class Ctffind(QTabWidget):
             self.comboBox_display_range.addItem("")
             self.comboBox_display_range.setItemText(range_num, "[{}, {}]".format(self.table_display_interval*range_num+1, total_number))
 
-        self.range_changed()
+        current_range = self.comboBox_display_range.currentText()
+        if current_range:
+            #print(current_range)
+            min_i, max_i = current_range[1:-1].split(",")
+            self.table_display_range = [int(min_i), int(max_i)]
+        #self.range_changed()
+        self.comboBox_display_range.currentIndexChanged.connect(self.range_changed)
         
     def range_changed(self):
         current_range = self.comboBox_display_range.currentText()

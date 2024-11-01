@@ -55,6 +55,10 @@ class Recon(QTabWidget):
         
         self.table_display_range_aretomo = [1,20]
 
+        self.tomoNames_etomo = []
+
+        self.tomoNames_aretomo = []
+
         ############### Define variables ################
         
         self.log_file = "Recon/recon.log"
@@ -121,6 +125,7 @@ class Recon(QTabWidget):
         self.fileSystemWatcher.fileChanged.connect(self.update_log_window)  
 
         self.comboBox_display_range_etomo.currentIndexChanged.connect(self.range_changed_etomo)
+        self.comboBox_display_range_aretomo.currentIndexChanged.connect(self.range_changed_aretomo)
 
     def setupUi(self):
         
@@ -754,6 +759,21 @@ class Recon(QTabWidget):
         self.label_summary_aretomo.setText("Summary of AreTomo 3D Reconstructions")
         self.horizontalLayout_header_aretomo.addWidget(self.label_summary_aretomo)
         
+        self.label_dispaly_range_aretomo = QtWidgets.QLabel(self.tab1)
+        self.label_dispaly_range_aretomo.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.label_dispaly_range_aretomo.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_dispaly_range_aretomo.setMaximumSize(QtCore.QSize(80, 30))
+        self.label_dispaly_range_aretomo.setObjectName("label_dispaly_range_aretomo")
+        self.label_dispaly_range_aretomo.setText("Displaying")
+        self.horizontalLayout_header_aretomo.addWidget(self.label_dispaly_range_aretomo)
+
+        self.comboBox_display_range_aretomo = QtWidgets.QComboBox(self.tab1)
+        self.comboBox_display_range_aretomo.setObjectName("comboBox_display_range_aretomo")
+        self.comboBox_display_range_aretomo.setMaximumSize(QtCore.QSize(85, 30))
+        # self.comboBox_display_range_aretomo.addItem("")
+        # self.comboBox_display_range_aretomo.addItem("")
+        self.horizontalLayout_header_aretomo.addWidget(self.comboBox_display_range_aretomo)
+
         self.pushButton_export_recon_aretomo = QtWidgets.QPushButton(self.tab_aretomo)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
 
@@ -1388,6 +1408,7 @@ class Recon(QTabWidget):
             self.reload_table()
             self.etomo_count_tomo()
         if i == 2:
+            self.init_range_comboBox_aretomo()
             self.reload_table_aretomo()
             self.aretomo_count_tomo()
 
@@ -1736,10 +1757,15 @@ class Recon(QTabWidget):
     def init_range_comboBox_etomo(self):
         
         tomoNames = self.read_tomo(self.etomo_ts_folder)
+        
+        self.tomoNames_etomo = tomoNames
         total_number = len(tomoNames)
         self.total_tomo_num_etomo = total_number
         range_num = total_number // self.table_display_interval_etomo
         range_mod = total_number % self.table_display_interval_etomo
+        
+        self.comboBox_display_range_etomo.currentIndexChanged.disconnect(self.range_changed_etomo)
+        
         self.comboBox_display_range_etomo.clear()
         for i in range(range_num):
             self.comboBox_display_range_etomo.addItem("")
@@ -1748,7 +1774,13 @@ class Recon(QTabWidget):
             self.comboBox_display_range_etomo.addItem("")
             self.comboBox_display_range_etomo.setItemText(range_num, "[{}, {}]".format(self.table_display_interval_etomo*range_num+1, total_number))
 
-        self.range_changed_etomo()
+        self.comboBox_display_range_etomo.currentIndexChanged.connect(self.range_changed_etomo)
+        #self.range_changed_etomo()
+        current_range = self.comboBox_display_range_etomo.currentText()
+        if current_range:
+            #print(current_range)
+            min_i, max_i = current_range[1:-1].split(",")
+            self.table_display_range_etomo = [int(min_i), int(max_i)]
     
     def range_changed_etomo(self):
         current_range = self.comboBox_display_range_etomo.currentText()
@@ -1759,7 +1791,8 @@ class Recon(QTabWidget):
         self.reload_table()
     
     def reload_table(self):
-        tomoNames = self.read_tomo(self.etomo_ts_folder)
+        #tomoNames = self.read_tomo(self.etomo_ts_folder)
+        tomoNames = self.tomoNames_etomo
         self.tableView.setRowCount(0)
         #self.tableView.setRowCount(len(tomoNames))
         
@@ -1772,7 +1805,7 @@ class Recon(QTabWidget):
             self.tableView.setRowCount(self.table_display_range_etomo[1] - self.table_display_range_etomo[0] + 1)
             display_i = 0
             self.tableView.setVerticalHeaderLabels([str(x) for x in np.arange(self.table_display_range_etomo[0], self.table_display_range_etomo[1] + 1, dtype=int)])
-
+            
             for i, tomo in enumerate(tomoNames):
                 if i+1 >= self.table_display_range_etomo[0] and i < self.table_display_range_etomo[1]:
                     self.tableView.setItem(display_i, 0, QTableWidgetItem(tomo))                
@@ -1826,44 +1859,88 @@ class Recon(QTabWidget):
 
                     display_i+=1
 
+    def init_range_comboBox_aretomo(self):
+        
+        tomoNames = self.read_tomo(self.aretomo_ts_folder)
+        
+        self.tomoNames_aretomo = tomoNames
+        total_number = len(tomoNames)
+        self.total_tomo_num_aretomo = total_number
+        range_num = total_number // self.table_display_interval_aretomo
+        range_mod = total_number % self.table_display_interval_aretomo
+        
+        self.comboBox_display_range_aretomo.currentIndexChanged.disconnect(self.range_changed_aretomo)
+        
+        self.comboBox_display_range_aretomo.clear()
+        for i in range(range_num):
+            self.comboBox_display_range_aretomo.addItem("")
+            self.comboBox_display_range_aretomo.setItemText(i, "[{}, {}]".format(self.table_display_interval_aretomo*i+1, self.table_display_interval_aretomo*(i+1)))
+        if range_mod > 0:
+            self.comboBox_display_range_aretomo.addItem("")
+            self.comboBox_display_range_aretomo.setItemText(range_num, "[{}, {}]".format(self.table_display_interval_aretomo*range_num+1, total_number))
+
+        self.comboBox_display_range_aretomo.currentIndexChanged.connect(self.range_changed_aretomo)
+        #self.range_changed_aretomo()
+        current_range = self.comboBox_display_range_aretomo.currentText()
+        if current_range:
+            #print(current_range)
+            min_i, max_i = current_range[1:-1].split(",")
+            self.table_display_range_aretomo = [int(min_i), int(max_i)]
+    
+    def range_changed_aretomo(self):
+        current_range = self.comboBox_display_range_aretomo.currentText()
+        if current_range:
+            #print(current_range)
+            min_i, max_i = current_range[1:-1].split(",")
+            self.table_display_range_aretomo = [int(min_i), int(max_i)]
+        self.reload_table_aretomo()
+
     def reload_table_aretomo(self):
         self.aretomo_ts_folder = self.lineEdit_aretomo_input_folder.text() if len(self.lineEdit_aretomo_input_folder.text().strip()) > 0 else self.default_ts_folder
         tomoNames = self.read_tomo(self.aretomo_ts_folder)
         self.tableView_aretomo.setRowCount(0)
-        self.tableView_aretomo.setRowCount(len(tomoNames))
+        #self.tableView_aretomo.setRowCount(len(tomoNames))
         try:
             with open(self.note_json) as f:
                 note_dict = json.load(f)
         except:
             note_dict = {}
         if len(tomoNames) > 0:
+            self.tableView_aretomo.setRowCount(self.table_display_range_aretomo[1] - self.table_display_range_aretomo[0] + 1)
+            display_i = 0
+            self.tableView_aretomo.setVerticalHeaderLabels([str(x) for x in np.arange(self.table_display_range_aretomo[0], self.table_display_range_aretomo[1] + 1, dtype=int)])
+
             for i, tomo in enumerate(tomoNames):
-                self.tableView_aretomo.setItem(i, 0, QTableWidgetItem(tomo))                
-                action_check = QTableWidgetItem("View TS (Bin8)")
-                action_check.setBackground(QtGui.QColor("#a0d2eb"))
-                action_check.setFont(QFont("sans-serif", 8, QFont.Bold))
-                self.tableView_aretomo.setItem(i, 1, action_check)
-                
-                items = self.read_recon_folder(tomo, self.areTomo_folder, 2)
+                if i+1 >= self.table_display_range_aretomo[0] and i < self.table_display_range_aretomo[1]:
+                    self.tableView_aretomo.setItem(display_i, 0, QTableWidgetItem(tomo))                
+                    action_check = QTableWidgetItem("View TS (Bin8)")
+                    action_check.setBackground(QtGui.QColor("#a0d2eb"))
+                    action_check.setFont(QFont("sans-serif", 8, QFont.Bold))
+                    self.tableView_aretomo.setItem(display_i, 1, action_check)
+                    
+                    items = self.read_recon_folder(tomo, self.areTomo_folder, 2)
 
-                if len(items[6]) > 0:
-                    action_view = QTableWidgetItem(os.path.basename(items[6]))
-                else:
-                    action_view = QTableWidgetItem("NA")
-                
-                action_view.setBackground(QtGui.QColor("#d0bdf4"))
-                action_view.setFont(QFont("sans-serif", 8, QFont.Bold))
-                self.tableView_aretomo.setItem(i, 2, action_view)
+                    if len(items[6]) > 0:
+                        action_view = QTableWidgetItem(os.path.basename(items[6]))
+                    else:
+                        action_view = QTableWidgetItem("NA")
+                    
+                    action_view.setBackground(QtGui.QColor("#d0bdf4"))
+                    action_view.setFont(QFont("sans-serif", 8, QFont.Bold))
+                    self.tableView_aretomo.setItem(display_i, 2, action_view)
 
-                self.tableView_aretomo.setItem(i, 3, QTableWidgetItem(items[0]))
-                self.tableView_aretomo.setItem(i, 4, QTableWidgetItem(items[3]))
-                if len(items[4]) > 0:
-                    self.tableView_aretomo.setItem(i, 5, QTableWidgetItem("{} nm".format(str(int(items[4])/10))))
-                else:
-                    self.tableView_aretomo.setItem(i, 5, QTableWidgetItem(""))
-                self.tableView_aretomo.setItem(i, 6, QTableWidgetItem(items[5]))
-                notes_i = note_dict[tomo] if tomo in note_dict.keys() else ""
-                self.tableView_aretomo.setItem(i, 7, QTableWidgetItem(notes_i))
+                    self.tableView_aretomo.setItem(display_i, 3, QTableWidgetItem(items[0]))
+                    self.tableView_aretomo.setItem(display_i, 4, QTableWidgetItem(items[3]))
+                    if len(items[4]) > 0:
+                        self.tableView_aretomo.setItem(display_i, 5, QTableWidgetItem("{} nm".format(str(int(items[4])/10))))
+                    else:
+                        self.tableView_aretomo.setItem(display_i, 5, QTableWidgetItem(""))
+                    self.tableView_aretomo.setItem(display_i, 6, QTableWidgetItem(items[5]))
+                    notes_i = note_dict[tomo] if tomo in note_dict.keys() else ""
+                    self.tableView_aretomo.setItem(display_i, 7, QTableWidgetItem(notes_i))
+
+                    display_i+=1
+
         self.current_tomoNames_aretomo = tomoNames
     
     def list_row_changed(self, i):
@@ -1873,6 +1950,7 @@ class Recon(QTabWidget):
                 self.reload_table()
                 self.etomo_count_tomo()
             if self.currentIndex() == 2:
+                self.init_range_comboBox_aretomo()
                 self.reload_table_aretomo()
                 self.aretomo_count_tomo()
     
