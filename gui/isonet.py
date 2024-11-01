@@ -2058,7 +2058,6 @@ class IsoNet(QTabWidget):
                             defocus_i = str(ctffind4_result['defocus'][i][tilt_num//2] )
                             def_dict[tomoname_i] = defocus_i
                         
-                        print(def_dict)
                         for i in range(self.tableWidget.rowCount()): 
                             c1 = 0
                             c2 = 2
@@ -2077,7 +2076,6 @@ class IsoNet(QTabWidget):
                             except:
                                 self.logger.warning("defocus value was not detected for {}".format(tomoname_i))
                                 continue
-                            print(def_value)
                             self.tableWidget.setItem(i, c2, QTableWidgetItem(def_value))
                 else:
                     self.logger.warning("No defocus detected. If CTF Estimation was performed, please go to the CTF Estimation tab for a table refreshment.")
