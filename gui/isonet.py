@@ -2040,39 +2040,52 @@ class IsoNet(QTabWidget):
 
     def update_defocus(self):
         try:
-            tableCtf = self.parentWidget().parentWidget().children()[2].findChild(QTabWidget, "ctffind").tableView
-            
+            ctfTab = self.parentWidget().parentWidget().children()[2].findChild(QTabWidget, "ctffind")
+            #tableCtf = self.parentWidget().parentWidget().children()[2].findChild(QTabWidget, "ctffind").tableView
             def_dict = {}
-            if tableCtf.rowCount() == 0:
-                self.logger.warning("No defocus detected. If CTF Estimation was performed, please go to the CTF Estimation tab for a table refreshment.")
-                return 
-            else:
-                for i in range(tableCtf.rowCount()): 
-                    c1 = 0
-                    c2 = 2
-                    tomoname_i = tableCtf.item(i, c1).text()
-                    defocus_i = tableCtf.item(i, c2).text()
-                    def_dict[tomoname_i] = defocus_i
-                
-                for i in range(self.tableWidget.rowCount()): 
-                    c1 = 0
-                    c2 = 2
-                    full_tomoname_i = self.tableWidget.item(i, c1).text()
-                    basename = os.path.basename(full_tomoname_i)
-                    if basename.endswith("_rec.mrc"):
-                        tomoname_i = basename.split("_rec.mrc")[0]
-                    elif basename.endswith(".mrc"):
-                        tomoname_i = basename.split(".mrc")[0]
-                    elif basename.endswith(".rec"):
-                        tomoname_i = basename.split(".rec")[0]
+            try:
+                if ctfTab.ctffind4_result:
+                    ctffind4_result = ctfTab.ctffind4_result
+                    if len(ctffind4_result['tomoNames']) == 0:
+                        self.logger.warning("No defocus detected. If CTF Estimation was performed, please go to the CTF Estimation tab for a table refreshment.")
+                        return 
                     else:
-                        tomoname_i = basename.split(".")[0]
-                    try:
-                        def_value = def_dict[tomoname_i]
-                    except:
-                        self.logger.warning("defocus value was not detected for {}".format(tomoname_i))
-                        continue
-                    self.tableWidget.setItem(i, c2, QTableWidgetItem(def_value))
+                        for i in range(len(ctffind4_result['tomoNames'])): 
+                            c1 = 0
+                            c2 = 2
+                            tomoname_i = ctffind4_result['tomoNames'][i]
+                            tilt_num = len(ctffind4_result['defocus'][i])
+                            defocus_i = str(ctffind4_result['defocus'][i][tilt_num//2] )
+                            def_dict[tomoname_i] = defocus_i
+                        
+                        print(def_dict)
+                        for i in range(self.tableWidget.rowCount()): 
+                            c1 = 0
+                            c2 = 2
+                            full_tomoname_i = self.tableWidget.item(i, c1).text()
+                            basename = os.path.basename(full_tomoname_i)
+                            if basename.endswith("_rec.mrc"):
+                                tomoname_i = basename.split("_rec.mrc")[0]
+                            elif basename.endswith(".mrc"):
+                                tomoname_i = basename.split(".mrc")[0]
+                            elif basename.endswith(".rec"):
+                                tomoname_i = basename.split(".rec")[0]
+                            else:
+                                tomoname_i = basename.split(".")[0]
+                            try:
+                                def_value = def_dict[tomoname_i]
+                            except:
+                                self.logger.warning("defocus value was not detected for {}".format(tomoname_i))
+                                continue
+                            print(def_value)
+                            self.tableWidget.setItem(i, c2, QTableWidgetItem(def_value))
+                else:
+                    self.logger.warning("No defocus detected. If CTF Estimation was performed, please go to the CTF Estimation tab for a table refreshment.")
+                    return
+            except Exception as err:
+                self.logger.error("Unknow error when updating the defocus values")
+                self.logger.error(err)
+                return
 
         except Exception as err:
             self.logger.info(err)

@@ -1862,7 +1862,6 @@ class Recon(QTabWidget):
     def init_range_comboBox_aretomo(self):
         
         tomoNames = self.read_tomo(self.aretomo_ts_folder)
-        
         self.tomoNames_aretomo = tomoNames
         total_number = len(tomoNames)
         self.total_tomo_num_aretomo = total_number
@@ -1898,7 +1897,8 @@ class Recon(QTabWidget):
 
     def reload_table_aretomo(self):
         self.aretomo_ts_folder = self.lineEdit_aretomo_input_folder.text() if len(self.lineEdit_aretomo_input_folder.text().strip()) > 0 else self.default_ts_folder
-        tomoNames = self.read_tomo(self.aretomo_ts_folder)
+        #tomoNames = self.read_tomo(self.aretomo_ts_folder)
+        tomoNames = self.tomoNames_aretomo
         self.tableView_aretomo.setRowCount(0)
         #self.tableView_aretomo.setRowCount(len(tomoNames))
         try:
