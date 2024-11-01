@@ -1697,15 +1697,22 @@ class Recon(QTabWidget):
         mrc_path = "{}/{}_rec.mrc".format(recon_path, tomoName)
 
         final_rec_path = ""
+        import time
+        t1 = time.time()
         if os.path.exists(rec_path) or os.path.exists(mrc_path):
             try:                
                 d_st = self.read_header(st_path)
+                t1_2 = time.time()
+                print('t1-2 time consumed: {:10.4f} s'.format(t1_2-t1))
                 if os.path.exists(rec_path):
                     d_rec = self.read_header(rec_path)
                     final_rec_path = rec_path
                 else:
                     d_rec = self.read_header(mrc_path)
                     final_rec_path = mrc_path
+
+                t2 = time.time()
+                print('t2 time consumed: {:10.4f} s'.format(t2-t1_2))
 
                 tilt_num = str(d_st["sections"])
                 
@@ -1714,19 +1721,32 @@ class Recon(QTabWidget):
                 binning = str(int(np.round(d_rec["apix"]/d_st["apix"], 0)))
 
                 thickness_nm = str(int(d_rec["sections"] * d_rec["apix"]))
-
+                
                 if os.path.exists(taError_path):
                     try:
-                        cmd = "cat {} | grep \"{}\"".format(taError_path, "Residual error local mean")
                         
-                        out = subprocess.check_output(cmd, shell=True)
-                        line = out.decode('utf-8').split("\n")[0]
-
-                        re_mean = line.strip().split()[4]
-                        re_range = "{} - {}".format(line.split()[6],line.split()[8])
+                        # cmd = "cat {} | grep \"{}\"".format(taError_path, "Residual error local mean")
+                        # out = subprocess.check_output(cmd, shell=True)
+                        # line = out.decode('utf-8').split("\n")[0]
+                        # re_mean = line.strip().split()[4]
+                        # re_range = "{} - {}".format(line.split()[6],line.split()[8])
+                        with open(taError_path, 'r') as f:
+                            lines = f.readlines()
+                        out_line = ""
+                        for line in lines:
+                            if "Residual error local mean" in line:
+                                out_line = line
+                                break
+                        try:
+                            re_mean = out_line.strip().split()[4]
+                            re_range = "{} - {}".format(out_line.split()[6],out_line.split()[8])
+                        except:
+                            re_mean = "None"
+                            re_range = "None"
                     except:
                         self.logger.warning("cannot reading RE mean error !")
-                
+                t3 = time.time()
+                print('t3 time consumed: {:10.4f} s'.format(t3-t2))
                 with open(tiltcom_path) as f:
                     skipped_view = ''
                     for line in f:
@@ -1735,6 +1755,8 @@ class Recon(QTabWidget):
                         elif "EXCLUDELIST" in line:
                             skipped_view = line.split('EXCLUDELIST')[-1].strip().replace(' ','')
                     skipped_view = skipped_view2 if len(skipped_view2) > len(skipped_view) else skipped_view
+                t4 = time.time()
+                print('t4 time consumed: {:10.4f} s'.format(t4-t3))
             except:
                 pass                                
         return [tilt_num, re_mean, re_range, binning, thickness_nm, skipped_view, final_rec_path]
