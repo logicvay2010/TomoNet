@@ -43,6 +43,8 @@ class Ctffind(QTabWidget):
 
         self.table_display_range = [1,20]
 
+        self.ctffind4_result = {}
+
         self.logger = logging.getLogger(__name__)
         handler = logging.FileHandler(filename=self.log_file, mode='a')
         formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
@@ -325,9 +327,7 @@ class Ctffind(QTabWidget):
         self.label_recon.setObjectName("label_recon")
         self.label_recon.setText("Summary of CTFFIND Defocus Estimation")
         self.horizontalLayout_summary.addWidget(self.label_recon)
-        self.pushButton_reload = QtWidgets.QPushButton(self.tab)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-
+        
         self.label_dispaly_range = QtWidgets.QLabel(self.tab)
         self.label_dispaly_range.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.label_dispaly_range.setAlignment(QtCore.Qt.AlignCenter)
@@ -343,11 +343,13 @@ class Ctffind(QTabWidget):
         # self.comboBox_display_range.addItem("")
         self.horizontalLayout_summary.addWidget(self.comboBox_display_range)
         
-        self.pushButton_reload.setSizePolicy(sizePolicy)
-        self.pushButton_reload.setMinimumSize(QtCore.QSize(60, 20))
-        self.pushButton_reload.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.pushButton_reload.setObjectName("pushButton_reload")
-        self.horizontalLayout_summary.addWidget(self.pushButton_reload)
+        # self.pushButton_reload = QtWidgets.QPushButton(self.tab)
+        # sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        # self.pushButton_reload.setSizePolicy(sizePolicy)
+        # self.pushButton_reload.setMinimumSize(QtCore.QSize(60, 20))
+        # self.pushButton_reload.setLayoutDirection(QtCore.Qt.LeftToRight)
+        # self.pushButton_reload.setObjectName("pushButton_reload")
+        # self.horizontalLayout_summary.addWidget(self.pushButton_reload)
 
         self.tableView = QtWidgets.QTableWidget(self)
 
@@ -387,7 +389,7 @@ class Ctffind(QTabWidget):
             (lambda: browse.browseSlot (self.lineEdit_ctffind_exe, location='/')) 
 
         self.pushButton_run_ctffind.clicked.connect(self.ctffind4)
-        self.pushButton_reload.clicked.connect(self.reload_table)
+        #self.pushButton_reload.clicked.connect(self.init_range_comboBox)
 
         self.currentChanged.connect(self.tab_changed)
 
@@ -516,7 +518,7 @@ class Ctffind(QTabWidget):
 
         self.pushButton_run_ctffind.setText(_translate("Form", "RUN"))
 
-        self.pushButton_reload.setText(_translate("Form", "Reload"))
+        #self.pushButton_reload.setText(_translate("Form", "Reload"))
 
     @QtCore.pyqtSlot(str)
     def update_log_window(self, txt):
@@ -665,7 +667,6 @@ class Ctffind(QTabWidget):
         return results
     
     def init_range_comboBox(self):
-        
         results = self.read_ctffind_result()
         total_number = len(results['tomoNames'])
         self.total_tomo_num = total_number
@@ -681,6 +682,9 @@ class Ctffind(QTabWidget):
             self.comboBox_display_range.setItemText(range_num, "[{}, {}]".format(self.table_display_interval*range_num+1, total_number))
 
         current_range = self.comboBox_display_range.currentText()
+
+        self.ctffind4_result = results
+
         if current_range:
             #print(current_range)
             min_i, max_i = current_range[1:-1].split(",")
@@ -697,7 +701,8 @@ class Ctffind(QTabWidget):
         self.reload_table()
 
     def reload_table(self):
-        results = self.read_ctffind_result()
+        #results = self.read_ctffind_result()
+        results = self.ctffind4_result
         tomoNames = results['tomoNames']
         tilt_nums = results['tilt_nums']
         defocus = results['defocus']
@@ -909,6 +914,7 @@ class Ctffind(QTabWidget):
     def cmd_finished(self):
         self.pushButton_run_ctffind.setText("RUN")
         self.pushButton_run_ctffind.setStyleSheet("QPushButton {color: black;}")
+        self.init_range_comboBox()
         self.reload_table()
 
     def ctffind4(self):
@@ -956,6 +962,7 @@ class Ctffind(QTabWidget):
 
     def tab_changed(self, i):
         if i == 1:
+            self.init_range_comboBox()
             self.reload_table()
 
     def check_or_create_path(self, folder):
