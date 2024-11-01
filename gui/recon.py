@@ -47,13 +47,13 @@ class Recon(QTabWidget):
 
         self.total_tomo_num_aretomo = 0
 
-        self.table_display_interval_etomo = 20
+        self.table_display_interval_etomo = 10
 
-        self.table_display_interval_aretomo = 20
+        self.table_display_interval_aretomo = 10
 
-        self.table_display_range_etomo = [1,20]
+        self.table_display_range_etomo = [1,10]
         
-        self.table_display_range_aretomo = [1,20]
+        self.table_display_range_aretomo = [1,10]
 
         self.tomoNames_etomo = []
 
@@ -1911,8 +1911,8 @@ class Recon(QTabWidget):
             display_i = 0
             self.tableView_aretomo.setVerticalHeaderLabels([str(x) for x in np.arange(self.table_display_range_aretomo[0], self.table_display_range_aretomo[1] + 1, dtype=int)])
 
-            import time
-            t1 = time.time()
+            # import time
+            # t1 = time.time()
             for i, tomo in enumerate(tomoNames):
                 if i+1 >= self.table_display_range_aretomo[0] and i < self.table_display_range_aretomo[1]:
                     self.tableView_aretomo.setItem(display_i, 0, QTableWidgetItem(tomo))                
@@ -1944,8 +1944,8 @@ class Recon(QTabWidget):
 
                     display_i+=1
 
-        t2 = time.time()
-        self.logger.info('time consumed: {:10.4f} s'.format(t2-t1))
+        # t2 = time.time()
+        # self.logger.info('time consumed: {:10.4f} s'.format(t2-t1))
 
         self.current_tomoNames_aretomo = tomoNames
     
