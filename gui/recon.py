@@ -1427,38 +1427,38 @@ class Recon(QTabWidget):
 
         return tomoNames
 
-    def loadTomo(self):
-        tomoNames = self.read_tomo()
-        self.tableView.setRowCount(len(tomoNames))
-        if len(tomoNames) > 0:
-            for i, tomo in enumerate(tomoNames):    
+    # def loadTomo(self):
+    #     tomoNames = self.read_tomo()
+    #     self.tableView.setRowCount(len(tomoNames))
+    #     if len(tomoNames) > 0:
+    #         for i, tomo in enumerate(tomoNames):    
 
-                self.tableView.setItem(i, 0, QTableWidgetItem(tomo))
-                action_continue = QTableWidgetItem("Continue")
-                action_continue.setBackground(QtGui.QColor("#4CAF50"))
-                action_continue.setFont(QFont("sans-serif", 8, QFont.Bold))
-                self.tableView.setItem(i, 1, action_continue)
+    #             self.tableView.setItem(i, 0, QTableWidgetItem(tomo))
+    #             action_continue = QTableWidgetItem("Continue")
+    #             action_continue.setBackground(QtGui.QColor("#4CAF50"))
+    #             action_continue.setFont(QFont("sans-serif", 8, QFont.Bold))
+    #             self.tableView.setItem(i, 1, action_continue)
 
-                action_starover = QTableWidgetItem("Start Over")
-                action_starover.setBackground(QtGui.QColor("#008CBA"))
-                action_starover.setFont(QFont("sans-serif", 8, QFont.Bold))
-                self.tableView.setItem(i, 2, action_starover)
+    #             action_starover = QTableWidgetItem("Start Over")
+    #             action_starover.setBackground(QtGui.QColor("#008CBA"))
+    #             action_starover.setFont(QFont("sans-serif", 8, QFont.Bold))
+    #             self.tableView.setItem(i, 2, action_starover)
 
-                action_starover = QTableWidgetItem("Delete")
-                action_starover.setBackground(QtGui.QColor("#f44336"))
-                action_starover.setFont(QFont("sans-serif", 8, QFont.Bold))
-                self.tableView.setItem(i, 3, action_starover)
+    #             action_starover = QTableWidgetItem("Delete")
+    #             action_starover.setBackground(QtGui.QColor("#f44336"))
+    #             action_starover.setFont(QFont("sans-serif", 8, QFont.Bold))
+    #             self.tableView.setItem(i, 3, action_starover)
 
-            self.tableView.horizontalHeader().show()
+    #         self.tableView.horizontalHeader().show()
 
-        else:
-            self.model.clear()
-            items = [
-                        QtGui.QStandardItem(field)
-                        for field in ["No tomogram data found yet!"]
-                    ]
-            self.model.appendRow(items)
-            self.tableView.horizontalHeader().hide()
+    #     else:
+    #         self.model.clear()
+    #         items = [
+    #                     QtGui.QStandardItem(field)
+    #                     for field in ["No tomogram data found yet!"]
+    #                 ]
+    #         self.model.appendRow(items)
+    #         self.tableView.horizontalHeader().hide()
 
     def table_click(self, item):
         i = item.row()
@@ -1879,13 +1879,14 @@ class Recon(QTabWidget):
             self.comboBox_display_range_aretomo.addItem("")
             self.comboBox_display_range_aretomo.setItemText(range_num, "[{}, {}]".format(self.table_display_interval_aretomo*range_num+1, total_number))
 
-        self.comboBox_display_range_aretomo.currentIndexChanged.connect(self.range_changed_aretomo)
         #self.range_changed_aretomo()
         current_range = self.comboBox_display_range_aretomo.currentText()
         if current_range:
             #print(current_range)
             min_i, max_i = current_range[1:-1].split(",")
             self.table_display_range_aretomo = [int(min_i), int(max_i)]
+
+        self.comboBox_display_range_aretomo.currentIndexChanged.connect(self.range_changed_aretomo)
     
     def range_changed_aretomo(self):
         current_range = self.comboBox_display_range_aretomo.currentText()
@@ -1910,6 +1911,8 @@ class Recon(QTabWidget):
             display_i = 0
             self.tableView_aretomo.setVerticalHeaderLabels([str(x) for x in np.arange(self.table_display_range_aretomo[0], self.table_display_range_aretomo[1] + 1, dtype=int)])
 
+            import time
+            t1 = time.time()
             for i, tomo in enumerate(tomoNames):
                 if i+1 >= self.table_display_range_aretomo[0] and i < self.table_display_range_aretomo[1]:
                     self.tableView_aretomo.setItem(display_i, 0, QTableWidgetItem(tomo))                
@@ -1940,6 +1943,9 @@ class Recon(QTabWidget):
                     self.tableView_aretomo.setItem(display_i, 7, QTableWidgetItem(notes_i))
 
                     display_i+=1
+
+        t2 = time.time()
+        self.logger.info('time consumed: {:10.4f} s'.format(t2-t1))
 
         self.current_tomoNames_aretomo = tomoNames
     
