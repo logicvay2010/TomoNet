@@ -120,6 +120,8 @@ class Recon(QTabWidget):
         self.fileSystemWatcher.addPath(self.log_file)
         self.fileSystemWatcher.fileChanged.connect(self.update_log_window)  
 
+        self.comboBox_display_range_etomo.currentIndexChanged.connect(self.range_changed_etomo)
+
     def setupUi(self):
         
         self.tab = QtWidgets.QWidget()
@@ -1382,6 +1384,7 @@ class Recon(QTabWidget):
 
     def tab_changed(self, i):
         if i == 1:
+            self.init_range_comboBox_etomo()
             self.reload_table()
             self.etomo_count_tomo()
         if i == 2:
@@ -1730,27 +1733,35 @@ class Recon(QTabWidget):
                 d['sections'] = int(sections)  
         return d
     
-    # def init_range_comboBox_etomo(self):
+    def init_range_comboBox_etomo(self):
         
-    #     results = self.read_ctffind_result()
-    #     total_number = len(results['tomoNames'])
-    #     self.total_tomo_num = total_number
-    #     range_num = total_number // self.table_display_interval
-    #     range_mod = total_number % self.table_display_interval
-    #     self.comboBox_display_range.clear()
-    #     for i in range(range_num):
-    #         self.comboBox_display_range.addItem("")
-    #         self.comboBox_display_range.setItemText(i, "[{}, {}]".format(self.table_display_interval*i+1, self.table_display_interval*(i+1)))
-    #     if range_mod > 0:
-    #         self.comboBox_display_range.addItem("")
-    #         self.comboBox_display_range.setItemText(range_num, "[{}, {}]".format(self.table_display_interval*range_num+1, total_number))
+        tomoNames = self.read_tomo(self.etomo_ts_folder)
+        total_number = len(tomoNames)
+        self.total_tomo_num_etomo = total_number
+        range_num = total_number // self.table_display_interval_etomo
+        range_mod = total_number % self.table_display_interval_etomo
+        self.comboBox_display_range_etomo.clear()
+        for i in range(range_num):
+            self.comboBox_display_range_etomo.addItem("")
+            self.comboBox_display_range_etomo.setItemText(i, "[{}, {}]".format(self.table_display_interval_etomo*i+1, self.table_display_interval_etomo*(i+1)))
+        if range_mod > 0:
+            self.comboBox_display_range_etomo.addItem("")
+            self.comboBox_display_range_etomo.setItemText(range_num, "[{}, {}]".format(self.table_display_interval_etomo*range_num+1, total_number))
 
-    #     self.range_changed()
+        self.range_changed_etomo()
+    
+    def range_changed_etomo(self):
+        current_range = self.comboBox_display_range_etomo.currentText()
+        if current_range:
+            #print(current_range)
+            min_i, max_i = current_range[1:-1].split(",")
+            self.table_display_range_etomo = [int(min_i), int(max_i)]
+        self.reload_table()
     
     def reload_table(self):
         tomoNames = self.read_tomo(self.etomo_ts_folder)
         self.tableView.setRowCount(0)
-        self.tableView.setRowCount(len(tomoNames))
+        #self.tableView.setRowCount(len(tomoNames))
         
         try:
             with open(self.note_json) as f:
@@ -1758,55 +1769,62 @@ class Recon(QTabWidget):
         except:
             note_dict = {}
         if len(tomoNames) > 0:
+            self.tableView.setRowCount(self.table_display_range_etomo[1] - self.table_display_range_etomo[0] + 1)
+            display_i = 0
+            self.tableView.setVerticalHeaderLabels([str(x) for x in np.arange(self.table_display_range_etomo[0], self.table_display_range_etomo[1] + 1, dtype=int)])
+
             for i, tomo in enumerate(tomoNames):
-                self.tableView.setItem(i, 0, QTableWidgetItem(tomo))                
-                action_check = QTableWidgetItem("View TS (Bin8)")
-                action_check.setBackground(QtGui.QColor("#a0d2eb"))
-                action_check.setFont(QFont("sans-serif", 8, QFont.Bold))
-                self.tableView.setItem(i, 1, action_check)
-                
-                action_continue = QTableWidgetItem("Continue")
-                action_continue.setBackground(QtGui.QColor("#4CAF50"))
-                action_continue.setFont(QFont("sans-serif", 8, QFont.Bold))
-                self.tableView.setItem(i, 2, action_continue)
+                if i+1 >= self.table_display_range_etomo[0] and i < self.table_display_range_etomo[1]:
+                    self.tableView.setItem(display_i, 0, QTableWidgetItem(tomo))                
+                    action_check = QTableWidgetItem("View TS (Bin8)")
+                    action_check.setBackground(QtGui.QColor("#a0d2eb"))
+                    action_check.setFont(QFont("sans-serif", 8, QFont.Bold))
+                    self.tableView.setItem(display_i, 1, action_check)
+                    
+                    action_continue = QTableWidgetItem("Continue")
+                    action_continue.setBackground(QtGui.QColor("#4CAF50"))
+                    action_continue.setFont(QFont("sans-serif", 8, QFont.Bold))
+                    self.tableView.setItem(display_i, 2, action_continue)
 
-                action_starover = QTableWidgetItem("Start Over")
-                action_starover.setBackground(QtGui.QColor("#008CBA"))
-                action_starover.setFont(QFont("sans-serif", 8, QFont.Bold))
-                self.tableView.setItem(i, 3, action_starover)
+                    action_starover = QTableWidgetItem("Start Over")
+                    action_starover.setBackground(QtGui.QColor("#008CBA"))
+                    action_starover.setFont(QFont("sans-serif", 8, QFont.Bold))
+                    self.tableView.setItem(display_i, 3, action_starover)
 
-                action_delete = QTableWidgetItem("Delete")
-                action_delete.setBackground(QtGui.QColor("#f44336"))
-                action_delete.setFont(QFont("sans-serif", 8, QFont.Bold))
-                self.tableView.setItem(i, 4, action_delete)
+                    action_delete = QTableWidgetItem("Delete")
+                    action_delete.setBackground(QtGui.QColor("#f44336"))
+                    action_delete.setFont(QFont("sans-serif", 8, QFont.Bold))
+                    self.tableView.setItem(display_i, 4, action_delete)
 
-                action_ODD_EVN = QTableWidgetItem("ODD & EVN")
-                action_ODD_EVN.setBackground(QtGui.QColor("#ffb7b2"))
-                action_ODD_EVN.setFont(QFont("sans-serif", 8, QFont.Bold))
-                self.tableView.setItem(i, 5, action_ODD_EVN)
-                
-                items = self.read_recon_folder(tomo, self.etomo_folder, 1)
+                    action_ODD_EVN = QTableWidgetItem("ODD & EVN")
+                    action_ODD_EVN.setBackground(QtGui.QColor("#ffb7b2"))
+                    action_ODD_EVN.setFont(QFont("sans-serif", 8, QFont.Bold))
+                    self.tableView.setItem(display_i, 5, action_ODD_EVN)
+                    
+                    items = self.read_recon_folder(tomo, self.etomo_folder, 1)
 
-                if len(items[6]) > 0:
-                    action_view = QTableWidgetItem(os.path.basename(items[6]))
-                else:
-                    action_view = QTableWidgetItem("NA")
-                
-                action_view.setBackground(QtGui.QColor("#d0bdf4"))
-                action_view.setFont(QFont("sans-serif", 8, QFont.Bold))
-                self.tableView.setItem(i, 6, action_view)
+                    if len(items[6]) > 0:
+                        action_view = QTableWidgetItem(os.path.basename(items[6]))
+                    else:
+                        action_view = QTableWidgetItem("NA")
+                    
+                    action_view.setBackground(QtGui.QColor("#d0bdf4"))
+                    action_view.setFont(QFont("sans-serif", 8, QFont.Bold))
+                    self.tableView.setItem(display_i, 6, action_view)
 
-                self.tableView.setItem(i, 7, QTableWidgetItem(items[0]))
-                self.tableView.setItem(i, 8, QTableWidgetItem(items[1]))
-                self.tableView.setItem(i, 9, QTableWidgetItem(items[2]))
-                self.tableView.setItem(i, 10, QTableWidgetItem(items[3]))
-                if len(items[4]) > 0:
-                    self.tableView.setItem(i, 11, QTableWidgetItem("{} nm".format(str(int(items[4])/10))))
-                else:
-                    self.tableView.setItem(i, 11, QTableWidgetItem(""))
-                self.tableView.setItem(i, 12, QTableWidgetItem(items[5]))
-                notes_i = note_dict[tomo] if tomo in note_dict.keys() else ""
-                self.tableView.setItem(i, 13, QTableWidgetItem(notes_i))
+                    self.tableView.setItem(display_i, 7, QTableWidgetItem(items[0]))
+                    self.tableView.setItem(display_i, 8, QTableWidgetItem(items[1]))
+                    self.tableView.setItem(display_i, 9, QTableWidgetItem(items[2]))
+                    self.tableView.setItem(display_i, 10, QTableWidgetItem(items[3]))
+                    if len(items[4]) > 0:
+                        self.tableView.setItem(display_i, 11, QTableWidgetItem("{} nm".format(str(int(items[4])/10))))
+                    else:
+                        self.tableView.setItem(display_i, 11, QTableWidgetItem(""))
+                    self.tableView.setItem(display_i, 12, QTableWidgetItem(items[5]))
+                    notes_i = note_dict[tomo] if tomo in note_dict.keys() else ""
+                    self.tableView.setItem(display_i, 13, QTableWidgetItem(notes_i))
+
+                    display_i+=1
 
     def reload_table_aretomo(self):
         self.aretomo_ts_folder = self.lineEdit_aretomo_input_folder.text() if len(self.lineEdit_aretomo_input_folder.text().strip()) > 0 else self.default_ts_folder
@@ -1851,6 +1869,7 @@ class Recon(QTabWidget):
     def list_row_changed(self, i):
         if i == 1:
             if self.currentIndex() == 1:
+                self.init_range_comboBox_etomo()
                 self.reload_table()
                 self.etomo_count_tomo()
             if self.currentIndex() == 2:
