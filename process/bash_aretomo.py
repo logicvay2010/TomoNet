@@ -70,14 +70,32 @@ def fix_format_aretomo(aretomo_folder, tomoName, tiltAxis, correct_ImodFile_form
     tlt_file = "{}/{}.tlt".format(folder_imod_correct, tomoName)
     tlt_tmp_file = "{}/{}_tmp.tlt".format(folder_imod_correct, tomoName)
 
+    xf_file = "{}/{}.xf".format(folder_imod_correct, tomoName)
+    xf_tmp_file = "{}/{}_tmp.xf".format(folder_imod_correct, tomoName)
+
     #remove last empty line in .tlt file
-    with open(tlt_file, 'r') as f:
-        lines = f.readlines()
-        with open(tlt_tmp_file, 'w') as w:
-            for line in lines:
-                if len(line.strip()) > 0:
-                    w.write(line)
-    os.replace(tlt_tmp_file, tlt_file)
+    try:
+        with open(tlt_file, 'r') as f:
+            lines = f.readlines()
+            with open(tlt_tmp_file, 'w') as w:
+                for line in lines:
+                    if len(line.strip()) > 0:
+                        w.write(line)
+        os.replace(tlt_tmp_file, tlt_file)
+    except:
+        pass
+    
+    #remove last empty line in .xf file
+    try:
+        with open(xf_file, 'r') as f:
+            lines = f.readlines()
+            with open(xf_tmp_file, 'w') as w:
+                for line in lines:
+                    if len(line.strip()) > 0:
+                        w.write(line)
+        os.replace(xf_tmp_file, xf_file)
+    except:
+        pass
         
     if correct_ImodFile_format == 1:
         tilt_com_file = "{}/tilt.com".format(folder_imod_correct)

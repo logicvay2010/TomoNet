@@ -59,6 +59,18 @@ class Recon(QTabWidget):
 
         self.tomoNames_aretomo = []
 
+        self.etomo_preview_loc = 1
+        self.etomo_continue_loc = 2
+        self.etomo_startover_loc = 3
+        self.etomo_delete_loc = 4
+        self.etomo_oddevn_loc = 5
+        self.etomo_recon_loc = 6
+        self.etomo_notes_loc = 12
+
+        self.aretomo_preview_loc = 1
+        self.aretomo_recon_loc = 2
+        self.aretomo_notes_loc = 6
+
         ############### Define variables ################
         
         self.log_file = "Recon/recon.log"
@@ -798,7 +810,6 @@ class Recon(QTabWidget):
         
         self.gridLayout_3.addWidget(self.tableView_aretomo, 6, 0)
 
-
         self.addTab(self.tab_aretomo, "")
 
     def retranslateUi(self):
@@ -1427,48 +1438,15 @@ class Recon(QTabWidget):
 
         return tomoNames
 
-    # def loadTomo(self):
-    #     tomoNames = self.read_tomo()
-    #     self.tableView.setRowCount(len(tomoNames))
-    #     if len(tomoNames) > 0:
-    #         for i, tomo in enumerate(tomoNames):    
-
-    #             self.tableView.setItem(i, 0, QTableWidgetItem(tomo))
-    #             action_continue = QTableWidgetItem("Continue")
-    #             action_continue.setBackground(QtGui.QColor("#4CAF50"))
-    #             action_continue.setFont(QFont("sans-serif", 8, QFont.Bold))
-    #             self.tableView.setItem(i, 1, action_continue)
-
-    #             action_starover = QTableWidgetItem("Start Over")
-    #             action_starover.setBackground(QtGui.QColor("#008CBA"))
-    #             action_starover.setFont(QFont("sans-serif", 8, QFont.Bold))
-    #             self.tableView.setItem(i, 2, action_starover)
-
-    #             action_starover = QTableWidgetItem("Delete")
-    #             action_starover.setBackground(QtGui.QColor("#f44336"))
-    #             action_starover.setFont(QFont("sans-serif", 8, QFont.Bold))
-    #             self.tableView.setItem(i, 3, action_starover)
-
-    #         self.tableView.horizontalHeader().show()
-
-    #     else:
-    #         self.model.clear()
-    #         items = [
-    #                     QtGui.QStandardItem(field)
-    #                     for field in ["No tomogram data found yet!"]
-    #                 ]
-    #         self.model.appendRow(items)
-    #         self.tableView.horizontalHeader().hide()
-
     def table_click(self, item):
         i = item.row()
         j = item.column()
         tomoName = self.tableView.item(i, 0).text()
-        if j == 1:
+        if j == self.etomo_preview_loc:
             current_st_link_path = "{}/{}.st".format(self.etomo_ts_folder, tomoName)
             cmd = "3dmod -b 8,1 {}".format(current_st_link_path)
             os.system(cmd)
-        elif j == 2:
+        elif j == self.etomo_continue_loc:
             if which('etomo') is None:
                 self.logger.error("'etomo' cmd is not detected in the current system. Please check the 'etomo' installation!")
                 return -1
@@ -1507,7 +1485,7 @@ class Recon(QTabWidget):
             else:
                 cmd = "cd {}; etomo *edf".format(current_tomo_folder)
                 subprocess.check_output(cmd, shell=True)
-        elif j == 3:
+        elif j == self.etomo_startover_loc:
             if which('etomo') is None:
                 self.logger.error("'etomo' cmd is not detected in the current system. Please check the 'etomo' installation!")
                 return -1
@@ -1525,7 +1503,7 @@ class Recon(QTabWidget):
                     cmd = "cd {} ; ln -s {} ./ ; ln -s {} ./; etomo".format(current_tomo_folder, current_st_link_path, current_rawtlt_link_path)
                 subprocess.check_output(cmd, shell=True)
                 self.reload_table()
-        elif j == 4:
+        elif j == self.etomo_delete_loc:
             ret = QMessageBox.question(self, 'Risky Action!', "Do you want to move {} to trash?".format(tomoName), QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if ret == QMessageBox.Yes:
                 trash_ts_tlt = "{}/{}".format(self.etomo_ts_folder, "Trash")
@@ -1572,7 +1550,7 @@ class Recon(QTabWidget):
                             if not i == ind:
                                 f.write("{}\n".format(record))
                 self.reload_table()
-        elif j == 5:
+        elif j == self.etomo_oddevn_loc:
             self.logger.warning("This function is disabled before issues get fixed. Please use newst.com and tilt.com to generate ODD and EVN reconstructions manually. Or using Aretomo option.")
             # if which('newstack') is None:
             #     self.logger.error("'newstack' cmd is not detected in the current system. Please check the 'newstack' or IMOD installation!")
@@ -1608,7 +1586,7 @@ class Recon(QTabWidget):
             #             self.logger.info("ODD & EVN Recons were performed for {}".format(tomoName))
             # else:
             #     self.logger.warning('either ODD ({}) or EVN ({}) TS file was not detected!'.format(current_ODD_st_link_path, current_EVN_st_link_path))
-        elif j == 6:
+        elif j == self.etomo_recon_loc:
             if which('3dmod') is None:
                 self.logger.error("'3dmod' cmd is not detected in the current system. Please check the '3dmod' or IMOD installation!")
                 return -1
@@ -1620,7 +1598,7 @@ class Recon(QTabWidget):
                 cmd = "3dmod {}".format(rec_path)
                 os.system(cmd)
                 #subprocess.check_output(cmd, shell=True)
-        elif j == 13:
+        elif j == self.etomo_notes_loc:
             previous_text = self.tableView.item(i, j).text()
             text, ok = QInputDialog.getText(self, 'Take notes!', 'Confirm changes?', QLineEdit.Normal, previous_text)
             if ok:
@@ -1635,14 +1613,14 @@ class Recon(QTabWidget):
         i = item.row()
         j = item.column()
         tomoName = self.tableView_aretomo.item(i, 0).text()
-        if j == 1:
+        if j == self.aretomo_preview_loc:
             if which('3dmod') is None:
                 self.logger.error("'3dmod' cmd is not detected in the current system. Please check the '3dmod' or IMOD installation!")
                 return -1
             current_st_link_path = "{}/{}.st".format(self.aretomo_ts_folder, tomoName)
             cmd = "3dmod -b 8,1 {}".format(current_st_link_path)
             os.system(cmd)
-        elif j == 2:
+        elif j == self.aretomo_recon_loc:
             if which('3dmod') is None:
                 self.logger.error("'3dmod' cmd is not detected in the current system. Please check the '3dmod' or IMOD installation!")
                 return -1
@@ -1656,7 +1634,7 @@ class Recon(QTabWidget):
                     os.system(cmd)
             except:
                 pass
-        elif j == 7:
+        elif j == self.aretomo_notes_loc:
             previous_text = self.tableView_aretomo.item(i, j).text()
             text, ok = QInputDialog.getText(self, 'Take notes!', 'Confirm changes?', QLineEdit.Normal, previous_text)
             if ok:
@@ -1675,7 +1653,7 @@ class Recon(QTabWidget):
         
         row_count = tableView.rowCount()
         params = {}
-        index = 13 if code == 1 else 7
+        index = self.etomo_notes_loc if code == 1 else self.aretomo_notes_loc
         for i in range(row_count):
             params[tableView.item(i, 0).text()] = tableView.item(i, index).text()
         return params
@@ -1687,40 +1665,63 @@ class Recon(QTabWidget):
 
         tiltcom_path = "{}/{}".format(recon_path, "tilt.com")
         #st_path = "{}/{}.st".format(recon_path, tomoName)
-        if tab_index == 1:
-            st_path = "{}/{}.st".format(self.etomo_ts_folder, tomoName)
-        elif tab_index == 2:
-            st_path = "{}/{}.st".format(self.aretomo_ts_folder, tomoName)
-        else:
-            st_path = "{}/{}.st".format(self.etomo_ts_folder, tomoName)
+        # if tab_index == 1:
+        #     st_path = "{}/{}.st".format(self.etomo_ts_folder, tomoName)
+        # elif tab_index == 2:
+        #     st_path = "{}/{}.st".format(self.aretomo_ts_folder, tomoName)
+        # else:
+        #     st_path = "{}/{}.st".format(self.etomo_ts_folder, tomoName)
         rec_path = "{}/{}.rec".format(recon_path, tomoName)
         mrc_path = "{}/{}_rec.mrc".format(recon_path, tomoName)
+        tlt_path = "{}/{}.tlt".format(recon_path, tomoName)
+        newst_path = "{}/newst.com".format(recon_path, tomoName)
 
         final_rec_path = ""
         import time
         t1 = time.time()
         if os.path.exists(rec_path) or os.path.exists(mrc_path):
             try:                
-                d_st = self.read_header(st_path)
-                t1_2 = time.time()
-                print('t1-2 time consumed: {:10.4f} s'.format(t1_2-t1))
-                if os.path.exists(rec_path):
-                    d_rec = self.read_header(rec_path)
-                    final_rec_path = rec_path
-                else:
-                    d_rec = self.read_header(mrc_path)
-                    final_rec_path = mrc_path
+                # d_st = self.read_header(st_path)
+                # if os.path.exists(rec_path):
+                #     d_rec = self.read_header(rec_path)
+                #     final_rec_path = rec_path
+                # else:
+                #     d_rec = self.read_header(mrc_path)
+                #     final_rec_path = mrc_path
+                
+                #tilt_num = str(d_st["sections"])
 
-                t2 = time.time()
-                print('t2 time consumed: {:10.4f} s'.format(t2-t1_2))
+                # binning = str(int(np.round(d_rec["apix"]/d_st["apix"], 0)))
 
-                tilt_num = str(d_st["sections"])
+                # thickness_nm = str(int(d_rec["sections"] * d_rec["apix"]))
+                # t2 = time.time()
+                # print('t2 time consumed: {:10.4f} s'.format(t2-t1))
+
+                try:
+                    with open(tlt_path, 'r') as f:
+                        lines_tlt = f.readlines()
+                    tilt_num = str(len(lines_tlt))
+                except:
+                    tilt_num = "None"
+                
                 
                 taError_path = "{}/{}".format(recon_path, "taError.log")
                 
-                binning = str(int(np.round(d_rec["apix"]/d_st["apix"], 0)))
+                if os.path.exists(newst_path):
+                    with open(newst_path, 'r') as f:
+                        lines = f.readlines()
+                    out_line = ""
+                    for line in lines:
+                        if "BinByFactor" in line:
+                            out_line = line
+                            break
+                    
+                    if out_line:
+                        binning = out_line.strip().split()[-1]
+                    else:
+                        binning = "None"
 
-                thickness_nm = str(int(d_rec["sections"] * d_rec["apix"]))
+                #thickness_nm = str(int(d_rec["sections"] * d_rec["apix"]))
                 
                 if os.path.exists(taError_path):
                     try:
@@ -1745,36 +1746,37 @@ class Recon(QTabWidget):
                             re_range = "None"
                     except:
                         self.logger.warning("cannot reading RE mean error !")
-                t3 = time.time()
-                print('t3 time consumed: {:10.4f} s'.format(t3-t2))
+                # t3 = time.time()
+                # print('t3 time consumed: {:10.4f} s'.format(t3-t2))
                 with open(tiltcom_path) as f:
                     skipped_view = ''
+                    skipped_view2 = ''
                     for line in f:
                         if "EXCLUDELIST2" in line:
                             skipped_view2 = line.split('EXCLUDELIST2')[-1].strip().replace(' ','')
                         elif "EXCLUDELIST" in line:
                             skipped_view = line.split('EXCLUDELIST')[-1].strip().replace(' ','')
                     skipped_view = skipped_view2 if len(skipped_view2) > len(skipped_view) else skipped_view
-                t4 = time.time()
-                print('t4 time consumed: {:10.4f} s'.format(t4-t3))
+                # t4 = time.time()
+                # print('t4 time consumed: {:10.4f} s'.format(t4-t3))
             except:
                 pass                                
         return [tilt_num, re_mean, re_range, binning, thickness_nm, skipped_view, final_rec_path]
     
-    def read_header(self, file_path):
-        d = {}
-        d['apix'] = 1.0
-        cmd = "header {} ".format(file_path)
-        out = subprocess.check_output(cmd, shell=True)
-        lines = out.decode('utf-8').split("\n")
-        for line in lines:
-            if "Pixel spacing" in line:
-                apix = line.strip().split()[-1]
-                d['apix'] = float(apix)
-            if "Number of columns" in line:
-                sections = line.strip().split()[-1]
-                d['sections'] = int(sections)  
-        return d
+    # def read_header(self, file_path):
+    #     d = {}
+    #     d['apix'] = 1.0
+    #     cmd = "header {} ".format(file_path)
+    #     out = subprocess.check_output(cmd, shell=True)
+    #     lines = out.decode('utf-8').split("\n")
+    #     for line in lines:
+    #         if "Pixel spacing" in line:
+    #             apix = line.strip().split()[-1]
+    #             d['apix'] = float(apix)
+    #         if "Number of columns" in line:
+    #             sections = line.strip().split()[-1]
+    #             d['sections'] = int(sections)  
+    #     return d
     
     def init_range_comboBox_etomo(self):
         
@@ -1871,13 +1873,13 @@ class Recon(QTabWidget):
                     self.tableView.setItem(display_i, 8, QTableWidgetItem(items[1]))
                     self.tableView.setItem(display_i, 9, QTableWidgetItem(items[2]))
                     self.tableView.setItem(display_i, 10, QTableWidgetItem(items[3]))
-                    if len(items[4]) > 0:
-                        self.tableView.setItem(display_i, 11, QTableWidgetItem("{} nm".format(str(int(items[4])/10))))
-                    else:
-                        self.tableView.setItem(display_i, 11, QTableWidgetItem(""))
-                    self.tableView.setItem(display_i, 12, QTableWidgetItem(items[5]))
+                    # if len(items[4]) > 0:
+                    #     self.tableView.setItem(display_i, 11, QTableWidgetItem("{} nm".format(str(int(items[4])/10))))
+                    # else:
+                    #     self.tableView.setItem(display_i, 11, QTableWidgetItem(""))
+                    self.tableView.setItem(display_i, 11, QTableWidgetItem(items[5]))
                     notes_i = note_dict[tomo] if tomo in note_dict.keys() else ""
-                    self.tableView.setItem(display_i, 13, QTableWidgetItem(notes_i))
+                    self.tableView.setItem(display_i, 12, QTableWidgetItem(notes_i))
 
                     display_i+=1
 
@@ -1956,13 +1958,13 @@ class Recon(QTabWidget):
 
                     self.tableView_aretomo.setItem(display_i, 3, QTableWidgetItem(items[0]))
                     self.tableView_aretomo.setItem(display_i, 4, QTableWidgetItem(items[3]))
-                    if len(items[4]) > 0:
-                        self.tableView_aretomo.setItem(display_i, 5, QTableWidgetItem("{} nm".format(str(int(items[4])/10))))
-                    else:
-                        self.tableView_aretomo.setItem(display_i, 5, QTableWidgetItem(""))
-                    self.tableView_aretomo.setItem(display_i, 6, QTableWidgetItem(items[5]))
+                    # if len(items[4]) > 0:
+                    #     self.tableView_aretomo.setItem(display_i, 5, QTableWidgetItem("{} nm".format(str(int(items[4])/10))))
+                    # else:
+                    #     self.tableView_aretomo.setItem(display_i, 5, QTableWidgetItem(""))
+                    self.tableView_aretomo.setItem(display_i, 5, QTableWidgetItem(items[5]))
                     notes_i = note_dict[tomo] if tomo in note_dict.keys() else ""
-                    self.tableView_aretomo.setItem(display_i, 7, QTableWidgetItem(notes_i))
+                    self.tableView_aretomo.setItem(display_i, 6, QTableWidgetItem(notes_i))
 
                     display_i+=1
 
