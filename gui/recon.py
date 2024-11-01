@@ -1677,17 +1677,17 @@ class Recon(QTabWidget):
         newst_path = "{}/newst.com".format(recon_path)
 
         final_rec_path = ""
-        import time
-        t1 = time.time()
+        # import time
+        # t1 = time.time()
         if os.path.exists(rec_path) or os.path.exists(mrc_path):
             try:                
                 # d_st = self.read_header(st_path)
-                # if os.path.exists(rec_path):
-                #     d_rec = self.read_header(rec_path)
-                #     final_rec_path = rec_path
-                # else:
-                #     d_rec = self.read_header(mrc_path)
-                #     final_rec_path = mrc_path
+                if os.path.exists(rec_path):
+                    # d_rec = self.read_header(rec_path)
+                    final_rec_path = rec_path
+                else:
+                    # d_rec = self.read_header(mrc_path)
+                    final_rec_path = mrc_path
                 
                 #tilt_num = str(d_st["sections"])
 
