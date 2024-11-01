@@ -1674,7 +1674,7 @@ class Recon(QTabWidget):
         rec_path = "{}/{}.rec".format(recon_path, tomoName)
         mrc_path = "{}/{}_rec.mrc".format(recon_path, tomoName)
         tlt_path = "{}/{}.tlt".format(recon_path, tomoName)
-        newst_path = "{}/newst.com".format(recon_path, tomoName)
+        newst_path = "{}/newst.com".format(recon_path)
 
         final_rec_path = ""
         import time

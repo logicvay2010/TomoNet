@@ -65,13 +65,16 @@ def check_output(aretomo_folder, ts, tomoName):
             return -1
     return 1
 
-def fix_format_aretomo(aretomo_folder, tomoName, tiltAxis, correct_ImodFile_format):
+def fix_format_aretomo(aretomo_folder, tomoName, tiltAxis, true_binning, correct_ImodFile_format):
     folder_imod_correct = "{}/{}".format(aretomo_folder, tomoName)
     tlt_file = "{}/{}.tlt".format(folder_imod_correct, tomoName)
     tlt_tmp_file = "{}/{}_tmp.tlt".format(folder_imod_correct, tomoName)
 
     xf_file = "{}/{}.xf".format(folder_imod_correct, tomoName)
     xf_tmp_file = "{}/{}_tmp.xf".format(folder_imod_correct, tomoName)
+    
+    newst_file = "{}/newst.com".format(folder_imod_correct)
+    newst_tmp_file = "{}/newst_tmp.com".format(folder_imod_correct)
 
     #remove last empty line in .tlt file
     try:
@@ -94,6 +97,21 @@ def fix_format_aretomo(aretomo_folder, tomoName, tiltAxis, correct_ImodFile_form
                     if len(line.strip()) > 0:
                         w.write(line)
         os.replace(xf_tmp_file, xf_file)
+    except:
+        pass
+
+    #modify the binfactor to correct one
+    try:
+        with open(newst_file, 'r') as f:
+            lines = f.readlines()
+            with open(newst_tmp_file, 'w') as w:
+                for line in lines:
+                    if len(line.strip()) > 0:
+                        if "BinByFactor" in line:
+                            w.write(line.replace('1',str(true_binning)))
+                        else:
+                            w.write(line)
+        os.replace(newst_tmp_file, newst_file)
     except:
         pass
         
@@ -139,7 +157,7 @@ def aretomo_single(param):
     
     if check_output(processed_folder, ts=ts, tomoName=tomoName) >= 0:
         try:
-            fix_format_aretomo(processed_folder, tomoName, param['TiltAxis'], param['correct_ImodFile_format'])
+            fix_format_aretomo(processed_folder, tomoName, param['TiltAxis'], param['OutBin'], param['correct_ImodFile_format'])
         except Exception as err:
             param['logger'].error(f"Unexpected {err=}, {type(err)=}")
         
