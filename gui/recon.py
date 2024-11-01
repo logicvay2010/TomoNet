@@ -43,6 +43,17 @@ class Recon(QTabWidget):
 
         self.motionCor_folder = "MotionCorrection"
         
+        self.total_tomo_num_etomo = 0
+
+        self.total_tomo_num_aretomo = 0
+
+        self.table_display_interval_etomo = 2
+
+        self.table_display_interval_aretomo = 20
+
+        self.table_display_range_etomo = [1,2]
+        
+        self.table_display_range_aretomo = [1,20]
 
         ############### Define variables ################
         
@@ -452,6 +463,21 @@ class Recon(QTabWidget):
         self.horizontalLayout_recon.addWidget(self.label_recon)
         self.pushButton_export_recon_etomo = QtWidgets.QPushButton(self.tab1)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+
+        self.label_dispaly_range_etomo = QtWidgets.QLabel(self.tab1)
+        self.label_dispaly_range_etomo.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.label_dispaly_range_etomo.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_dispaly_range_etomo.setMaximumSize(QtCore.QSize(80, 30))
+        self.label_dispaly_range_etomo.setObjectName("label_dispaly_range_etomo")
+        self.label_dispaly_range_etomo.setText("Displaying")
+        self.horizontalLayout_recon.addWidget(self.label_dispaly_range_etomo)
+
+        self.comboBox_display_range_etomo = QtWidgets.QComboBox(self.tab1)
+        self.comboBox_display_range_etomo.setObjectName("comboBox_display_range_etomo")
+        self.comboBox_display_range_etomo.setMaximumSize(QtCore.QSize(85, 30))
+        # self.comboBox_display_range_etomo.addItem("")
+        # self.comboBox_display_range_etomo.addItem("")
+        self.horizontalLayout_recon.addWidget(self.comboBox_display_range_etomo)
 
         self.pushButton_export_recon_etomo.setSizePolicy(sizePolicy)
         self.pushButton_export_recon_etomo.setMinimumSize(QtCore.QSize(50, 20))
@@ -1703,6 +1729,23 @@ class Recon(QTabWidget):
                 sections = line.strip().split()[-1]
                 d['sections'] = int(sections)  
         return d
+    
+    # def init_range_comboBox_etomo(self):
+        
+    #     results = self.read_ctffind_result()
+    #     total_number = len(results['tomoNames'])
+    #     self.total_tomo_num = total_number
+    #     range_num = total_number // self.table_display_interval
+    #     range_mod = total_number % self.table_display_interval
+    #     self.comboBox_display_range.clear()
+    #     for i in range(range_num):
+    #         self.comboBox_display_range.addItem("")
+    #         self.comboBox_display_range.setItemText(i, "[{}, {}]".format(self.table_display_interval*i+1, self.table_display_interval*(i+1)))
+    #     if range_mod > 0:
+    #         self.comboBox_display_range.addItem("")
+    #         self.comboBox_display_range.setItemText(range_num, "[{}, {}]".format(self.table_display_interval*range_num+1, total_number))
+
+    #     self.range_changed()
     
     def reload_table(self):
         tomoNames = self.read_tomo(self.etomo_ts_folder)
