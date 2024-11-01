@@ -493,7 +493,7 @@ class Recon(QTabWidget):
 
         self.comboBox_display_range_etomo = QtWidgets.QComboBox(self.tab1)
         self.comboBox_display_range_etomo.setObjectName("comboBox_display_range_etomo")
-        self.comboBox_display_range_etomo.setMaximumSize(QtCore.QSize(85, 30))
+        self.comboBox_display_range_etomo.setMaximumSize(QtCore.QSize(100, 30))
         # self.comboBox_display_range_etomo.addItem("")
         # self.comboBox_display_range_etomo.addItem("")
         self.horizontalLayout_recon.addWidget(self.comboBox_display_range_etomo)
@@ -781,7 +781,7 @@ class Recon(QTabWidget):
 
         self.comboBox_display_range_aretomo = QtWidgets.QComboBox(self.tab1)
         self.comboBox_display_range_aretomo.setObjectName("comboBox_display_range_aretomo")
-        self.comboBox_display_range_aretomo.setMaximumSize(QtCore.QSize(85, 30))
+        self.comboBox_display_range_aretomo.setMaximumSize(QtCore.QSize(100, 30))
         # self.comboBox_display_range_aretomo.addItem("")
         # self.comboBox_display_range_aretomo.addItem("")
         self.horizontalLayout_header_aretomo.addWidget(self.comboBox_display_range_aretomo)
