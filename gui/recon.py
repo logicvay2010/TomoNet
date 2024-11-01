@@ -47,11 +47,11 @@ class Recon(QTabWidget):
 
         self.total_tomo_num_aretomo = 0
 
-        self.table_display_interval_etomo = 2
+        self.table_display_interval_etomo = 20
 
         self.table_display_interval_aretomo = 20
 
-        self.table_display_range_etomo = [1,2]
+        self.table_display_range_etomo = [1,20]
         
         self.table_display_range_aretomo = [1,20]
 
