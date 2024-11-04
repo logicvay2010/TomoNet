@@ -15,7 +15,7 @@ header_labels_aretomo_old = ['Tomo Name', 'Action', 'Recon Map', 'Tilts #', \
 header_labels_prediction = ['Tomo Name', 'Particle #', 'Action']
 
 header_labels_manual = ['Tomo Name', 'Top(one point)', 'Bottom(one point)', \
-                        'Side(two points)', 'Action', 'Action', 'Action','Action','Action']
+                        'Side(two points)', 'Action', 'Action', 'Action','Action','Notes']
 
 header_labels_ctffind = ['Tomo Name', 'Tilt #', 'defocus (Å)', 'Best CTF ring fit at (Å)', 'Action', 'Action']
 
