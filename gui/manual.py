@@ -1,9 +1,10 @@
 import os, glob, subprocess, logging
 import imodmodel
+import json
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QTabWidget, QHeaderView, QMessageBox, QTableWidgetItem
+from PyQt5.QtWidgets import QTabWidget, QHeaderView, QMessageBox, QTableWidgetItem, QInputDialog, QLineEdit
 from TomoNet.util import metadata, browse
 
 class Manual(QTabWidget):
@@ -23,6 +24,17 @@ class Manual(QTabWidget):
         self.stalkInit_folder = "ManualPick/stalkInit_prep"
 
         self.initParams_folder = "ManualPick/initParams"
+
+        self.note_json = "ManualPick/notes.json"
+
+        self.manual_top_loc = 1
+        self.manual_bottom_loc = 2
+        self.manual_side_loc = 3
+        self.manual_combine_loc = 4
+        self.manual_stalkinit_loc = 5
+        self.manual_plot_loc = 6
+        self.manual_view_loc = 7
+        self.manual_notes_loc = 8
 
         self.check_or_create_path(self.stalkInit_folder)
         self.check_or_create_path(self.initParams_folder)
@@ -53,6 +65,8 @@ class Manual(QTabWidget):
     
         #horizontalLayout_1
         self.horizontalLayout_1 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_1.setContentsMargins(2, 2, 2, 2)
+        self.horizontalLayout_1.setObjectName("horizontalLayout_1")
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -83,6 +97,31 @@ class Manual(QTabWidget):
         self.pushButton_other_maps.setObjectName("pushButton_other_maps")
         self.horizontalLayout_1.addWidget(self.pushButton_other_maps)
 
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+
+        self.label_manual_summary = QtWidgets.QLabel(self.tab)
+        self.label_manual_summary.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.label_manual_summary.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_manual_summary.setObjectName("label_manual_summary")
+        self.label_manual_summary.setText("Summary of Manual Picking")
+        self.horizontalLayout_2.addWidget(self.label_manual_summary)
+        
+        # self.label_dispaly_range = QtWidgets.QLabel(self.tab)
+        # self.label_dispaly_range.setLayoutDirection(QtCore.Qt.LeftToRight)
+        # self.label_dispaly_range.setAlignment(QtCore.Qt.AlignCenter)
+        # self.label_dispaly_range.setMaximumSize(QtCore.QSize(80, 30))
+        # self.label_dispaly_range.setObjectName("label_dispaly_range")
+        # self.label_dispaly_range.setText("Displaying")
+        # self.horizontalLayout_2.addWidget(self.label_dispaly_range)
+
+        # self.comboBox_display_range = QtWidgets.QComboBox(self.tab)
+        # self.comboBox_display_range.setObjectName("comboBox_display_range")
+        # self.comboBox_display_range.setMaximumSize(QtCore.QSize(85, 30))
+        # # self.comboBox_display_range.addItem("")
+        # # self.comboBox_display_range.addItem("")
+        # self.horizontalLayout_2.addWidget(self.comboBox_display_range)
+
         self.tableView = QtWidgets.QTableWidget(self)
         self.model = QtGui.QStandardItemModel(self)
 
@@ -99,12 +138,13 @@ class Manual(QTabWidget):
         self.gridLayout_motioncor = QtWidgets.QGridLayout(self.tab)
 
         self.gridLayout_motioncor.addLayout(self.horizontalLayout_1, 0, 0, 1, 1)
-        self.gridLayout_motioncor.addWidget(self.tableView, 1, 0)
+        self.gridLayout_motioncor.addLayout(self.horizontalLayout_2, 1, 0, 1, 1)
+        self.gridLayout_motioncor.addWidget(self.tableView, 2, 0)
 
         self.addTab(self.tab, "Results")
 
         self.tableView.doubleClicked.connect(self.table_doubleClick)
-        self.tableView.doubleClicked.connect(self.table_click)
+        #self.tableView.doubleClicked.connect(self.table_click)
 
         self.lineEdit_path_other_maps.textChanged.connect(self.save_setting)
         self.lineEdit_path_other_maps.textChanged.connect(self.reload_table)
@@ -185,6 +225,7 @@ class Manual(QTabWidget):
         return int(text.split("_")[-1]) 
 
     def read_tomo(self):
+
         searchPath = "{}".format(self.lineEdit_path_other_maps.text())
 
         tomoNames_rec = [os.path.basename(x).split(".")[0] \
@@ -200,8 +241,8 @@ class Manual(QTabWidget):
         except:
             pass
 
-        self.tomoPaths = ["{}/{}.mrc".format(searchPath,x) if x in tomoNames_mrc else \
-                         "{}/{}.rec".format(searchPath,x) for x in tomoNames]
+        self.tomoPaths = ["{}/{}.mrc".format(searchPath, x) if x in tomoNames_mrc else \
+                         "{}/{}.rec".format(searchPath, x) for x in tomoNames]
 
         mod_counts = []
         for t in tomoNames:
@@ -220,6 +261,19 @@ class Manual(QTabWidget):
         
         self.tableView.setRowCount(0)
         self.tableView.setRowCount(len(tomoNames))
+        try:
+            mod_counts_total = 0 if len(mod_counts) == 0 else sum(mod_counts)
+        except:
+            mod_counts_total = 0
+        
+        self.label_manual_summary.setText("Summary of Manual Picking: < {} tomograms > < {} particles >".format(len(tomoNames), mod_counts_total))
+        
+        try:
+            with open(self.note_json) as f:
+                note_dict = json.load(f)
+        except:
+            note_dict = {}
+        
         if len(tomoNames) > 0:
             for i, tomo in enumerate(tomoNames):
                 self.tableView.setItem(i, 0, QTableWidgetItem(tomo))
@@ -259,6 +313,11 @@ class Manual(QTabWidget):
                 action_view_picked.setFont(QFont("sans-serif", 8, QFont.Bold))
                 self.tableView.setItem(i, 7, action_view_picked)
 
+                notes_i = note_dict[tomo] if tomo in note_dict.keys() else ""
+                action_notes = QTableWidgetItem(notes_i)
+                action_notes.setFont(QFont("sans-serif", 8, QFont.Bold))
+                self.tableView.setItem(i, 8, action_notes)
+
     def list_row_changed(self, i):
         if i == 4:
             self.reload_table()
@@ -270,9 +329,9 @@ class Manual(QTabWidget):
         tomoPath = self.tomoPaths[i]
         tomoFullName = os.path.basename(tomoPath)
         self.link_file(tomoPath, self.stalkInit_folder)
-        
+        combined_mod = "{}.mod".format(tomoName)
         #j == 1 top. norm towards larger Z
-        if j == 1:
+        if j == self.manual_top_loc:
             mod_file = "{}_top.mod".format(tomoName)
             if os.path.exists("{}/{}".format(self.stalkInit_folder,mod_file)):
                 cmd = "cd {}; 3dmod {} {}".format(self.stalkInit_folder, tomoFullName, mod_file)
@@ -282,7 +341,7 @@ class Manual(QTabWidget):
             os.system(cmd)
             
         #j == 2 bottom. norm towards smaller Z
-        elif j == 2:
+        elif j == self.manual_bottom_loc:
             mod_file = "{}_bottom.mod".format(tomoName)
             if os.path.exists("{}/{}".format(self.stalkInit_folder,mod_file)):
                 cmd = "cd {}; 3dmod {} {}".format(self.stalkInit_folder, tomoFullName, mod_file)
@@ -291,7 +350,7 @@ class Manual(QTabWidget):
             self.logger.info("3dmod open {} picking bottom particles!".format(tomoFullName))
             os.system(cmd)
         #j == 3 side. need 2 points define a particle
-        elif j == 3:
+        elif j == self.manual_side_loc:
             mod_file = "{}_side.mod".format(tomoName)
             if os.path.exists("{}/{}".format(self.stalkInit_folder,mod_file)):
                 cmd = "cd {}; 3dmod {} {}".format(self.stalkInit_folder, tomoFullName, mod_file)
@@ -299,24 +358,7 @@ class Manual(QTabWidget):
                 cmd = "cd {}; 3dmod {}".format(self.stalkInit_folder, tomoFullName)
             self.logger.info("3dmod open {} picking side particles!".format(tomoFullName))
             os.system(cmd)
-        else:
-            pass
-    
-    def link_file(self, file, folder):
-        if not os.path.exists("{}/{}".format(folder, os.path.basename(file))):
-            cmd = "ln -s {} {}/".format(file, folder)
-            subprocess.check_output(cmd, shell=True)
-            self.logger.info("link {} to folder {}".format(file, folder))
-        else:
-            pass
-    
-    def table_click(self, item):
-        i = item.row()
-        j = item.column()
-        tomoName = self.tableView.item(i, 0).text()
-        tomoPath = self.tomoPaths[i]
-        combined_mod = "{}.mod".format(tomoName)
-        if j == 4:
+        elif j == self.manual_combine_loc:
             ret = QMessageBox.question(self, 'Combine!', \
                 "Do you want to combine particles from all views?\
                 \n \nThe old {}.mod will be replaced if exists!"\
@@ -324,7 +366,7 @@ class Manual(QTabWidget):
                 QMessageBox.No)
             if ret == QMessageBox.Yes:
                 self.combine_mods(tomoName)
-        elif j == 5:
+        elif j == self.manual_stalkinit_loc:
             ret = QMessageBox.question(self, 'StalkInit!', \
                 "Do you want to perform StalkInit? \n\nThe old result will be replaced if exist!"\
                 .format(tomoName, combined_mod), QMessageBox.Yes | QMessageBox.No, \
@@ -341,14 +383,14 @@ class Manual(QTabWidget):
                 self.reload_table()
             else:
                 pass
-        elif j == 6:
+        elif j == self.manual_plot_loc:
             ret = QMessageBox.question(self, 'Plot!', \
                 "Plot the manual picking for {}?"\
                 .format(tomoName), QMessageBox.Yes | QMessageBox.No, \
                 QMessageBox.No)
             if ret == QMessageBox.Yes:
                 self.plot_rotAxes(tomoName)
-        elif j == 7:
+        elif j == self.manual_view_loc:
             if not self.tableView.item(i, 7).text() == "":
                 ret = QMessageBox.question(self, 'Picked Particles', \
                     "Display the picked particle location for {}?"\
@@ -356,6 +398,80 @@ class Manual(QTabWidget):
                     QMessageBox.No)
                 if ret == QMessageBox.Yes:
                     self.plot_picked_particle(tomoName)
+        elif j == self.manual_notes_loc:
+            previous_text = self.tableView.item(i, j).text()
+            text, ok = QInputDialog.getText(self, 'Take notes!', 'Confirm changes?', QLineEdit.Normal, previous_text)
+            if ok:
+                self.tableView.setItem(i, j, QTableWidgetItem(text))
+
+                params = self.get_note_params()
+
+                with open("{}".format(self.note_json), 'w') as fp:
+                    json.dump(params, fp, indent=2, default=int)
+        else:
+            pass
+    
+    def link_file(self, file, folder):
+        if not os.path.exists("{}/{}".format(folder, os.path.basename(file))):
+            cmd = "ln -s {} {}/".format(file, folder)
+            subprocess.check_output(cmd, shell=True)
+            self.logger.info("link {} to folder {}".format(file, folder))
+        else:
+            pass
+    
+    def get_note_params(self):
+        row_count = self.tableView.rowCount()
+        params = {}
+        index = self.manual_notes_loc
+        for i in range(row_count):
+            params[self.tableView.item(i, 0).text()] = self.tableView.item(i, index).text()
+        return params
+    # def table_click(self, item):
+    #     i = item.row()
+    #     j = item.column()
+    #     tomoName = self.tableView.item(i, 0).text()
+    #     tomoPath = self.tomoPaths[i]
+    #     combined_mod = "{}.mod".format(tomoName)
+    #     if j == 4:
+    #         ret = QMessageBox.question(self, 'Combine!', \
+    #             "Do you want to combine particles from all views?\
+    #             \n \nThe old {}.mod will be replaced if exists!"\
+    #             .format(tomoName, combined_mod), QMessageBox.Yes | QMessageBox.No, \
+    #             QMessageBox.No)
+    #         if ret == QMessageBox.Yes:
+    #             self.combine_mods(tomoName)
+    #     elif j == 5:
+    #         ret = QMessageBox.question(self, 'StalkInit!', \
+    #             "Do you want to perform StalkInit? \n\nThe old result will be replaced if exist!"\
+    #             .format(tomoName, combined_mod), QMessageBox.Yes | QMessageBox.No, \
+    #             QMessageBox.No)
+    #         if ret == QMessageBox.Yes:
+    #             ret = QMessageBox.question(self, 'StalkInit!', \
+    #                 "Do you want to apply a pseudo-random rotation around the Y-axis?"\
+    #                 .format(tomoName, combined_mod), QMessageBox.Yes | QMessageBox.No, \
+    #                 QMessageBox.No)
+    #             if ret == QMessageBox.Yes:
+    #                 self.stalkInit(tomoName,tomoPath, 1)
+    #             else:
+    #                 self.stalkInit(tomoName,tomoPath, 0)
+    #             self.reload_table()
+    #         else:
+    #             pass
+    #     elif j == 6:
+    #         ret = QMessageBox.question(self, 'Plot!', \
+    #             "Plot the manual picking for {}?"\
+    #             .format(tomoName), QMessageBox.Yes | QMessageBox.No, \
+    #             QMessageBox.No)
+    #         if ret == QMessageBox.Yes:
+    #             self.plot_rotAxes(tomoName)
+    #     elif j == 7:
+    #         if not self.tableView.item(i, 7).text() == "":
+    #             ret = QMessageBox.question(self, 'Picked Particles', \
+    #                 "Display the picked particle location for {}?"\
+    #                 .format(tomoName), QMessageBox.Yes | QMessageBox.No, \
+    #                 QMessageBox.No)
+    #             if ret == QMessageBox.Yes:
+    #                 self.plot_picked_particle(tomoName)
             
     def check_or_create_path(self, folder):
         if not os.path.exists(folder):
