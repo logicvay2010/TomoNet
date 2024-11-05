@@ -1577,7 +1577,7 @@ class IsoNet(QTabWidget):
                 for key, value in param.items(): 
                     f.write("{}:{}\n".format(key,value))
         except:
-            print("error writing {}!".format(self.setting_file))    
+            self.logger.error("error writing {}!".format(self.setting_file))    
 
     def get_display_name(self, label):
         
@@ -1614,7 +1614,7 @@ class IsoNet(QTabWidget):
         return switcher.get(label, "None")
     
     def setTableWidget(self, tw, md):
-        print("setTableWidget")
+        #print("setTableWidget")
         tw.cellChanged[int,int].disconnect(self.updateMDItem) 
         #import time
         #start_time = time.time()
@@ -1663,7 +1663,7 @@ class IsoNet(QTabWidget):
         tw.cellChanged[int,int].connect(self.updateMDItem) 
     
     def read_star(self):
-        print("read_star:", self.tomogram_star)
+        #print("read_star:", self.tomogram_star)
         if not self.isValid(self.tomogram_star):
             self.md = MetaData()
             #self.md.addLabels('rlnIndex','rlnMicrographName','rlnPixelSize','rlnDefocus','rlnNumberSubtomo')
@@ -1676,7 +1676,7 @@ class IsoNet(QTabWidget):
         self.table_header = self.md.getLabels()
     
     def read_star_gui(self, star_file):
-        print("read_star_gui:", star_file)
+        #print("read_star_gui:", star_file)
         if self.isValid(star_file):
             md_cad = MetaData()
             md_cad.read(star_file)
@@ -1795,7 +1795,7 @@ class IsoNet(QTabWidget):
             pass
     
     def sim_path(self, pwd, path):
-        print("sim_path:", pwd, path)
+        #print("sim_path:", pwd, path)
         if pwd in path:
             return "." + path[len(pwd):]
         else:
@@ -1847,14 +1847,14 @@ class IsoNet(QTabWidget):
         self.md.write(star_file)
 
     def tab_changed(self, table_index):
-        print("tab_changed:", table_index)
+        #print("tab_changed:", table_index)
         if table_index == 0:
             self.setTableWidget(self.tableWidget, self.md)
         if table_index == 1:
             self.setTableWidget(self.tableWidget_2, self.md)
 
     def updateMDItem(self, i, j):
-        print("updateMDItem", i, j)
+        #print("updateMDItem", i, j)
         try:
             #current_value = self.tableWidget.item(i, j).text()
             current_tab_index = self.currentIndex()
@@ -2025,7 +2025,7 @@ class IsoNet(QTabWidget):
             pass
     
     def open_star(self):
-        print("open_star")
+        #print("open_star")
         options = QtWidgets.QFileDialog.Options()
         options |= QtWidgets.QFileDialog.DontUseNativeDialog
         fileName, _ = QtWidgets.QFileDialog.getOpenFileName(
@@ -2109,7 +2109,7 @@ class IsoNet(QTabWidget):
         self.tableWidget.cellChanged[int,int].connect(self.updateMDItem) 
     
     def open_star_fileName(self, fileName):
-        print("open_star_fileName", fileName)
+        #print("open_star_fileName", fileName)
         try:
             #tomo_file = self.sim_path(self.pwd, fileName)
             tomo_file = fileName
@@ -2833,7 +2833,7 @@ class IsoNet(QTabWidget):
                     self.open_star_fileName(self.tomogram_star)
                     
     def cmd_finished(self, button, text="Run"):
-        print("cmd_finished", text)
+        #print("cmd_finished", text)
         button.setText(text)
         button.setStyleSheet("QPushButton {color: black;}")  
         self.open_star_fileName(self.tomogram_star)
