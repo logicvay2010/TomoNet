@@ -305,6 +305,7 @@ class AreTomo(QThread):
                 param['correct_ImodFile_format'] = self.d['correct_ImodFile_format']
                 param['processed_folder'] = self.processed_folder
                 param['ts'] = ts
+                param['OutBin'] = self.d['OutBin']
                 param['tomoName'] = tomoName
                 param['gpu_ID'] = gpu_ID[0]
                 param['logger'] = self.logger
@@ -366,6 +367,7 @@ class AreTomo(QThread):
                     param['gpu_ID'] = gpu_ID[i]
                     param['processed_folder'] = self.processed_folder
                     param['ts'] = ts
+                    param['OutBin'] = self.d['OutBin']
                     param['tomoName'] = tomoName
                     param['logger'] = self.logger
 
