@@ -54,6 +54,6 @@ Please also cite the corresponding tools/packages if specific modules were used 
 ### <p align="center"> <a href="https://doi.org/10.1128/jvi.00640-24"> LCMV GPC </a> </p> ###
 <p align="center"> <img src="assets/images/lcmv-gb.png" width=600 /> </p> 
 
-### <p align="center"> S-layer lattice of M. hungatei </p> ###
+### <p align="center"> S-layer lattice of __M. hungatei_ </p> ###
 <p align="center"> <img src="assets/images/S-layer_Mhun.png" width=600 /> </p> 
 
