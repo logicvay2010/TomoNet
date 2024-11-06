@@ -1802,7 +1802,7 @@ class IsoNet(QTabWidget):
             return path
     
     def updateMD(self, table_index=0):        
-        print("updateMD:", table_index)
+        #print("updateMD:", table_index)
         star_file = self.tomogram_star
         if table_index == 1:
             current_table = self.tableWidget_2
@@ -2107,6 +2107,7 @@ class IsoNet(QTabWidget):
         if not warning_sign:
             self.logger.info("defocus updated.")
         self.tableWidget.cellChanged[int,int].connect(self.updateMDItem) 
+        self.updateMD()
     
     def open_star_fileName(self, fileName):
         #print("open_star_fileName", fileName)
