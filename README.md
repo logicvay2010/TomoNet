@@ -54,6 +54,9 @@ Please also cite the corresponding tools/packages if specific modules were used 
 ### <p align="center"> <a href="https://doi.org/10.1128/jvi.00640-24"> LCMV GPC </a> </p> ###
 <p align="center"> <img src="assets/images/lcmv-gb.png" width=600 /> </p> 
 
+### <p align="center"> <a href="https://www.mdpi.com/1999-4915/16/9/1447"> Rabies Virus M Protein </a> </p> ###
+<p align="center"> <img src="assets/images/RABV_M.png" width=600 /> </p> 
+
 ### <p align="center"> S-layer lattice of _M. hungatei_ </p> ###
 <p align="center"> <img src="assets/images/S-layer_Mhun.png" width=600 /> </p> 
 
