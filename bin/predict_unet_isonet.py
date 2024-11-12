@@ -78,6 +78,9 @@ def predict(args):
 
     log(logger, "\n###### IsoNet starts Predicting ######")
 
+    if md.size() == 0:
+        log(logger, "No tomogram was detected in the provided star file: {}".format(args.star_file), "error")
+        return
     for it in md:
         if args.tomo_idx is None or str(it.rlnIndex) in args.tomo_idx:
             if args.use_deconv_tomo and "rlnDeconvTomoName" in md.getLabels() and it.rlnDeconvTomoName not in [None,'None']:

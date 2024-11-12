@@ -140,11 +140,14 @@ if __name__ == "__main__":
 
     if not check_gpu(gpu_ID, logger):
         sys.exit()
-    
+        
     try:
         train_params = check_params(train_params)
     except Exception as err:
         log(logger, err, "error")
+        log(logger, "Error checking input file: {}, please check this input file is related to your subtomograms, and in the correct format".\
+                    format(train_params.train_subtomos_star), "error")
+
         #log(logger, "There is formating issue with the input JSON file {}".format(argv[1]), "error")
         sys.exit()
     
