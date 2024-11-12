@@ -43,10 +43,11 @@ def check_output(aretomo_folder, ts, tomoName):
         try:
             aln_file_old_path = "{}/{}.aln".format(folder_imod_correct, tomoName)
             aln_file_path_correct_1 = "{}/{}.aln".format(aretomo_folder, tomoName)
+
             if os.path.exists(aln_file_path):
                 os.replace(aln_file_path, aln_file_path_correct_1)
-            elif os.path.exists(aln_file_old_path):
-                os.replace(aln_file_old_path, aln_file_path_correct_1)
+            # elif os.path.exists(aln_file_old_path):
+            #     os.replace(aln_file_old_path, aln_file_path_correct_1)
             if os.path.exists(folder_imod_correct):
                 shutil.rmtree(folder_imod_correct)
             shutil.move(folder_imod, folder_imod_correct)
