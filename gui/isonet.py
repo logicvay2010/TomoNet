@@ -2658,6 +2658,8 @@ class IsoNet(QTabWidget):
 
         param['log_file'] = self.log_file
 
+        param['remove_intermediate'] = True
+
         return param
     
     def train(self):
