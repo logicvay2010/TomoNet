@@ -65,6 +65,9 @@ class Deconvolve(QThread):
                     self.md._setItemValue(it, Label('rlnDeconvStrength'), it.rlnDeconvStrength)
 
                 tomo_file = it.rlnMicrographName
+                if not os.path.exists(tomo_file):
+                    self.logger.error("tomogram input file not exist: {}, skipped!".format(tomo_file))
+                    continue
                 base_name = os.path.basename(tomo_file)
                 deconv_tomo_name = '{}/{}'.format(self.deconv_folder, base_name)
 
