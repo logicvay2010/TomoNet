@@ -121,7 +121,7 @@ def tom_deconv_tomo(vol_file, out_file, angpix, voltage, cs, defocus, snrfalloff
     deconv += ave_vol
     # print("d:" , np.min(deconv), np.max(deconv))
 
-    deconv = normalize_256(deconv, global_min = global_min, global_max = global_max)
+    #deconv = normalize_256(deconv, global_min = global_min, global_max = global_max)
 
     gc.collect()
     if out_file is not None:
