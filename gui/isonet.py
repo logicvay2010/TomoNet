@@ -2479,12 +2479,13 @@ class IsoNet(QTabWidget):
         #     train_pretrained_model=None
         
         if self.lineEdit_continue_from_iter.text():
-            if not string2int(self.lineEdit_continue_from_iter.text()) == None:
-                continue_from_iter = string2int(self.lineEdit_continue_from_iter.text())
-                if not continue_from_iter > 0:
-                    return "Please use the valid format for the continue from iteration #!"
-            else:
-                return "Please use the valid format for the continue from iteration #!"
+            # if not string2int(self.lineEdit_continue_from_iter.text()) == None:
+            #     continue_from_iter = string2int(self.lineEdit_continue_from_iter.text())
+            #     if not continue_from_iter > 0:
+            #         return "Please use the valid format for the continue from iteration #!"
+            # else:
+            #     return "Please use the valid format for the continue from iteration #!"
+            continue_from_iter = self.lineEdit_continue_from_iter.text()
         else:
             continue_from_iter = None
 
