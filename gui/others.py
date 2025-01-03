@@ -1376,9 +1376,12 @@ class OtherUtils(QTabWidget):
                                     
                                     output_eulers, output_vector = Relion2ChimeraX(np.array([rot, tilt, psi]))
 
-                                    x = round(xp*apix + xt,3)
-                                    y = round(yp*apix + yt,3)
-                                    z = round(zp*apix + zt,3)
+                                    # x = round(xp*apix + xt,3)
+                                    # y = round(yp*apix + yt,3)
+                                    # z = round(zp*apix + zt,3)
+                                    x = round(xp*apix - xt,3)
+                                    y = round(yp*apix - yt,3)
+                                    z = round(zp*apix - zt,3)
 
                                     centers.append([x,y,z])
                                     new_vectors.append([output_vector[0],output_vector[1],output_vector[2]])
@@ -1599,9 +1602,12 @@ class OtherUtils(QTabWidget):
 
                             output_eulers, output_vector = Relion2PEET(np.array([rot, tilt, psi]))
 
-                            x_coords_binned = int(round(xp*apix + xt,3)/apix/bin_factor)
-                            y_coords_binned = int(round(yp*apix + yt,3)/apix/bin_factor)
-                            z_coords_binned = int(round(zp*apix + zt,3)/apix/bin_factor)
+                            # x_coords_binned = int(round(xp*apix + xt,3)/apix/bin_factor)
+                            # y_coords_binned = int(round(yp*apix + yt,3)/apix/bin_factor)
+                            # z_coords_binned = int(round(zp*apix + zt,3)/apix/bin_factor)
+                            x_coords_binned = int(round(xp*apix - xt,3)/apix/bin_factor)
+                            y_coords_binned = int(round(yp*apix - yt,3)/apix/bin_factor)
+                            z_coords_binned = int(round(zp*apix - zt,3)/apix/bin_factor)
 
                             fp.write("{} {} {}\n".format(x_coords_binned, y_coords_binned, z_coords_binned))
                             motl_line = "1,0,0,{},1,0,0,0,0,0,0,0,0,0,0,0,{},{},{},0 \n".format(i+1, output_eulers[0],output_eulers[2],output_eulers[1])
