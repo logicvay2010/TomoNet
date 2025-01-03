@@ -93,7 +93,7 @@ def normalize(x, percentile = True, pmin=4.0, pmax=96.0, axis=None, clip=False, 
         out = out.astype(np.float32)
         return out
 
-def normalize(x, percentile = True, pmin=1.0, pmax=99.0, axis=None, eps=1e-20, global_min=None, global_max=None):
+def normalize_global(x, percentile = True, pmin=1.0, pmax=99.0, axis=None, eps=1e-20, global_min=None, global_max=None):
     """Percentile-based image normalization."""
     if global_min is not None:
         mi = global_min
