@@ -7,7 +7,7 @@ import numpy as np
 
 from TomoNet.util.io import log
 from TomoNet.util.searchParam import SearchParam 
-from TomoNet.preprocessing.cubes import normalize_256
+#from TomoNet.preprocessing.cubes import normalize_256
 
 
 def tom_ctf1d(pixelsize, voltage, cs, defocus, amplitude, phaseshift, bfactor, length=2048):

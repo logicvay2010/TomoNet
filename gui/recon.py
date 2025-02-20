@@ -1605,9 +1605,15 @@ class Recon(QTabWidget):
                 self.tableView.setItem(i, j, QTableWidgetItem(text))
 
                 params = self.get_note_params(1)
+                try:
+                    with open(self.note_json) as f:
+                        exist_note_dict = json.load(f)
+                except:
+                    exist_note_dict = {}
 
                 with open("{}".format(self.note_json), 'w') as fp:
-                    json.dump(params, fp, indent=2, default=int)
+                    merged_params = {**exist_note_dict, **params}
+                    json.dump(merged_params, fp, indent=2, default=int)
     
     def table_click_aretomo(self, item):
         i = item.row()
@@ -1642,8 +1648,16 @@ class Recon(QTabWidget):
 
                 params = self.get_note_params(2)
 
+                try:
+                    with open(self.note_json) as f:
+                        exist_note_dict = json.load(f)
+                except:
+                    exist_note_dict = {}
+                    
                 with open("{}".format(self.note_json), 'w') as fp:
-                    json.dump(params, fp, indent=2, default=int)
+                    merged_params = {**exist_note_dict, **params}
+                    json.dump(merged_params, fp, indent=2, default=int)
+                    #json.dump(params, fp, indent=2, default=int)
 
     def get_note_params(self, code):
         if code == 1:
