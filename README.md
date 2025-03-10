@@ -57,6 +57,6 @@ Please also cite the corresponding tools/packages if specific modules were used 
 ### <p align="center"> <a href="https://www.mdpi.com/1999-4915/16/9/1447"> Rabies Virus M Protein </a> </p> ###
 <p align="center"> <img src="assets/images/RABV_M.png" width=600 /> </p> 
 
-### <p align="center"> S-layer lattice of _M. hungatei_ </p> ###
+### <p align="center"> <a href="https://www.science.org/doi/10.1126/sciadv.adr8596"> S-layer lattice of _M. hungatei_ </a> </p> ###
 <p align="center"> <img src="assets/images/S-layer_Mhun.png" width=600 /> </p> 
 
