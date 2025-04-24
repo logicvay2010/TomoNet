@@ -1393,8 +1393,8 @@ class OtherUtils(QTabWidget):
                                     
                                     open_line = "{} {}".format(open_line, average_map_basename)
 
-                                    move_cmds = "{}move x {} models #{}; move y {} models #{}; move z {} models #{};\n"\
-                                                .format(move_cmds, x, model_id, y, model_id, z, model_id)
+                                    move_cmds = "{}move x {} models #{} coordinateSystem #{}; move y {} models #{} coordinateSystem #{}; move z {} models #{} coordinateSystem #{};\n"\
+                                                .format(move_cmds, x, model_id, model_id, y, model_id, model_id, z, model_id, model_id)
                                     
                                     turn_cmds = "{}turn z {} center 0,0,0 models #{} coordinateSystem #{}; turn y {} center 0,0,0 models #{} coordinateSystem #{}; turn z {} center 0,0,0  models #{} coordinateSystem #{};\n"\
                                                 .format(turn_cmds, output_eulers[0], model_id, model_id, output_eulers[1], model_id, model_id, \
