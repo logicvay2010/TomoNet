@@ -23,6 +23,12 @@ class OtherUtils(QTabWidget):
         self.log_file = "OtherUtils/otherUtils.log"
 
         self.others_folder = "OtherUtils"
+
+        self.peet2star_folder = "OtherUtils/PEET2Star"
+
+        self.placeback_folder = "OtherUtils/PlaceBack"
+
+        self.star2peet_folder = "OtherUtils/Star2PEET"
         
         self.expand_folder = "Expand"
         
@@ -280,7 +286,7 @@ class OtherUtils(QTabWidget):
         self.label_random_euler.setObjectName("label_random_euler")
         self.horizontalLayout_5.addWidget(self.label_random_euler)
         self.comboBox_random_euler = QtWidgets.QComboBox(self.tab)
-        self.comboBox_random_euler.setMaximumSize(QtCore.QSize(50, 30))
+        self.comboBox_random_euler.setMaximumSize(QtCore.QSize(60, 30))
         self.comboBox_random_euler.setObjectName("comboBox_random_euler")
         self.comboBox_random_euler.addItem("")
         self.comboBox_random_euler.addItem("")
@@ -491,6 +497,23 @@ class OtherUtils(QTabWidget):
         self.horizontalLayout_2_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2_2.setContentsMargins(10, 5, 10, 5)
 
+        self.label_placeback_output_folder = QtWidgets.QLabel(self.tab2)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_placeback_output_folder.sizePolicy().hasHeightForWidth())
+        self.label_placeback_output_folder.setSizePolicy(sizePolicy)
+        self.label_placeback_output_folder.setMinimumSize(QtCore.QSize(100, 0))
+        self.label_placeback_output_folder.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_placeback_output_folder.setObjectName("label_placeback_output_folder")
+        self.horizontalLayout_2_2.addWidget(self.label_placeback_output_folder)
+
+        self.lineEdit_placeback_output_folder = QtWidgets.QLineEdit(self.tab2)
+        self.lineEdit_placeback_output_folder.setInputMask("")
+        self.lineEdit_placeback_output_folder.setObjectName("lineEdit_placeback_output_folder")
+        self.lineEdit_placeback_output_folder.setMaximumSize(QtCore.QSize(200, 30))
+        self.horizontalLayout_2_2.addWidget(self.lineEdit_placeback_output_folder)
+
         self.label_fitin_map_file = QtWidgets.QLabel(self.tab2)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -601,6 +624,49 @@ class OtherUtils(QTabWidget):
         self.lineEdit_avg_angle.setInputMask("")
         self.lineEdit_avg_angle.setObjectName("lineEdit_avg_angle")
         self.horizontalLayout_2_4.addWidget(self.lineEdit_avg_angle)
+
+        self.horizontalLayout_2_5 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2_5.setContentsMargins(10, 5, 10, 5)
+
+        self.label_start_model_number = QtWidgets.QLabel(self.tab2)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_start_model_number.sizePolicy().hasHeightForWidth())
+        self.label_start_model_number.setSizePolicy(sizePolicy)
+        self.label_start_model_number.setMinimumSize(QtCore.QSize(100, 0))
+        self.label_start_model_number.setMaximumSize(QtCore.QSize(200, 30))
+        #self.label_start_model_number.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_start_model_number.setObjectName("label_start_model_number")
+        self.horizontalLayout_2_5.addWidget(self.label_start_model_number)
+
+        self.lineEdit_start_model_number = QtWidgets.QLineEdit(self.tab2)
+        self.lineEdit_start_model_number.setInputMask("")
+        self.lineEdit_start_model_number.setObjectName("lineEdit_start_model_number")
+        self.lineEdit_start_model_number.setMaximumSize(QtCore.QSize(100, 30))
+        self.horizontalLayout_2_5.addWidget(self.lineEdit_start_model_number)
+
+        self.label_color_by_classes = QtWidgets.QLabel(self.tab2)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_color_by_classes.sizePolicy().hasHeightForWidth())
+        self.label_color_by_classes.setSizePolicy(sizePolicy)
+        self.label_color_by_classes.setMinimumSize(QtCore.QSize(100, 0))
+        self.label_color_by_classes.setMaximumSize(QtCore.QSize(200, 30))
+        #self.label_color_by_classes.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_color_by_classes.setObjectName("label_color_by_classes")
+        self.horizontalLayout_2_5.addWidget(self.label_color_by_classes)
+        self.comboBox_color_by_classes = QtWidgets.QComboBox(self.tab2)
+        self.comboBox_color_by_classes.setMaximumSize(QtCore.QSize(60, 30))
+        self.comboBox_color_by_classes.setObjectName("comboBox_color_by_classes")
+        self.comboBox_color_by_classes.addItem("")
+        self.comboBox_color_by_classes.addItem("")
+        
+        self.horizontalLayout_2_5.addWidget(self.comboBox_color_by_classes)
+
+        spacerItem7 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_2_5.addItem(spacerItem7)
  
         # the last H layout
         self.horizontalLayout_last_2 = QtWidgets.QHBoxLayout()
@@ -627,11 +693,12 @@ class OtherUtils(QTabWidget):
         self.gridLayout_pick_params.addLayout(self.horizontalLayout_2_3, 2, 0, 1, 1)
 
         self.gridLayout_pick_params.addLayout(self.horizontalLayout_2_4, 3, 0, 1, 1)
+        self.gridLayout_pick_params.addLayout(self.horizontalLayout_2_5, 4, 0, 1, 1)
 
         self.spacerItem6 = QtWidgets.QSpacerItem(10, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_pick_params.addItem(self.spacerItem6, 4, 0, 1, 1)
+        self.gridLayout_pick_params.addItem(self.spacerItem6, 5, 0, 1, 1)
 
-        self.gridLayout_pick_params.addLayout(self.horizontalLayout_last_2, 5, 0, 1, 1)
+        self.gridLayout_pick_params.addLayout(self.horizontalLayout_last_2, 6, 0, 1, 1)
     
     def retranslateUi_tab2(self):
         _translate = QtCore.QCoreApplication.translate
@@ -645,6 +712,17 @@ class OtherUtils(QTabWidget):
             "<html><head/><body><p><span style=\" \
             font-size:9pt;\">The input data.star file from refinement result of Relion. </span></p></body></html>"))
         
+        self.label_placeback_output_folder.setText(_translate("Form", "Output Folder Name:"))
+        self.label_placeback_output_folder.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            </span></p></body></html>"))
+        
+        self.lineEdit_placeback_output_folder.setPlaceholderText(_translate("Form", "placeback_01"))
+        self.lineEdit_placeback_output_folder.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            font-size:9pt;\">The output folder name for the current placeback results. User customized.\
+            </span></p></body></html>"))
+
         self.label_fitin_map_file.setText(_translate("Form", "Average density map:"))
         self.label_fitin_map_file.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\""))
@@ -707,7 +785,27 @@ class OtherUtils(QTabWidget):
         self.lineEdit_avg_angle.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
             font-size:9pt;\">Maximum neighbor angle tolerance.</span></p></body></html>"))
+        
+        self.label_start_model_number.setText(_translate("Form", "Start Model #"))
+        self.label_start_model_number.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\""))
+        
+        self.lineEdit_start_model_number.setPlaceholderText(_translate("Form", "1"))
+        self.lineEdit_start_model_number.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            font-size:9pt;\">It's needed when merge two placeback result for the same tomogram, note that you need to specify the Tomogram Name (not ALL), because each tomogram has different ending model #. \
+                For example, if you have two placeback for TS_01, the first one ends with model number n (check the last few lines in the cxc file), then you need to set this number as n+1, \
+                    such that, later, you can attach the second cxc file into the first one to generate the combined version. </span></p></body></html>"))
+        
 
+        self.label_color_by_classes.setText(_translate("Form", "color maps by classes?:"))
+        self.comboBox_color_by_classes.setItemText(0, _translate("Form", "No"))
+        self.comboBox_color_by_classes.setItemText(1, _translate("Form", "Yes"))
+        self.comboBox_color_by_classes.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            font-size:9pt;\">Select Yes to color individual maps according to their rlnClassNumber column in the star file, default is No which is color by local curvature. (default No)\
+            </span></p></body></html>"))
+        
         self.pushButton_place_back.setText(_translate("Form", "RUN"))
           
     def setUI_tab3(self):
@@ -898,6 +996,7 @@ class OtherUtils(QTabWidget):
         data['random_euler'] = "No"
 
         data['data_star_file'] =""
+        data['placeback_output_folder'] = ""
         data['fitin_map_file'] =""
         data['tomo_name'] =""
         data['pixel_size_unbinned'] =""
@@ -906,6 +1005,8 @@ class OtherUtils(QTabWidget):
 
         data['min_num_neighbors'] =""
         data['avg_angle'] =""
+        data['start_model_number'] = ""
+        data['color_by_classes'] = "No"
 
         data['input_star_file'] =""
         data['star2PEET_output_folder'] =""
@@ -936,6 +1037,7 @@ class OtherUtils(QTabWidget):
         self.comboBox_random_euler.setCurrentText(data['random_euler'])
 
         self.lineEdit_data_star_file.setText(data['data_star_file'])
+        self.lineEdit_placeback_output_folder.setText(data['placeback_output_folder'])
         self.lineEdit_fitin_map_file.setText(data['fitin_map_file'])
         self.lineEdit_tomo_name.setText(data['tomo_name'])
         self.lineEdit_pixel_size_unbinned.setText(data['pixel_size_unbinned'])
@@ -944,6 +1046,8 @@ class OtherUtils(QTabWidget):
 
         self.lineEdit_min_num_neighbors.setText(data['min_num_neighbors'])
         self.lineEdit_avg_angle.setText(data['avg_angle'])
+        self.lineEdit_start_model_number.setText(data['start_model_number'])
+        self.comboBox_color_by_classes.setCurrentText(data['color_by_classes'])
 
         self.lineEdit_input_star_file.setText(data['input_star_file'])
         self.lineEdit_star2PEET_output_folder.setText(data['star2PEET_output_folder'])
@@ -965,6 +1069,7 @@ class OtherUtils(QTabWidget):
         param['random_euler'] = self.comboBox_random_euler.currentText()
 
         param['data_star_file'] = self.lineEdit_data_star_file.text()
+        param['placeback_output_folder'] = self.lineEdit_placeback_output_folder.text()
         param['fitin_map_file'] = self.lineEdit_fitin_map_file.text()
         param['tomo_name'] = self.lineEdit_tomo_name.text()
         param['pixel_size_unbinned'] = self.lineEdit_pixel_size_unbinned.text()
@@ -973,6 +1078,8 @@ class OtherUtils(QTabWidget):
         param['unit_size_cxs'] = self.lineEdit_unit_size_cxs.text()
         param['min_num_neighbors'] = self.lineEdit_min_num_neighbors.text()
         param['avg_angle'] = self.lineEdit_avg_angle.text()
+        param['start_model_number'] = self.lineEdit_start_model_number.text()
+        param['color_by_classes'] = self.comboBox_color_by_classes.currentText()
 
         param['input_star_file'] = self.lineEdit_input_star_file.text()
         param['star2PEET_output_folder'] = self.lineEdit_star2PEET_output_folder.text()
@@ -996,7 +1103,7 @@ class OtherUtils(QTabWidget):
         if not len(self.lineEdit_assemble_output_folder.text()) > 0:
             return "Please specify the assemble result folder!"
         else:
-            assemble_output_folder = "{}/{}".format(self.others_folder, self.lineEdit_assemble_output_folder.text())
+            assemble_output_folder = "{}/{}".format(self.peet2star_folder, self.lineEdit_assemble_output_folder.text())
 
         if len(self.lineEdit_bin_factor.text()) > 0:
             if not string2float(self.lineEdit_bin_factor.text()) == None:
@@ -1054,9 +1161,6 @@ class OtherUtils(QTabWidget):
         else:
             rotation_z = 0
                 
-        if not os.path.exists(assemble_output_folder):
-            mkfolder(assemble_output_folder)
-
         params = {}
         params['expand_result_folder'] = expand_result_folder
         params['assemble_output_folder'] = assemble_output_folder
@@ -1150,11 +1254,11 @@ class OtherUtils(QTabWidget):
             manifold_id = 0
             for tomo in tomo_list:
                 pid = -1
-                coords_file = "{}/{}.coords".format(folder,tomo)
+                coords_file = "{}/{}.coords".format(folder, tomo)
                 try:
                     with open(coords_file,'r') as r:
                         coords_data=r.readlines()
-                    euler_file = "{}/{}.euler".format(folder,tomo)
+                    euler_file = "{}/{}.euler".format(folder, tomo)
                     with open(euler_file,'r') as r:
                         euler_data=r.readlines()
                     for i in range(0, len(coords_data)):
@@ -1176,7 +1280,15 @@ class OtherUtils(QTabWidget):
                     self.logger.warning("{} has invalid final result, skip it!".format(tomo))
     
     def assemble(self):
+        
         params = self.get_assemble_params()
+        
+        if not os.path.exists(self.peet2star_folder):
+            mkfolder(self.peet2star_folder)
+
+        #if not os.path.exists(params['assemble_output_folder']):
+        mkfolder(params['assemble_output_folder'])
+        
         if type(params) is str:
             self.logger.error(params)
         elif type(params) is dict:
@@ -1219,6 +1331,11 @@ class OtherUtils(QTabWidget):
         else:
             data_star_file = self.lineEdit_data_star_file.text()
 
+        if not len(self.lineEdit_placeback_output_folder.text()) > 0:
+            return "Please specify the placeback result folder!"
+        else:
+            placeback_output_folder = "{}/{}".format(self.placeback_folder, self.lineEdit_placeback_output_folder.text())
+        
         if not len(self.lineEdit_fitin_map_file.text()) > 0:
             return "Please provide the the fitin map!"
         else:
@@ -1270,9 +1387,23 @@ class OtherUtils(QTabWidget):
         else:
             avg_angle = 180
 
+        if len(self.lineEdit_start_model_number.text()) > 0:
+            if not (string2int(self.lineEdit_start_model_number.text()) == None and string2int(self.lineEdit_start_model_number.text()) > 0):
+                start_model_number = string2int(self.lineEdit_start_model_number.text())
+            else:
+                return "Please use the valid format for the start model number (positive integer)!"
+        else:
+            start_model_number = 1
+
+        if self.comboBox_color_by_classes.currentText() == "No":
+            color_by_classes = False
+        else:
+            color_by_classes = True
+
         params = {}
         params['result_folder'] = "{}/placeback_result".format(self.others_folder)
         params['data_star_file'] = data_star_file
+        params['placeback_output_folder'] = placeback_output_folder
         params['fitin_map_file'] = fitin_map_file
         params['tomo_name'] = tomo_name
         params['pixel_size_unbinned'] = pixel_size_unbinned
@@ -1280,14 +1411,18 @@ class OtherUtils(QTabWidget):
         params['unit_size_cxs'] = unit_size_cxs
         params['min_num_neighbors'] = min_num_neighbors
         params['avg_angle'] = avg_angle
+        params['start_model_number'] = start_model_number
+        params['color_by_classes'] = color_by_classes
         
         return params
     
     def generate_cxs_file(self, params):
-        placeback_folder = "{}/PlaceBack".format(self.others_folder)
-        if not os.path.exists(placeback_folder):
-            mkfolder(placeback_folder)
+        if not os.path.exists(self.placeback_folder):
+            mkfolder(self.placeback_folder)
         
+        #if not os.path.exists(params['placeback_output_folder']):
+        mkfolder(params['placeback_output_folder'])
+
         star_file = params['data_star_file']
         tomo_names = params['tomo_name']
         average_map = params['fitin_map_file']
@@ -1295,6 +1430,8 @@ class OtherUtils(QTabWidget):
         bin_factor = params['pixel_size_fitin_map']/params['pixel_size_unbinned']
         Min_neighbors = params['min_num_neighbors']
         Avg_angle_limit = params['avg_angle']
+
+        color_by_classes = params['color_by_classes']
 
         with mrcfile.open(average_map) as mrcData:
             orig_data = mrcData.data.astype(np.float32)
@@ -1332,19 +1469,39 @@ class OtherUtils(QTabWidget):
             manifoldIndex_start = df_particles_i['rlnTomoManifoldIndex'].astype(int).min()
             manifold_num = df_particles_i['rlnTomoManifoldIndex'].astype(int).max() - manifoldIndex_start + 1
             
+            if color_by_classes:
+                try:
+                    classNum_list_full = df_particles_i['rlnClassNumber']
+                except:
+                    self.logger.error("Even color by classes is enable, but the rlnClassNumber is not detected for Tomogram {}!".format(tomo_name))
+                    color_by_classes = False
+
+                classNum_list = list(set(classNum_list_full.to_list()))
+
+                class_num = len(classNum_list)
+
+                class_colors = [ list(np.random.choice(range(45,210), size=3)) for i in range(class_num) ]
+                
+                #self.logger.info(classNum_list)
+
+                #self.logger.info(class_colors)
+
             average_map_basename = os.path.basename(average_map)
             try:
-                if not os.path.exists("{}/{}".format(placeback_folder, average_map_basename)):
-                    shutil.copy(average_map, placeback_folder)
+                #if not os.path.exists("{}/{}".format(params['placeback_output_folder'], average_map_basename)):
+                shutil.copy(average_map, params['placeback_output_folder'])
             except:
+                self.logger.error("Cannot copy fitin map into the current placeback folder!".format(tomo_name))
                 pass
         
             global_id = 0
-            real_patch_num = 0
+            # set offset to combine two/more cxs files
+            #real_patch_num = 0
+            real_patch_num = params['start_model_number'] - 1
             clean_i = 0
             
-            output_file_name = "{}/placeback_tomo_{}.cxc".format(placeback_folder, tomo_name)
-            clean_version_star = "{}/clean_tomo_{}.star".format(placeback_folder, tomo_name)
+            output_file_name = "{}/placeback_tomo_{}.cxc".format(params['placeback_output_folder'], tomo_name)
+            clean_version_star = "{}/clean_tomo_{}.star".format(params['placeback_output_folder'], tomo_name)
 
             if not manifold_num or math.isnan(manifold_num):
                 self.logger.warning("No Tomo Name: {}.".format(tomo_name))
@@ -1417,26 +1574,30 @@ class OtherUtils(QTabWidget):
                                     if len(neignbors) > 0:
                                         avg_angle =  sum/len(neignbors)
 
-                                    #r,g,b = getRGBs(avg_angle, max_angle=30)
-                                    r,g,b = getRGBs(avg_angle, max_angle= Avg_angle_limit)
-                                    
-                                    ## TEST ## save only largely curved region
-                                    #if len(neignbors) >= Min_neighbors and avg_angle >= Avg_angle_limit:
-                                    ## TEST ## save based on max angle
-                                    #if len(neignbors) >= Min_neighbors and max_angle <= Avg_angle_limit:
-                                    ## TEST ## save based on side/top view
-                                    # if Avg_angle_limit >= 0:
-                                    #     test_bool = abs(new_vectors[j][2]) >= Avg_angle_limit
-                                    # else:
-                                    #     test_bool = abs(new_vectors[j][2]) <= -Avg_angle_limit
-                                    
-                                    # if len(neignbors) >= Min_neighbors and test_bool:
+                                    if not color_by_classes:
+                                        #r,g,b = getRGBs(avg_angle, max_angle=30)
+                                        r,g,b = getRGBs(avg_angle, max_angle= Avg_angle_limit)
                                         
+                                        ## TEST ## save only largely curved region
+                                        #if len(neignbors) >= Min_neighbors and avg_angle >= Avg_angle_limit:
+                                        ## TEST ## save based on max angle
+                                        #if len(neignbors) >= Min_neighbors and max_angle <= Avg_angle_limit:
+                                        ## TEST ## save based on side/top view
+                                        # if Avg_angle_limit >= 0:
+                                        #     test_bool = abs(new_vectors[j][2]) >= Avg_angle_limit
+                                        # else:
+                                        #     test_bool = abs(new_vectors[j][2]) <= -Avg_angle_limit
+                                        
+                                        # if len(neignbors) >= Min_neighbors and test_bool:
+                                    else:
+                                        current_class_index = classNum_list.index(manifold_df['rlnClassNumber'][j])
+                                        r,g,b = class_colors[current_class_index]
                                     # original setting
                                     if len(neignbors) >= Min_neighbors and avg_angle <= Avg_angle_limit:
                                         c_star_line = " ".join([str(x) for x in manifold_df.loc[j].values.flatten().tolist()][2:]) + "\n"
                                         c_star_file.write(c_star_line)
                                         clean_i+=1
+                                    
                                     if pNum_i == 1:
                                         model_id = "{}".format(real_patch_num, j+1)
                                     else:
@@ -1458,18 +1619,17 @@ class OtherUtils(QTabWidget):
                 self.logger.info("Done getting placeback session file for ChimeraX: {}!".format(tomo_name))
 
         if len(tomoList) > 1:
-            clean_version_star_all = "{}/particles_clean_all.star".format(placeback_folder)
+            clean_version_star_all = "{}/particles_clean_all.star".format(params['placeback_output_folder'])
             with open (clean_version_star_all, 'w') as w:
                 w.write(header)
             for tomo_name in tomoList:
-                starfile_i = "{}/clean_tomo_{}.star".format(placeback_folder, tomo_name)
+                starfile_i = "{}/clean_tomo_{}.star".format(params['placeback_output_folder'], tomo_name)
                 if os.path.exists(starfile_i):
                     cmd = "cat {} >> {}".format(starfile_i, clean_version_star_all)
                     subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
             
             self.logger.info("clean version of STAR file saved: {}!".format(clean_version_star_all))
             
-
     def get_header(self, star_file):
         header = ""
         with open(star_file, 'r') as f:
@@ -1529,7 +1689,7 @@ class OtherUtils(QTabWidget):
         if not len(self.lineEdit_star2PEET_output_folder.text()) > 0:
             return "Please specify the STAR2PEET result folder!"
         else:
-            star2PEET_output_folder = "{}/{}".format(self.others_folder, self.lineEdit_star2PEET_output_folder.text())
+            star2PEET_output_folder = "{}/{}".format(self.star2peet_folder, self.lineEdit_star2PEET_output_folder.text())
 
         if len(self.lineEdit_star2PEET_bin_factor.text()) > 0:
             if not string2float(self.lineEdit_star2PEET_bin_factor.text()) == None:
@@ -1547,9 +1707,6 @@ class OtherUtils(QTabWidget):
         else:
             star2PEET_apix = 1.0  
 
-        if not os.path.exists(star2PEET_output_folder):
-            mkfolder(star2PEET_output_folder)
-
         params = {}
         params['input_star_file'] = input_star_file
         params['star2PEET_output_folder'] = star2PEET_output_folder
@@ -1559,6 +1716,12 @@ class OtherUtils(QTabWidget):
         return params
     
     def generate_PEET_files(self, params):
+        
+        if not os.path.exists(self.star2peet_folder):
+            mkfolder(self.star2peet_folder)
+        
+        mkfolder(params['star2PEET_output_folder'])
+
         input_star_file = params['input_star_file']
         output_folder = params['star2PEET_output_folder'] 
         bin_factor = params['star2PEET_bin_factor']
