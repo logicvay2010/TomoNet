@@ -1469,22 +1469,22 @@ class OtherUtils(QTabWidget):
             manifoldIndex_start = df_particles_i['rlnTomoManifoldIndex'].astype(int).min()
             manifold_num = df_particles_i['rlnTomoManifoldIndex'].astype(int).max() - manifoldIndex_start + 1
             
+            color_code_comments = ""
             if color_by_classes:
                 try:
                     classNum_list_full = df_particles_i['rlnClassNumber']
+                    classNum_list = list(set(classNum_list_full.to_list()))
+
+                    class_num = len(classNum_list)
+
+                    class_colors = [ list(np.random.choice(range(45,210), size=3)) for i in range(class_num) ]
+                    
+                    for i, cls_num in enumerate(classNum_list):
+                        color_code_comments = "{}# ClassNumber: {}, Color rgb: {}\n".format(color_code_comments, cls_num, class_colors[i])
+                
                 except:
                     self.logger.error("Even color by classes is enable, but the rlnClassNumber is not detected for Tomogram {}!".format(tomo_name))
                     color_by_classes = False
-
-                classNum_list = list(set(classNum_list_full.to_list()))
-
-                class_num = len(classNum_list)
-
-                class_colors = [ list(np.random.choice(range(45,210), size=3)) for i in range(class_num) ]
-                
-                #self.logger.info(classNum_list)
-
-                #self.logger.info(class_colors)
 
             average_map_basename = os.path.basename(average_map)
             try:
@@ -1509,6 +1509,9 @@ class OtherUtils(QTabWidget):
             else:
                 with open(output_file_name, "w") as outfile:
                     with open(clean_version_star, "w") as c_star_file:
+                        if color_code_comments:
+                            outfile.write(color_code_comments+"\n\n")
+                        
                         for i in range(int(manifold_num)):
                             current_manifold_id = manifoldIndex_start+i
                             manifold_df = df_particles_i.loc[df_particles_i['rlnTomoManifoldIndex']==current_manifold_id]
@@ -1561,7 +1564,7 @@ class OtherUtils(QTabWidget):
                                 mat_norm = squareform(pdist(new_vectors, "cosine"))
                                 
                                 color_cmds = ""
-
+                                rename_cmds = ""
                                 for j in range(pNum_i):
                                     
                                     neignbors = getNeighbors(mat_coords[j], j, dis_unit*dis_ratio)
@@ -1592,6 +1595,7 @@ class OtherUtils(QTabWidget):
                                     else:
                                         current_class_index = classNum_list.index(manifold_df['rlnClassNumber'][j])
                                         r,g,b = class_colors[current_class_index]
+                                        
                                     # original setting
                                     if len(neignbors) >= Min_neighbors and avg_angle <= Avg_angle_limit:
                                         c_star_line = " ".join([str(x) for x in manifold_df.loc[j].values.flatten().tolist()][2:]) + "\n"
@@ -1603,7 +1607,10 @@ class OtherUtils(QTabWidget):
                                     else:
                                         model_id = "{}.{}".format(real_patch_num, j+1)
 
-                                    color_cmds = "{}color #{} rgb({},{},{});\n".format(color_cmds, model_id, r, g, b)
+                                    color_cmds = "{}color #{} rgb({},{},{});\n".format(color_cmds, model_id, r, g, b)  
+                                    if color_by_classes:
+                                        rename_cmds = "{}rename #{} class-{};\n".format(rename_cmds, model_id, manifold_df['rlnClassNumber'][j])
+                                                                             
 
                                 recenter_line = "vop #{} originIndex {},{},{};\n".format(real_patch_num, map_dimension[2]/2, map_dimension[1]/2, map_dimension[0]/2)
                                 
@@ -1612,6 +1619,8 @@ class OtherUtils(QTabWidget):
                                 outfile.write(move_cmds+"\n")
                                 outfile.write(turn_cmds+"\n")
                                 outfile.write(color_cmds+"\n")
+                                if rename_cmds:
+                                    outfile.write(rename_cmds+"\n")
 
                     outfile.write("view\n")  
 
