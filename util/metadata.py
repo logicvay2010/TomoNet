@@ -101,7 +101,8 @@ LABELS = {
     'rlnSubtomoIndex': str,
     'rlnMaskDensityPercentage': float,
     'rlnMaskStdPercentage': float,
-    'rlnMaskBoundary': str
+    'rlnMaskBoundary': str,
+    'rlnDeconvTomoName': str
 }
 
 class Label():
