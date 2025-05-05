@@ -1286,12 +1286,13 @@ class OtherUtils(QTabWidget):
         if not os.path.exists(self.peet2star_folder):
             mkfolder(self.peet2star_folder)
 
-        #if not os.path.exists(params['assemble_output_folder']):
-        mkfolder(params['assemble_output_folder'])
         
         if type(params) is str:
             self.logger.error(params)
         elif type(params) is dict:
+            #if not os.path.exists(params['assemble_output_folder']):
+            mkfolder(params['assemble_output_folder'])
+            
             ret = QMessageBox.question(self, 'Reformatting!', \
                     "Continue?\n"\
                     , QMessageBox.Yes | QMessageBox.No, \
@@ -1480,7 +1481,8 @@ class OtherUtils(QTabWidget):
                     class_colors = [ list(np.random.choice(range(45,210), size=3)) for i in range(class_num) ]
                     
                     for i, cls_num in enumerate(classNum_list):
-                        color_code_comments = "{}# ClassNumber: {}, Color rgb: {}\n".format(color_code_comments, cls_num, class_colors[i])
+                        color_code_comments = "{}# ClassNumber: {}, Count {}, Color rgb: {}\n".\
+                        format(color_code_comments, cls_num, classNum_list_full.to_list().count(cls_num), class_colors[i])
                 
                 except:
                     self.logger.error("Even color by classes is enable, but the rlnClassNumber is not detected for Tomogram {}!".format(tomo_name))
