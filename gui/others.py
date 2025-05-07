@@ -665,8 +665,26 @@ class OtherUtils(QTabWidget):
         
         self.horizontalLayout_2_5.addWidget(self.comboBox_color_by_classes)
 
-        spacerItem7 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_2_5.addItem(spacerItem7)
+        self.label_only_display_classes_nums = QtWidgets.QLabel(self.tab2)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_only_display_classes_nums.sizePolicy().hasHeightForWidth())
+        self.label_only_display_classes_nums.setSizePolicy(sizePolicy)
+        self.label_only_display_classes_nums.setMinimumSize(QtCore.QSize(100, 0))
+        #self.label_only_display_classes_nums.setMaximumSize(QtCore.QSize(200, 30))
+        #self.label_only_display_classes_nums.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_only_display_classes_nums.setObjectName("label_only_display_classes_nums")
+        self.horizontalLayout_2_5.addWidget(self.label_only_display_classes_nums)
+
+        self.lineEdit_only_display_classes_nums = QtWidgets.QLineEdit(self.tab2)
+        self.lineEdit_only_display_classes_nums.setInputMask("")
+        self.lineEdit_only_display_classes_nums.setObjectName("lineEdit_only_display_classes_nums")
+        #self.lineEdit_only_display_classes_nums.setMaximumSize(QtCore.QSize(100, 30))
+        self.horizontalLayout_2_5.addWidget(self.lineEdit_only_display_classes_nums)
+
+        #spacerItem7 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        #self.horizontalLayout_2_5.addItem(spacerItem7)
  
         # the last H layout
         self.horizontalLayout_last_2 = QtWidgets.QHBoxLayout()
@@ -796,7 +814,6 @@ class OtherUtils(QTabWidget):
             font-size:9pt;\">It's needed when merge two placeback result for the same tomogram, note that you need to specify the Tomogram Name (not ALL), because each tomogram has different ending model #. \
                 For example, if you have two placeback for TS_01, the first one ends with model number n (check the last few lines in the cxc file), then you need to set this number as n+1, \
                     such that, later, you can attach the second cxc file into the first one to generate the combined version. </span></p></body></html>"))
-        
 
         self.label_color_by_classes.setText(_translate("Form", "color maps by classes?:"))
         self.comboBox_color_by_classes.setItemText(0, _translate("Form", "No"))
@@ -805,6 +822,15 @@ class OtherUtils(QTabWidget):
             "<html><head/><body><p><span style=\" \
             font-size:9pt;\">Select Yes to color individual maps according to their rlnClassNumber column in the star file, default is No which is color by local curvature. (default No)\
             </span></p></body></html>"))
+        
+        self.label_only_display_classes_nums.setText(_translate("Form", "Only Include Classes"))
+        self.label_only_display_classes_nums.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\""))
+        
+        self.lineEdit_only_display_classes_nums.setPlaceholderText(_translate("Form", ""))
+        self.lineEdit_only_display_classes_nums.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            font-size:9pt;\">Only include class numbers list here (seperated by coma). Example: 1,2,3. Default: all classes</span></p></body></html>"))
         
         self.pushButton_place_back.setText(_translate("Form", "RUN"))
           
@@ -1007,6 +1033,7 @@ class OtherUtils(QTabWidget):
         data['avg_angle'] =""
         data['start_model_number'] = ""
         data['color_by_classes'] = "No"
+        data['only_display_classes_nums'] = ""
 
         data['input_star_file'] =""
         data['star2PEET_output_folder'] =""
@@ -1048,6 +1075,7 @@ class OtherUtils(QTabWidget):
         self.lineEdit_avg_angle.setText(data['avg_angle'])
         self.lineEdit_start_model_number.setText(data['start_model_number'])
         self.comboBox_color_by_classes.setCurrentText(data['color_by_classes'])
+        self.lineEdit_only_display_classes_nums.setText(data['only_display_classes_nums'])
 
         self.lineEdit_input_star_file.setText(data['input_star_file'])
         self.lineEdit_star2PEET_output_folder.setText(data['star2PEET_output_folder'])
@@ -1080,6 +1108,7 @@ class OtherUtils(QTabWidget):
         param['avg_angle'] = self.lineEdit_avg_angle.text()
         param['start_model_number'] = self.lineEdit_start_model_number.text()
         param['color_by_classes'] = self.comboBox_color_by_classes.currentText()
+        param['only_display_classes_nums'] = self.lineEdit_only_display_classes_nums.text()
 
         param['input_star_file'] = self.lineEdit_input_star_file.text()
         param['star2PEET_output_folder'] = self.lineEdit_star2PEET_output_folder.text()
@@ -1401,6 +1430,11 @@ class OtherUtils(QTabWidget):
         else:
             color_by_classes = True
 
+        if len(self.lineEdit_only_display_classes_nums.text()) > 0:
+            only_display_classes_nums = [x.strip() for x in self.lineEdit_only_display_classes_nums.text().split(',')]
+        else:
+            only_display_classes_nums = None
+
         params = {}
         params['result_folder'] = "{}/placeback_result".format(self.others_folder)
         params['data_star_file'] = data_star_file
@@ -1414,7 +1448,8 @@ class OtherUtils(QTabWidget):
         params['avg_angle'] = avg_angle
         params['start_model_number'] = start_model_number
         params['color_by_classes'] = color_by_classes
-        
+        params['only_display_classes_nums'] = only_display_classes_nums
+
         return params
     
     def generate_cxs_file(self, params):
@@ -1433,6 +1468,8 @@ class OtherUtils(QTabWidget):
         Avg_angle_limit = params['avg_angle']
 
         color_by_classes = params['color_by_classes']
+
+        only_display_classes_nums = params['only_display_classes_nums']
 
         with mrcfile.open(average_map) as mrcData:
             orig_data = mrcData.data.astype(np.float32)
@@ -1461,10 +1498,23 @@ class OtherUtils(QTabWidget):
         
         for tomo_name in tomoList:
             try:
-                df_particles_i = df_particles.loc[df_particles['rlnTomoName']==tomo_name]
+                if only_display_classes_nums:
+                    try:
+                        df_particles_i = df_particles.loc[(df_particles['rlnTomoName']==tomo_name) & (df_particles['rlnClassNumber'].astype(str).isin(only_display_classes_nums))]
+                    except:
+                        self.logger.error("extraact rlnClassNumber info is not failed for Tomogram {}!".format(tomo_name))
+                        return
+                else:
+                    df_particles_i = df_particles.loc[df_particles['rlnTomoName']==tomo_name]
             except:
                 self.logger.error("No particle was found for tomogame: {}!".format(tomo_name))
                 return -1
+            
+            if df_particles_i.empty:
+                self.logger.warning("Tomo {} has no particles, skip it.".format(tomo_name))
+                continue
+            
+
             df_particles_i = df_particles_i.reset_index()
 
             manifoldIndex_start = df_particles_i['rlnTomoManifoldIndex'].astype(int).min()
@@ -1507,7 +1557,7 @@ class OtherUtils(QTabWidget):
 
             if not manifold_num or math.isnan(manifold_num):
                 self.logger.warning("No Tomo Name: {}.".format(tomo_name))
-                return 0
+                continue
             else:
                 with open(output_file_name, "w") as outfile:
                     with open(clean_version_star, "w") as c_star_file:
@@ -1549,7 +1599,7 @@ class OtherUtils(QTabWidget):
                                     new_vectors.append([output_vector[0],output_vector[1],output_vector[2]])
 
                                     if pNum_i == 1:
-                                        model_id = "{}".format(real_patch_num, j+1)
+                                        model_id = "{}".format(real_patch_num)
                                     else:
                                         model_id = "{}.{}".format(real_patch_num, j+1)
                                     
