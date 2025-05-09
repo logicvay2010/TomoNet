@@ -79,6 +79,7 @@ class Expand:
         
         #get final coords for each of the tomograms
         transition_list = np.array(self.search_param.transition_list).reshape(-1,3)
+
         for i in range(0, len(data_motl)-1):
             pair_motl = data_motl[i+1].split(",")[16:19]
             X,Y,Z = [data_mod.x[i], data_mod.y[i], data_mod.z[i]]
