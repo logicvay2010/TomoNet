@@ -158,6 +158,18 @@ class OtherUtils(QTabWidget):
         self.lineEdit_bin_factor.setObjectName("lineEdit_bin_factor")
         self.horizontalLayout_2.addWidget(self.lineEdit_bin_factor)
         
+        self.label_apix_unbinned = QtWidgets.QLabel(self.tab)
+        self.label_apix_unbinned.setSizePolicy(sizePolicy)
+        self.label_apix_unbinned.setMinimumSize(QtCore.QSize(120, 0))
+        self.label_apix_unbinned.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_apix_unbinned.setObjectName("label_apix_unbinned")
+        self.horizontalLayout_2.addWidget(self.label_apix_unbinned)
+
+        self.lineEdit_apix_unbinned = QtWidgets.QLineEdit(self.tab)
+        self.lineEdit_apix_unbinned.setInputMask("")
+        self.lineEdit_apix_unbinned.setObjectName("lineEdit_apix_unbinned")
+        self.horizontalLayout_2.addWidget(self.lineEdit_apix_unbinned)
+
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setContentsMargins(10, 5, 10, 5)
         
@@ -281,7 +293,7 @@ class OtherUtils(QTabWidget):
         sizePolicy.setHeightForWidth(self.label_random_euler.sizePolicy().hasHeightForWidth())
         self.label_random_euler.setSizePolicy(sizePolicy)
         self.label_random_euler.setMinimumSize(QtCore.QSize(100, 0))
-        self.label_random_euler.setMaximumSize(QtCore.QSize(200, 30))
+        #self.label_random_euler.setMaximumSize(QtCore.QSize(200, 30))
         self.label_random_euler.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_random_euler.setObjectName("label_random_euler")
         self.horizontalLayout_5.addWidget(self.label_random_euler)
@@ -292,6 +304,26 @@ class OtherUtils(QTabWidget):
         self.comboBox_random_euler.addItem("")
         
         self.horizontalLayout_5.addWidget(self.comboBox_random_euler)
+
+        self.label_star_file_version = QtWidgets.QLabel(self.tab)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_star_file_version.sizePolicy().hasHeightForWidth())
+        self.label_star_file_version.setSizePolicy(sizePolicy)
+        self.label_star_file_version.setMinimumSize(QtCore.QSize(160, 0))
+        #self.label_star_file_version.setMaximumSize(QtCore.QSize(200, 30))
+        self.label_star_file_version.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_star_file_version.setObjectName("label_star_file_version")
+        self.horizontalLayout_5.addWidget(self.label_star_file_version)
+        self.comboBox_star_file_version = QtWidgets.QComboBox(self.tab)
+        self.comboBox_star_file_version.setMaximumSize(QtCore.QSize(120, 30))
+        self.comboBox_star_file_version.setObjectName("comboBox_star_file_version")
+        self.comboBox_star_file_version.addItem("")
+        self.comboBox_star_file_version.addItem("")
+        
+        self.horizontalLayout_5.addWidget(self.comboBox_star_file_version)
+
         spacerItem0 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_5.addItem(spacerItem0)
 
@@ -312,6 +344,7 @@ class OtherUtils(QTabWidget):
         self.pushButton_assemble.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.pushButton_assemble.setObjectName("run")
         self.horizontalLayout_last.addWidget(self.pushButton_assemble)
+        
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_last.addItem(spacerItem2)
 
@@ -365,6 +398,17 @@ class OtherUtils(QTabWidget):
             "<html><head/><body><p><span style=\" \
             font-size:9pt;\">The binning factor for the tomogram used for picking. \
                 The Relion particle.star file store no binned coords info.\
+            </span></p></body></html>"))
+        
+        self.label_apix_unbinned.setText(_translate("Form", "Unbinned Pixel Size:"))
+        self.label_apix_unbinned.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            </span></p></body></html>"))
+        
+        self.lineEdit_apix_unbinned.setPlaceholderText(_translate("Form", ""))
+        self.lineEdit_apix_unbinned.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            font-size:9pt;\">The unbinned pixel size.\
             </span></p></body></html>"))
         
         self.label_recenter.setText(_translate("Form", "Re-center shifts (pixel) on"))
@@ -458,6 +502,14 @@ class OtherUtils(QTabWidget):
         self.comboBox_random_euler.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
             font-size:9pt;\">Select Yes to generate random euler angles. Only use this if the MOTL.csv (euler angles) is not provided. (default No)\
+            </span></p></body></html>"))
+        
+        self.label_star_file_version.setText(_translate("Form", "Star File Version:"))
+        self.comboBox_star_file_version.setItemText(0, _translate("Form", "Relion4"))
+        self.comboBox_star_file_version.setItemText(1, _translate("Form", "Relion5"))
+        self.comboBox_star_file_version.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            font-size:9pt;\">Select which star version to be generated. Now only support relion4 and relion5.\
             </span></p></body></html>"))
 
         self.pushButton_assemble.setText(_translate("Form", "RUN"))
@@ -1012,6 +1064,7 @@ class OtherUtils(QTabWidget):
         data['expand_result_folder'] = ""
         data['assemble_output_folder'] = ""
         data['bin_factor'] = ""
+        data['apix_unbinned'] = ""
         data['recenter_x'] = ""
         data['recenter_y'] = ""
         data['recenter_z'] = ""
@@ -1020,6 +1073,7 @@ class OtherUtils(QTabWidget):
         data['rotation_z'] = ""
 
         data['random_euler'] = "No"
+        data['star_file_version'] = "Relion4"
 
         data['data_star_file'] =""
         data['placeback_output_folder'] = ""
@@ -1054,6 +1108,7 @@ class OtherUtils(QTabWidget):
         self.lineEdit_expand_result_folder.setText(data['expand_result_folder'])
         self.lineEdit_assemble_output_folder.setText(data['assemble_output_folder'])
         self.lineEdit_bin_factor.setText(data['bin_factor'])
+        self.lineEdit_apix_unbinned.setText(data['apix_unbinned'])
         self.lineEdit_recenter_x.setText(data['recenter_x'])
         self.lineEdit_recenter_y.setText(data['recenter_y'])
         self.lineEdit_recenter_z.setText(data['recenter_z'])
@@ -1062,6 +1117,7 @@ class OtherUtils(QTabWidget):
         self.lineEdit_rotation_z.setText(data['rotation_z'])
         
         self.comboBox_random_euler.setCurrentText(data['random_euler'])
+        self.comboBox_star_file_version.setCurrentText(data['star_file_version'])
 
         self.lineEdit_data_star_file.setText(data['data_star_file'])
         self.lineEdit_placeback_output_folder.setText(data['placeback_output_folder'])
@@ -1087,6 +1143,7 @@ class OtherUtils(QTabWidget):
         param['expand_result_folder'] = self.lineEdit_expand_result_folder.text()
         param['assemble_output_folder'] = self.lineEdit_assemble_output_folder.text()
         param['bin_factor'] = self.lineEdit_bin_factor.text()
+        param['apix_unbinned'] = self.lineEdit_apix_unbinned.text()
         param['recenter_x'] = self.lineEdit_recenter_x.text()
         param['recenter_y'] = self.lineEdit_recenter_y.text()
         param['recenter_z'] = self.lineEdit_recenter_z.text()
@@ -1095,7 +1152,8 @@ class OtherUtils(QTabWidget):
         param['rotation_z'] = self.lineEdit_rotation_z.text()
 
         param['random_euler'] = self.comboBox_random_euler.currentText()
-
+        param['star_file_version'] = self.comboBox_star_file_version.currentText()
+        
         param['data_star_file'] = self.lineEdit_data_star_file.text()
         param['placeback_output_folder'] = self.lineEdit_placeback_output_folder.text()
         param['fitin_map_file'] = self.lineEdit_fitin_map_file.text()
@@ -1141,6 +1199,14 @@ class OtherUtils(QTabWidget):
                 return "Please use the valid format for the bin factor!"
         else:
             bin_factor = 1
+
+        if len(self.lineEdit_apix_unbinned.text()) > 0:
+            if not string2float(self.lineEdit_apix_unbinned.text()) == None:
+                apix_unbinned = string2float(self.lineEdit_apix_unbinned.text())
+            else:
+                return "Please use the valid unbinned pixel size!"
+        else:
+            return "Please specify unbinned pixel size!"
 
         if len(self.lineEdit_recenter_x.text()) > 0:
             if not string2float(self.lineEdit_recenter_x.text()) == None:
@@ -1194,13 +1260,15 @@ class OtherUtils(QTabWidget):
         params['expand_result_folder'] = expand_result_folder
         params['assemble_output_folder'] = assemble_output_folder
         params['bin_factor'] = bin_factor
+        params['apix_unbinned'] = apix_unbinned
         params['recenter_x'] = recenter_x
         params['recenter_y'] = recenter_y
         params['recenter_z'] = recenter_z
         params['rotation_x'] = rotation_x
         params['rotation_y'] = rotation_y
         params['rotation_z'] = rotation_z
-
+        params['star_file_version'] = self.comboBox_star_file_version.currentText()
+        
         return params
     
     def get_final_folder_list(self, folder):
@@ -1246,20 +1314,20 @@ class OtherUtils(QTabWidget):
                                 pid = 1
                                 new_coords = np.array([float(v) for v in line]) + real_shifts
                             
-                            new_coords_line = "{} {} {} {}\n".format(pid, round(new_coords[0],2), round(new_coords[1],2), round(new_coords[2],2))
+                            new_coords_line = "{} {} {} {}\n".format(pid, round(new_coords[0], 3), round(new_coords[1], 3), round(new_coords[2], 3))
                             w_c.write(new_coords_line)
                             
                             new_zxz_euler = apply_slicerRot_PEET(zxz_euler, rotation)
                             zyz_euler = PEET2Relion(new_zxz_euler)
-                            new_euler_line = "{},{},{}\n".format(round(zyz_euler[0],2), round(zyz_euler[1],2), round(zyz_euler[2],2))
+                            new_euler_line = "{},{},{}\n".format(round(zyz_euler[0], 3), round(zyz_euler[1], 3), round(zyz_euler[2], 3))
                             w_e.write(new_euler_line)
 
             self.logger.info("coords and euler files are generated for {}! Total particle # {}".format(tomo, len(origin_coords_lines)))
         except:
             self.logger.error("It seems that the number of particle is not consistent from MOTL and pts files for {}!".format(tomo))
 
-    def combine_all(self, tomo_list, folder, bin_factor=1):
-        out_file = "{}/particles.star".format(folder)
+    def combine_all_relion4(self, tomo_list, folder, bin_factor=1):
+        out_file = "{}/particles_for_relion4.star".format(folder)
         with open(out_file,"w") as f:
             header ="{}\n\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n".format(\
             "data_particles",\
@@ -1308,6 +1376,69 @@ class OtherUtils(QTabWidget):
                 except:
                     self.logger.warning("{} has invalid final result, skip it!".format(tomo))
     
+    def combine_all_relion5(self, tomo_list, folder, apix_unbinned, expand_result_folder, bin_factor=1):
+        out_file = "{}/particles_for_relion5.star".format(folder)
+        with open(out_file,"w") as f:
+            header ="{}\n\n{}\n\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n".format(\
+            "# Created by the TomoNet PEET2STAR program",\
+            "data_particles",\
+            "loop_",\
+            "_rlnTomoName #1",\
+            "_rlnCenteredCoordinateXAngst #2",\
+            "_rlnCenteredCoordinateYAngst #3",\
+            "_rlnCenteredCoordinateZAngst #4",\
+            "_rlnTomoSubtomogramRot #5",\
+            "_rlnTomoSubtomogramTilt #6",\
+            "_rlnTomoSubtomogramPsi #7",\
+            "_rlnAngleRot #8",\
+            "_rlnAngleTilt #9",\
+            "_rlnAnglePsi #10",\
+            "_rlnAngleTiltPrior #11",\
+            "_rlnAnglePsiPrior #12")
+            f.write(header)
+            for tomo in tomo_list:
+                if tomo.startswith("rec_"):
+                    tomo_name = tomo[4:]
+                else:
+                    tomo_name = tomo
+                coords_file = "{}/{}.coords".format(folder, tomo)
+                try:
+                    with open(coords_file,'r') as r:
+                        coords_data=r.readlines()
+                    euler_file = "{}/{}.euler".format(folder, tomo)
+                    with open(euler_file,'r') as r:
+                        euler_data=r.readlines()
+                    
+                    if os.path.exists("{}/{}_final/{}.mrc".format(expand_result_folder, tomo, tomo)):
+                        tomorecon_file = "{}/{}_final/{}.mrc".format(expand_result_folder, tomo, tomo)
+                    elif os.path.exists("{}/{}_final/{}.rec".format(expand_result_folder, tomo, tomo)):
+                        tomorecon_file = "{}/{}_final/{}.rec".format(expand_result_folder, tomo, tomo)
+                    else:
+                        tomorecon_file = None
+                        self.logger.warning("pick tomogram {}/{}_final/{}.mrc(.rec) does not detected. Skip it!".\
+                            format(expand_result_folder, tomo, tomo))
+                        continue
+                        
+                    with mrcfile.open(tomorecon_file) as tomo_recon:
+                        dz, dy, dx = tomo_recon.data.shape
+                        current_tomo_center_Angstrom = [dx*bin_factor*apix_unbinned/2, dy*bin_factor*apix_unbinned/2, dz*bin_factor*apix_unbinned/2]
+
+                    for i in range(0, len(coords_data)):
+                        
+                        pair_euler = [float(x) for x in euler_data[i].strip().split(',')]
+                        pair_coords = [float(x) for x in coords_data[i].strip().split()]
+                        centeredCoordinateXAngst, centeredCoordinateYAngst, centeredCoordinateZAngst = \
+                            round(pair_coords[1]*bin_factor*apix_unbinned - current_tomo_center_Angstrom[0], 6), \
+                            round(pair_coords[2]*bin_factor*apix_unbinned - current_tomo_center_Angstrom[1], 6), \
+                            round(pair_coords[3]*bin_factor*apix_unbinned - current_tomo_center_Angstrom[2], 6)
+                        line = "{} {} {} {} {} {} {} {} {} {} {} {} \n".format(tomo_name,\
+                                centeredCoordinateXAngst, centeredCoordinateYAngst, centeredCoordinateZAngst,\
+                                pair_euler[0], pair_euler[1], pair_euler[2],
+                                0, 0, 0, 90, 0)
+                        f.write(line)
+                except:
+                    self.logger.warning("{} has invalid final result, skip it!".format(tomo))
+
     def assemble(self):
         
         params = self.get_assemble_params()
@@ -1330,7 +1461,7 @@ class OtherUtils(QTabWidget):
             if ret == QMessageBox.Yes:
                 self.pushButton_assemble.setText("STOP")
                 self.pushButton_assemble.setStyleSheet('QPushButton {color: red;}')
-                self.logger.info("Start transform!")
+                self.logger.info("Start transform to {} version .star!".format(params['star_file_version']))
                 tomo_list = self.get_final_folder_list(params['expand_result_folder'])
 
                 rotations = [params['rotation_x'],params['rotation_y'],params['rotation_z']]
@@ -1341,7 +1472,7 @@ class OtherUtils(QTabWidget):
 
                     coords_file = "{}/{}.coords".format(params['assemble_output_folder'], tomo)
                     euler_file = "{}/{}.euler".format(params['assemble_output_folder'], tomo)
-                    
+                                        
                     if not os.path.exists(motl_file):
                         motl_file = "{}/{}_final/{}_MOTL.csv".format(params['expand_result_folder'], tomo, tomo)
 
@@ -1350,7 +1481,14 @@ class OtherUtils(QTabWidget):
                     else:
                         self.logger.warning(".pts (coords) file {} is missing for tomogram {}, skip it!".format(pts_file, tomo))
                         continue
-                self.combine_all(tomo_list, params['assemble_output_folder'], params["bin_factor"])
+                if params['star_file_version'] == "Relion4":
+                    self.combine_all_relion4(tomo_list, params['assemble_output_folder'], params["bin_factor"])
+                elif params['star_file_version'] == "Relion5":
+                    self.combine_all_relion5(tomo_list, params['assemble_output_folder'], \
+                                    params['apix_unbinned'], params['expand_result_folder'], params["bin_factor"])
+                else:
+                    self.logger.error("Star file version cannot be recognized!")
+                    return 
                 self.logger.info("Done transform!")
                 
                 self.cmd_finished(self.pushButton_assemble)
