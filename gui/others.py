@@ -1395,6 +1395,17 @@ class OtherUtils(QTabWidget):
             "_rlnAnglePsi #10",\
             "_rlnAngleTiltPrior #11",\
             "_rlnAnglePsiPrior #12")
+            # header ="{}\n\n{}\n\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n".format(\
+            # "# Created by the TomoNet PEET2STAR program",\
+            # "data_particles",\
+            # "loop_",\
+            # "_rlnTomoName #1",\
+            # "_rlnCenteredCoordinateXAngst #2",\
+            # "_rlnCenteredCoordinateYAngst #3",\
+            # "_rlnCenteredCoordinateZAngst #4",\
+            # "_rlnAngleRot #5",\
+            # "_rlnAngleTilt #6",\
+            # "_rlnAnglePsi #7")
             f.write(header)
             for tomo in tomo_list:
                 if tomo.startswith("rec_"):
@@ -1434,7 +1445,10 @@ class OtherUtils(QTabWidget):
                         line = "{} {} {} {} {} {} {} {} {} {} {} {} \n".format(tomo_name,\
                                 centeredCoordinateXAngst, centeredCoordinateYAngst, centeredCoordinateZAngst,\
                                 pair_euler[0], pair_euler[1], pair_euler[2],
-                                0, 0, 0, 90, 0)
+                                0, 0, 0, 0, 0)
+                        # line = "{} {} {} {} {} {} {} \n".format(tomo_name,\
+                        #         centeredCoordinateXAngst, centeredCoordinateYAngst, centeredCoordinateZAngst,\
+                        #         pair_euler[0], pair_euler[1], pair_euler[2])
                         f.write(line)
                 except:
                     self.logger.warning("{} has invalid final result, skip it!".format(tomo))
