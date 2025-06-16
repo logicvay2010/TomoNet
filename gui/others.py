@@ -321,9 +321,21 @@ class OtherUtils(QTabWidget):
         self.comboBox_star_file_version.setObjectName("comboBox_star_file_version")
         self.comboBox_star_file_version.addItem("")
         self.comboBox_star_file_version.addItem("")
-        
         self.horizontalLayout_5.addWidget(self.comboBox_star_file_version)
+        
+        self.label_priorTilt = QtWidgets.QLabel(self.tab)
+        self.label_priorTilt.setSizePolicy(sizePolicy)
+        self.label_priorTilt.setMinimumSize(QtCore.QSize(120, 0))
+        self.label_priorTilt.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_priorTilt.setObjectName("label_priorTilt")
+        self.horizontalLayout_5.addWidget(self.label_priorTilt)
 
+        self.lineEdit_priorTilt = QtWidgets.QLineEdit(self.tab)
+        self.lineEdit_priorTilt.setInputMask("")
+        self.lineEdit_priorTilt.setObjectName("lineEdit_priorTilt")
+        self.lineEdit_priorTilt.setMaximumSize(QtCore.QSize(80, 30))
+        self.horizontalLayout_5.addWidget(self.lineEdit_priorTilt)
+        
         spacerItem0 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_5.addItem(spacerItem0)
 
@@ -510,6 +522,17 @@ class OtherUtils(QTabWidget):
         self.comboBox_star_file_version.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
             font-size:9pt;\">Select which star version to be generated. Now only support relion4 and relion5.\
+            </span></p></body></html>"))
+        
+        self.label_priorTilt.setText(_translate("Form", "PriorTilt:"))
+        self.label_priorTilt.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            </span></p></body></html>"))
+        
+        self.lineEdit_priorTilt.setPlaceholderText(_translate("Form", "None"))
+        self.lineEdit_priorTilt.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            font-size:9pt;\">add column rlnPriorTilt to the output STAR file, the same tilt value will be added to the rlnAngleTilt as well. Default: No PriorTilt.\
             </span></p></body></html>"))
 
         self.pushButton_assemble.setText(_translate("Form", "RUN"))
@@ -1074,6 +1097,7 @@ class OtherUtils(QTabWidget):
 
         data['random_euler'] = "No"
         data['star_file_version'] = "Relion4"
+        data['priorTilt'] = ""
 
         data['data_star_file'] =""
         data['placeback_output_folder'] = ""
@@ -1118,6 +1142,7 @@ class OtherUtils(QTabWidget):
         
         self.comboBox_random_euler.setCurrentText(data['random_euler'])
         self.comboBox_star_file_version.setCurrentText(data['star_file_version'])
+        self.lineEdit_priorTilt.setText(data['priorTilt'])
 
         self.lineEdit_data_star_file.setText(data['data_star_file'])
         self.lineEdit_placeback_output_folder.setText(data['placeback_output_folder'])
@@ -1153,7 +1178,8 @@ class OtherUtils(QTabWidget):
 
         param['random_euler'] = self.comboBox_random_euler.currentText()
         param['star_file_version'] = self.comboBox_star_file_version.currentText()
-        
+        param['priorTilt'] = self.lineEdit_priorTilt.text()
+
         param['data_star_file'] = self.lineEdit_data_star_file.text()
         param['placeback_output_folder'] = self.lineEdit_placeback_output_folder.text()
         param['fitin_map_file'] = self.lineEdit_fitin_map_file.text()
@@ -1255,6 +1281,14 @@ class OtherUtils(QTabWidget):
                 return "Please use the valid format for the x shift!"
         else:
             rotation_z = 0
+
+        if len(self.lineEdit_priorTilt.text()) > 0:
+            if not string2float(self.lineEdit_priorTilt.text()) == None:
+                priorTilt = string2float(self.lineEdit_priorTilt.text())
+            else:
+                return "Please use the valid format for the priorTilt !"
+        else:
+            priorTilt = "None"
                 
         params = {}
         params['expand_result_folder'] = expand_result_folder
@@ -1268,6 +1302,7 @@ class OtherUtils(QTabWidget):
         params['rotation_y'] = rotation_y
         params['rotation_z'] = rotation_z
         params['star_file_version'] = self.comboBox_star_file_version.currentText()
+        params['priorTilt'] = priorTilt
         
         return params
     
@@ -1376,36 +1411,38 @@ class OtherUtils(QTabWidget):
                 except:
                     self.logger.warning("{} has invalid final result, skip it!".format(tomo))
     
-    def combine_all_relion5(self, tomo_list, folder, apix_unbinned, expand_result_folder, bin_factor=1):
+    def combine_all_relion5(self, tomo_list, folder, apix_unbinned, expand_result_folder, bin_factor=1, priorTilt="None"):
         out_file = "{}/particles_for_relion5.star".format(folder)
         with open(out_file,"w") as f:
-            header ="{}\n\n{}\n\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n".format(\
-            "# Created by the TomoNet PEET2STAR program",\
-            "data_particles",\
-            "loop_",\
-            "_rlnTomoName #1",\
-            "_rlnCenteredCoordinateXAngst #2",\
-            "_rlnCenteredCoordinateYAngst #3",\
-            "_rlnCenteredCoordinateZAngst #4",\
-            "_rlnTomoSubtomogramRot #5",\
-            "_rlnTomoSubtomogramTilt #6",\
-            "_rlnTomoSubtomogramPsi #7",\
-            "_rlnAngleRot #8",\
-            "_rlnAngleTilt #9",\
-            "_rlnAnglePsi #10",\
-            "_rlnAngleTiltPrior #11",\
-            "_rlnAnglePsiPrior #12")
-            # header ="{}\n\n{}\n\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n".format(\
-            # "# Created by the TomoNet PEET2STAR program",\
-            # "data_particles",\
-            # "loop_",\
-            # "_rlnTomoName #1",\
-            # "_rlnCenteredCoordinateXAngst #2",\
-            # "_rlnCenteredCoordinateYAngst #3",\
-            # "_rlnCenteredCoordinateZAngst #4",\
-            # "_rlnAngleRot #5",\
-            # "_rlnAngleTilt #6",\
-            # "_rlnAnglePsi #7")
+            if priorTilt=="None":
+                header ="{}\n\n{}\n\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n".format(\
+                "# Created by the TomoNet PEET2STAR program",\
+                "data_particles",\
+                "loop_",\
+                "_rlnTomoName #1",\
+                "_rlnCenteredCoordinateXAngst #2",\
+                "_rlnCenteredCoordinateYAngst #3",\
+                "_rlnCenteredCoordinateZAngst #4",\
+                "_rlnAngleRot #5",\
+                "_rlnAngleTilt #6",\
+                "_rlnAnglePsi #7")
+            else:
+                header ="{}\n\n{}\n\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n".format(\
+                "# Created by the TomoNet PEET2STAR program",\
+                "data_particles",\
+                "loop_",\
+                "_rlnTomoName #1",\
+                "_rlnCenteredCoordinateXAngst #2",\
+                "_rlnCenteredCoordinateYAngst #3",\
+                "_rlnCenteredCoordinateZAngst #4",\
+                "_rlnTomoSubtomogramRot #5",\
+                "_rlnTomoSubtomogramTilt #6",\
+                "_rlnTomoSubtomogramPsi #7",\
+                "_rlnAngleRot #8",\
+                "_rlnAngleTilt #9",\
+                "_rlnAnglePsi #10",\
+                "_rlnAngleTiltPrior #11",\
+                "_rlnAnglePsiPrior #12")
             f.write(header)
             for tomo in tomo_list:
                 if tomo.startswith("rec_"):
@@ -1442,13 +1479,17 @@ class OtherUtils(QTabWidget):
                             round(pair_coords[1]*bin_factor*apix_unbinned - current_tomo_center_Angstrom[0], 6), \
                             round(pair_coords[2]*bin_factor*apix_unbinned - current_tomo_center_Angstrom[1], 6), \
                             round(pair_coords[3]*bin_factor*apix_unbinned - current_tomo_center_Angstrom[2], 6)
-                        line = "{} {} {} {} {} {} {} {} {} {} {} {} \n".format(tomo_name,\
-                                centeredCoordinateXAngst, centeredCoordinateYAngst, centeredCoordinateZAngst,\
-                                pair_euler[0], pair_euler[1], pair_euler[2],
-                                0, 0, 0, 0, 0)
-                        # line = "{} {} {} {} {} {} {} \n".format(tomo_name,\
-                        #         centeredCoordinateXAngst, centeredCoordinateYAngst, centeredCoordinateZAngst,\
-                        #         pair_euler[0], pair_euler[1], pair_euler[2])
+                        
+                        if priorTilt=="None":
+                            line = "{} {} {} {} {} {} {} \n".format(tomo_name,\
+                                    centeredCoordinateXAngst, centeredCoordinateYAngst, centeredCoordinateZAngst,\
+                                    pair_euler[0], pair_euler[1], pair_euler[2])
+                        else:
+                            line = "{} {} {} {} {} {} {} {} {} {} {} {} \n".format(tomo_name,\
+                                    centeredCoordinateXAngst, centeredCoordinateYAngst, centeredCoordinateZAngst,\
+                                    pair_euler[0], pair_euler[1], pair_euler[2],
+                                    0, float(priorTilt), 0, float(priorTilt), 0)
+
                         f.write(line)
                 except:
                     self.logger.warning("{} has invalid final result, skip it!".format(tomo))
@@ -1460,7 +1501,6 @@ class OtherUtils(QTabWidget):
         if not os.path.exists(self.peet2star_folder):
             mkfolder(self.peet2star_folder)
 
-        
         if type(params) is str:
             self.logger.error(params)
         elif type(params) is dict:
@@ -1499,7 +1539,7 @@ class OtherUtils(QTabWidget):
                     self.combine_all_relion4(tomo_list, params['assemble_output_folder'], params["bin_factor"])
                 elif params['star_file_version'] == "Relion5":
                     self.combine_all_relion5(tomo_list, params['assemble_output_folder'], \
-                                    params['apix_unbinned'], params['expand_result_folder'], params["bin_factor"])
+                                    params['apix_unbinned'], params['expand_result_folder'], params["bin_factor"], params['priorTilt'])
                 else:
                     self.logger.error("Star file version cannot be recognized!")
                     return 
