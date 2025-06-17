@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import QTabWidget, QMessageBox
 
 from TomoNet.util import browse
 from TomoNet.util.utils import mkfolder, check_log_file, getLogContent, string2float, string2int, getRGBs
-from TomoNet.util.geometry import get_raw_shifts_PEET, apply_slicerRot_PEET, PEET2Relion, Relion2PEET, Relion2ChimeraX, getNeighbors
+from TomoNet.util.geometry import get_raw_shifts_PEET, apply_slicerRot_PEET, PEET2Relion, Relion2PEET, Relion2ChimeraX, Relion52ChimeraX, getNeighbors_by_range
 
 class OtherUtils(QTabWidget):
     def __init__(self):
@@ -60,11 +60,12 @@ class OtherUtils(QTabWidget):
 
         self.setUI_tab3()
 
-        self.addTab(self.tab, "Recenter {} Rotate {} Assemble to .star file".format("|","|"))
+        #self.addTab(self.tab, "Recenter {} Rotate {} Assemble to .star file".format("|","|"))
+        self.addTab(self.tab, "PEET2Star")
 
-        self.addTab(self.tab2, "3D Subtomogram Place Back")
+        self.addTab(self.tab2, "Subtomogram Place Back in ChimeraX (Relion4)")
 
-        self.addTab(self.tab_Star2PEET, "Star2PEET")
+        self.addTab(self.tab_Star2PEET, "Star2PEET (Relion4)")
 
         for child in self.findChildren(QtWidgets.QLineEdit):
             child.textChanged.connect(self.save_setting)
@@ -97,6 +98,11 @@ class OtherUtils(QTabWidget):
         #tab 1
         self.tab = QtWidgets.QWidget()
         self.tab.setObjectName("tab")
+
+        self.groupBox_1_1 = QtWidgets.QGroupBox()
+
+        self.verticalLayout_1_1 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_1_1.setContentsMargins(5, 5, 5, 5)
 
         self.horizontalLayout_1 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_1.setContentsMargins(10, 5, 10, 5)
@@ -180,7 +186,7 @@ class OtherUtils(QTabWidget):
         sizePolicy.setHeightForWidth(self.label_recenter.sizePolicy().hasHeightForWidth())
         self.label_recenter.setSizePolicy(sizePolicy)
         self.label_recenter.setMinimumSize(QtCore.QSize(200, 0))
-        self.label_recenter.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        #self.label_recenter.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_recenter.setObjectName("label_recenter")
         self.horizontalLayout_3.addWidget(self.label_recenter)
 
@@ -233,7 +239,7 @@ class OtherUtils(QTabWidget):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_rotation.sizePolicy().hasHeightForWidth())
         self.label_rotation.setSizePolicy(sizePolicy)
-        self.label_rotation.setMinimumSize(QtCore.QSize(220, 0))
+        self.label_rotation.setMinimumSize(QtCore.QSize(200, 0))
         self.label_rotation.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_rotation.setObjectName("label_rotation")
         self.horizontalLayout_4.addWidget(self.label_rotation)
@@ -277,11 +283,17 @@ class OtherUtils(QTabWidget):
         self.lineEdit_rotation_z.setInputMask("")
         self.lineEdit_rotation_z.setObjectName("lineEdit_rotation_z")
         self.horizontalLayout_4.addWidget(self.lineEdit_rotation_z)
- 
-        self.groupBox_1 = QtWidgets.QGroupBox()
 
-        self.verticalLayout_1 = QtWidgets.QVBoxLayout()
-        self.verticalLayout_1.setContentsMargins(5, 5, 5, 5)
+        self.verticalLayout_1_1.addLayout(self.horizontalLayout_1)
+        self.verticalLayout_1_1.addLayout(self.horizontalLayout_2)
+        self.verticalLayout_1_1.addLayout(self.horizontalLayout_4)
+        self.verticalLayout_1_1.addLayout(self.horizontalLayout_3)
+        self.groupBox_1_1.setLayout(self.verticalLayout_1_1)
+ 
+        self.groupBox_1_2 = QtWidgets.QGroupBox()
+
+        self.verticalLayout_1_2 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_1_2.setContentsMargins(5, 5, 5, 5)
 
         self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_5.setContentsMargins(10, 5, 10, 5)
@@ -339,8 +351,8 @@ class OtherUtils(QTabWidget):
         spacerItem0 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_5.addItem(spacerItem0)
 
-        self.verticalLayout_1.addLayout(self.horizontalLayout_5)
-        self.groupBox_1.setLayout(self.verticalLayout_1)
+        self.verticalLayout_1_2.addLayout(self.horizontalLayout_5)
+        self.groupBox_1_2.setLayout(self.verticalLayout_1_2)
 
         self.horizontalLayout_last = QtWidgets.QHBoxLayout()
         self.horizontalLayout_last.setObjectName("horizontalLayout_last")
@@ -362,22 +374,26 @@ class OtherUtils(QTabWidget):
 
         self.gridLayout_run_tab_1 = QtWidgets.QGridLayout(self.tab)
 
-        self.gridLayout_run_tab_1.addLayout(self.horizontalLayout_1, 0, 0, 1, 1)
-        self.gridLayout_run_tab_1.addLayout(self.horizontalLayout_2, 1, 0, 1, 1)
-        self.gridLayout_run_tab_1.addLayout(self.horizontalLayout_4, 2, 0, 1, 1)
-        self.gridLayout_run_tab_1.addLayout(self.horizontalLayout_3, 3, 0, 1, 1)
-        self.gridLayout_run_tab_1.addWidget(self.groupBox_1, 4, 0, 1, 1)
+        #self.gridLayout_run_tab_1.addLayout(self.horizontalLayout_1, 0, 0, 1, 1)
+        #self.gridLayout_run_tab_1.addLayout(self.horizontalLayout_2, 1, 0, 1, 1)
+        #self.gridLayout_run_tab_1.addLayout(self.horizontalLayout_4, 2, 0, 1, 1)
+        #self.gridLayout_run_tab_1.addLayout(self.horizontalLayout_3, 3, 0, 1, 1)
+        self.gridLayout_run_tab_1.addWidget(self.groupBox_1_1, 0, 0, 1, 1)
+        self.gridLayout_run_tab_1.addWidget(self.groupBox_1_2, 1, 0, 1, 1)
 
 
         self.spacerItem3 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_run_tab_1.addItem(self.spacerItem3, 5, 0, 1, 1)
+        self.gridLayout_run_tab_1.addItem(self.spacerItem3, 2, 0, 1, 1)
 
-        self.gridLayout_run_tab_1.addLayout(self.horizontalLayout_last, 6, 0, 1, 1)
+        self.gridLayout_run_tab_1.addLayout(self.horizontalLayout_last, 3, 0, 1, 1)
     
     def retranslateUi_tab1(self):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("Form", "Form"))
         
+        self.groupBox_1_1.setTitle("Basic")
+        self.groupBox_1_1.setFlat(False)
+
         self.label_expand_result_folder.setText(_translate("Form", "Expand Result Folder:"))
         self.label_expand_result_folder.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
@@ -505,8 +521,8 @@ class OtherUtils(QTabWidget):
             font-size:9pt;\">rotation apply on Z-axis.\
             </span></p></body></html>"))
         
-        self.groupBox_1.setTitle("Advanced")
-        self.groupBox_1.setFlat(False)
+        self.groupBox_1_2.setTitle("Advanced")
+        self.groupBox_1_2.setFlat(False)
             
         self.label_random_euler.setText(_translate("Form", "use random euler angles:"))
         self.comboBox_random_euler.setItemText(0, _translate("Form", "No"))
@@ -540,6 +556,10 @@ class OtherUtils(QTabWidget):
     def setUI_tab2(self):
         self.tab2 = QtWidgets.QWidget()
         self.tab2.setObjectName("tab")
+
+        self.groupBox_2_1 = QtWidgets.QGroupBox()
+        self.verticalLayout_2_1 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_2_1.setContentsMargins(5, 5, 5, 5)
 
         self.horizontalLayout_2_1 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2_1.setContentsMargins(10, 5, 10, 5)
@@ -657,6 +677,15 @@ class OtherUtils(QTabWidget):
         self.lineEdit_pixel_size_fitin_map.setObjectName("lineEdit_pixel_size_fitin_map")
         self.horizontalLayout_2_3.addWidget(self.lineEdit_pixel_size_fitin_map)
 
+        self.verticalLayout_2_1.addLayout(self.horizontalLayout_2_1)
+        self.verticalLayout_2_1.addLayout(self.horizontalLayout_2_2)
+        self.verticalLayout_2_1.addLayout(self.horizontalLayout_2_3)
+        self.groupBox_2_1.setLayout(self.verticalLayout_2_1)
+
+        self.groupBox_2_2 = QtWidgets.QGroupBox()
+        self.verticalLayout_2_2 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_2_2.setContentsMargins(5, 5, 5, 5)
+
         self.horizontalLayout_2_4 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2_4.setContentsMargins(10, 5, 10, 5)
 
@@ -666,7 +695,7 @@ class OtherUtils(QTabWidget):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_unit_size_cxs.sizePolicy().hasHeightForWidth())
         self.label_unit_size_cxs.setSizePolicy(sizePolicy)
-        self.label_unit_size_cxs.setMinimumSize(QtCore.QSize(130, 0))
+        self.label_unit_size_cxs.setMinimumSize(QtCore.QSize(160, 0))
         self.label_unit_size_cxs.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_unit_size_cxs.setObjectName("label_unit_size_cxs")
         self.horizontalLayout_2_4.addWidget(self.label_unit_size_cxs)
@@ -699,6 +728,13 @@ class OtherUtils(QTabWidget):
         self.lineEdit_avg_angle.setInputMask("")
         self.lineEdit_avg_angle.setObjectName("lineEdit_avg_angle")
         self.horizontalLayout_2_4.addWidget(self.lineEdit_avg_angle)
+
+        self.verticalLayout_2_2.addLayout(self.horizontalLayout_2_4)
+        self.groupBox_2_2.setLayout(self.verticalLayout_2_2)
+
+        self.groupBox_2_3 = QtWidgets.QGroupBox()
+        self.verticalLayout_2_3 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_2_3.setContentsMargins(5, 5, 5, 5)
 
         self.horizontalLayout_2_5 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2_5.setContentsMargins(10, 5, 10, 5)
@@ -758,6 +794,45 @@ class OtherUtils(QTabWidget):
         #self.lineEdit_only_display_classes_nums.setMaximumSize(QtCore.QSize(100, 30))
         self.horizontalLayout_2_5.addWidget(self.lineEdit_only_display_classes_nums)
 
+        self.verticalLayout_2_3.addLayout(self.horizontalLayout_2_5)
+        self.groupBox_2_3.setLayout(self.verticalLayout_2_3)
+
+        self.groupBox_2_4 = QtWidgets.QGroupBox()
+        self.verticalLayout_2_4 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_2_4.setContentsMargins(5, 5, 5, 5)
+
+        self.horizontalLayout_2_6 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2_6.setContentsMargins(10, 5, 10, 5)
+
+        self.label_star_file_version_placeback = QtWidgets.QLabel(self.tab2)
+        self.label_star_file_version_placeback.setMinimumSize(QtCore.QSize(120, 0))
+        self.label_star_file_version_placeback.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_star_file_version_placeback.setObjectName("label_star_file_version_placeback")
+        
+        self.horizontalLayout_2_6.addWidget(self.label_star_file_version_placeback)
+        self.comboBox_star_file_version_placeback = QtWidgets.QComboBox(self.tab)
+        self.comboBox_star_file_version_placeback.setMaximumSize(QtCore.QSize(120, 30))
+        self.comboBox_star_file_version_placeback.setObjectName("comboBox_star_file_version_placeback")
+        self.comboBox_star_file_version_placeback.addItem("")
+        self.comboBox_star_file_version_placeback.addItem("")
+        self.horizontalLayout_2_6.addWidget(self.comboBox_star_file_version_placeback)
+
+        self.label_tomogram_dimension = QtWidgets.QLabel(self.tab2)
+        self.label_tomogram_dimension.setMinimumSize(QtCore.QSize(100, 0))
+        #self.label_tomogram_dimension.setMaximumSize(QtCore.QSize(200, 30))
+        #self.label_tomogram_dimension.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_tomogram_dimension.setObjectName("label_tomogram_dimension")
+        self.horizontalLayout_2_6.addWidget(self.label_tomogram_dimension)
+
+        self.lineEdit_tomogram_dimension = QtWidgets.QLineEdit(self.tab2)
+        self.lineEdit_tomogram_dimension.setInputMask("")
+        self.lineEdit_tomogram_dimension.setObjectName("lineEdit_tomogram_dimension")
+        #self.lineEdit_tomogram_dimension.setMaximumSize(QtCore.QSize(100, 30))
+        self.horizontalLayout_2_6.addWidget(self.lineEdit_tomogram_dimension)
+
+        self.verticalLayout_2_4.addLayout(self.horizontalLayout_2_6)
+        self.groupBox_2_4.setLayout(self.verticalLayout_2_4)
+
         #spacerItem7 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         #self.horizontalLayout_2_5.addItem(spacerItem7)
  
@@ -781,20 +856,25 @@ class OtherUtils(QTabWidget):
         
         self.gridLayout_pick_params = QtWidgets.QGridLayout(self.tab2)
 
-        self.gridLayout_pick_params.addLayout(self.horizontalLayout_2_1, 0, 0, 1, 1)
-        self.gridLayout_pick_params.addLayout(self.horizontalLayout_2_2, 1, 0, 1, 1)
-        self.gridLayout_pick_params.addLayout(self.horizontalLayout_2_3, 2, 0, 1, 1)
-
-        self.gridLayout_pick_params.addLayout(self.horizontalLayout_2_4, 3, 0, 1, 1)
-        self.gridLayout_pick_params.addLayout(self.horizontalLayout_2_5, 4, 0, 1, 1)
+        #self.gridLayout_pick_params.addLayout(self.horizontalLayout_2_1, 0, 0, 1, 1)
+        #self.gridLayout_pick_params.addLayout(self.horizontalLayout_2_2, 1, 0, 1, 1)
+        #self.gridLayout_pick_params.addLayout(self.horizontalLayout_2_3, 2, 0, 1, 1)
+        self.gridLayout_pick_params.addWidget(self.groupBox_2_1, 0, 0, 1, 1)
+        self.gridLayout_pick_params.addWidget(self.groupBox_2_2, 1, 0, 1, 1)
+        self.gridLayout_pick_params.addWidget(self.groupBox_2_3, 2, 0, 1, 1)
+        self.gridLayout_pick_params.addWidget(self.groupBox_2_4, 3, 0, 1, 1)
+        #self.gridLayout_pick_params.addLayout(self.horizontalLayout_2_5, 2, 0, 1, 1)
 
         self.spacerItem6 = QtWidgets.QSpacerItem(10, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_pick_params.addItem(self.spacerItem6, 5, 0, 1, 1)
+        self.gridLayout_pick_params.addItem(self.spacerItem6, 4, 0, 1, 1)
 
-        self.gridLayout_pick_params.addLayout(self.horizontalLayout_last_2, 6, 0, 1, 1)
+        self.gridLayout_pick_params.addLayout(self.horizontalLayout_last_2, 5, 0, 1, 1)
     
     def retranslateUi_tab2(self):
         _translate = QtCore.QCoreApplication.translate
+        
+        self.groupBox_2_1.setTitle("Basic")
+        self.groupBox_2_1.setFlat(False)
         
         self.label_data_star_file.setText(_translate("Form", "Particles star file:"))
         self.label_data_star_file.setToolTip(_translate("MainWindow", \
@@ -851,34 +931,41 @@ class OtherUtils(QTabWidget):
         self.lineEdit_pixel_size_fitin_map.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
             font-size:9pt;\">average density map's pixel size or target pixel size </span></p></body></html>"))
-        
-        self.label_unit_size_cxs.setText(_translate("Form", "Repeating Unit (Å):"))
+                
+        self.groupBox_2_2.setTitle("For Geometry Based Particle Cleaning")
+        self.groupBox_2_2.setFlat(False)
+
+        self.label_unit_size_cxs.setText(_translate("Form", "Repeating Unit Range (Å):"))
         self.label_unit_size_cxs.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\""))
-        
-        self.lineEdit_unit_size_cxs.setPlaceholderText(_translate("Form", ""))
+
+        self.lineEdit_unit_size_cxs.setPlaceholderText(_translate("Form", "0,100"))
         self.lineEdit_unit_size_cxs.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
-            font-size:9pt;\">Distance between two repeating unit.</span></p></body></html>"))
+            font-size:9pt;\"> The distance range between two repeating subunits that defined by two number. \
+                Only particles within this distance range will be considered as valid neighbors. Default: 0,100 </span></p></body></html>"))
 
         self.label_min_num_neighbors.setText(_translate("Form", "Min # of neighbors:"))
         self.label_min_num_neighbors.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\""))
         
-        self.lineEdit_min_num_neighbors.setPlaceholderText(_translate("Form", ""))
+        self.lineEdit_min_num_neighbors.setPlaceholderText(_translate("Form", "0"))
         self.lineEdit_min_num_neighbors.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
-            font-size:9pt;\">Minimum number of neighboring particles that is tolerated.</span></p></body></html>"))
+            font-size:9pt;\">Minimum number of neighboring particles that is tolerated. Default: 0 (no restriction) </span></p></body></html>"))
         
         self.label_avg_angle.setText(_translate("Form", "Maximum Angle:"))
         self.label_avg_angle.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\""))
         
-        self.lineEdit_avg_angle.setPlaceholderText(_translate("Form", ""))
+        self.lineEdit_avg_angle.setPlaceholderText(_translate("Form", "180"))
         self.lineEdit_avg_angle.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
-            font-size:9pt;\">Maximum neighbor angle tolerance.</span></p></body></html>"))
+            font-size:9pt;\">Maximum neighbor angle tolerance. (Used for lattice-like particles, to exclude over bending area.)</span></p></body></html>"))
         
+        self.groupBox_2_3.setTitle("Advanced")
+        self.groupBox_2_3.setFlat(False)
+
         self.label_start_model_number.setText(_translate("Form", "Start Model #"))
         self.label_start_model_number.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\""))
@@ -907,12 +994,37 @@ class OtherUtils(QTabWidget):
             "<html><head/><body><p><span style=\" \
             font-size:9pt;\">Only include class numbers list here (seperated by coma). Example: 1,2,3. Default: all classes</span></p></body></html>"))
         
+        self.groupBox_2_4.setTitle("Relion Version Related")
+        self.groupBox_2_4.setFlat(False)
+
+        self.label_star_file_version_placeback.setText(_translate("Form", "Star File Version:"))
+        self.comboBox_star_file_version_placeback.setItemText(0, _translate("Form", "Relion4"))
+        self.comboBox_star_file_version_placeback.setItemText(1, _translate("Form", "Relion5"))
+        self.comboBox_star_file_version_placeback.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            font-size:9pt;\">Select which star version to be used. Now only support relion4 and relion5.\
+            </span></p></body></html>"))
+        
+        self.label_tomogram_dimension.setText(_translate("Form", "tomogram dimensions (pixel)"))
+        self.label_tomogram_dimension.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\""))
+        
+        self.lineEdit_tomogram_dimension.setPlaceholderText(_translate("Form", "4000,4000,2000"))
+        self.lineEdit_tomogram_dimension.setToolTip(_translate("MainWindow", \
+            "<html><head/><body><p><span style=\" \
+            font-size:9pt;\"> Tomogram Dimensions on axis-X, -Y, -Z in unbinned pixel size. Example: 4000,4000,2000. Only needed when input Relion5 Star file. \
+                If tomograms reconstructed with various dimensions, please run each seperately. </span></p></body></html>"))
+
         self.pushButton_place_back.setText(_translate("Form", "RUN"))
           
     def setUI_tab3(self):
         #tab 3
         self.tab_Star2PEET = QtWidgets.QWidget()
         self.tab_Star2PEET.setObjectName("tab")
+
+        self.groupBox_3_1 = QtWidgets.QGroupBox()
+        self.verticalLayout_3_1 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_3_1.setContentsMargins(5, 5, 5, 5)
 
         self.horizontalLayout_3_1 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3_1.setContentsMargins(10, 5, 10, 5)
@@ -983,6 +1095,10 @@ class OtherUtils(QTabWidget):
         self.lineEdit_star2PEET_apix.setObjectName("lineEdit_star2PEET_apix")
         self.horizontalLayout_3_2.addWidget(self.lineEdit_star2PEET_apix)
         
+        self.verticalLayout_3_1.addLayout(self.horizontalLayout_3_1)
+        self.verticalLayout_3_1.addLayout(self.horizontalLayout_3_2)
+        self.groupBox_3_1.setLayout(self.verticalLayout_3_1)
+
         self.horizontalLayout_star2PEET_last = QtWidgets.QHBoxLayout()
         self.horizontalLayout_star2PEET_last.setObjectName("horizontalLayout_star2PEET_last")
         spacerItem7 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
@@ -1002,18 +1118,21 @@ class OtherUtils(QTabWidget):
 
         self.gridLayout_star2PEET_tab_3 = QtWidgets.QGridLayout(self.tab_Star2PEET)
 
-        self.gridLayout_star2PEET_tab_3.addLayout(self.horizontalLayout_3_1, 0, 0, 1, 1)
-        self.gridLayout_star2PEET_tab_3.addLayout(self.horizontalLayout_3_2, 1, 0, 1, 1)
-
+        #self.gridLayout_star2PEET_tab_3.addLayout(self.horizontalLayout_3_1, 0, 0, 1, 1)
+        #self.gridLayout_star2PEET_tab_3.addLayout(self.horizontalLayout_3_2, 1, 0, 1, 1)
+        self.gridLayout_star2PEET_tab_3.addWidget(self.groupBox_3_1, 0, 0, 1, 1)
         spacerItem9 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_star2PEET_tab_3.addItem(spacerItem9, 2, 0, 1, 1)
+        self.gridLayout_star2PEET_tab_3.addItem(spacerItem9, 1, 0, 1, 1)
 
-        self.gridLayout_star2PEET_tab_3.addLayout(self.horizontalLayout_star2PEET_last, 3, 0, 1, 1)
+        self.gridLayout_star2PEET_tab_3.addLayout(self.horizontalLayout_star2PEET_last, 2, 0, 1, 1)
 
     def retranslateUi_tab3(self):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("Form", "Form"))
         
+        self.groupBox_3_1.setTitle("Basic")
+        self.groupBox_3_1.setFlat(False)
+
         self.label_input_star_file.setText(_translate("Form", "Input STAR file:"))
         self.label_input_star_file.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
@@ -1112,6 +1231,8 @@ class OtherUtils(QTabWidget):
         data['start_model_number'] = ""
         data['color_by_classes'] = "No"
         data['only_display_classes_nums'] = ""
+        data['star_file_version_placeback'] = ""
+        data['tomogram_dimension'] = ""
 
         data['input_star_file'] =""
         data['star2PEET_output_folder'] =""
@@ -1157,6 +1278,8 @@ class OtherUtils(QTabWidget):
         self.lineEdit_start_model_number.setText(data['start_model_number'])
         self.comboBox_color_by_classes.setCurrentText(data['color_by_classes'])
         self.lineEdit_only_display_classes_nums.setText(data['only_display_classes_nums'])
+        self.comboBox_star_file_version_placeback.setCurrentText(data['star_file_version_placeback'])
+        self.lineEdit_tomogram_dimension.setText(data['tomogram_dimension'])
 
         self.lineEdit_input_star_file.setText(data['input_star_file'])
         self.lineEdit_star2PEET_output_folder.setText(data['star2PEET_output_folder'])
@@ -1193,6 +1316,8 @@ class OtherUtils(QTabWidget):
         param['start_model_number'] = self.lineEdit_start_model_number.text()
         param['color_by_classes'] = self.comboBox_color_by_classes.currentText()
         param['only_display_classes_nums'] = self.lineEdit_only_display_classes_nums.text()
+        param['star_file_version_placeback'] = self.comboBox_star_file_version_placeback.currentText()
+        param['tomogram_dimension'] = self.lineEdit_tomogram_dimension.text()
 
         param['input_star_file'] = self.lineEdit_input_star_file.text()
         param['star2PEET_output_folder'] = self.lineEdit_star2PEET_output_folder.text()
@@ -1286,7 +1411,7 @@ class OtherUtils(QTabWidget):
             if not string2float(self.lineEdit_priorTilt.text()) == None:
                 priorTilt = string2float(self.lineEdit_priorTilt.text())
             else:
-                return "Please use the valid format for the priorTilt !"
+                return "Please use the valid format for the priorTilt!"
         else:
             priorTilt = "None"
                 
@@ -1586,12 +1711,15 @@ class OtherUtils(QTabWidget):
             return "Please provide the unbinned pixel size!"
         
         if len(self.lineEdit_unit_size_cxs.text()) > 0:
-            if not string2float(self.lineEdit_unit_size_cxs.text()) == None:
-                unit_size_cxs = string2float(self.lineEdit_unit_size_cxs.text())
-            else:
-                return "Please use the valid format for the repeating unit!"
+            try:
+                unit_size_cxs = [float(x.strip()) for x in self.lineEdit_unit_size_cxs.text().split(',')]
+                if (not (unit_size_cxs and len(unit_size_cxs) == 2)) and \
+                    (unit_size_cxs[0] <= unit_size_cxs[1]):
+                    return "Please use the valid format for the repeating unit range, two number seperated by ',' !"
+            except:
+                return "Please use the valid format for the repeating unit range, two number seperated by ',' !"
         else:
-            unit_size_cxs = 10000.0
+            unit_size_cxs = [0, 100]
 
         if len(self.lineEdit_min_num_neighbors.text()) > 0:
             if not string2int(self.lineEdit_min_num_neighbors.text()) == None:
@@ -1627,6 +1755,23 @@ class OtherUtils(QTabWidget):
         else:
             only_display_classes_nums = None
 
+        star_file_version_placeback = self.comboBox_star_file_version_placeback.currentText()
+
+        if len(self.lineEdit_tomogram_dimension.text()) > 0:
+            try:
+                tomogram_dimension = [int(x.strip()) for x in self.lineEdit_tomogram_dimension.text().split(',')]
+                if (not (tomogram_dimension and len(tomogram_dimension) == 3)) and \
+                    (tomogram_dimension[0] > 0 and tomogram_dimension[1] > 0 and tomogram_dimension[2] > 0):
+                    
+                    return "Please use the valid format for the tomogram dimensions (3 positive integers seperated by ',')!"
+            except:
+                return "Please use the valid format for the tomogram dimensions (3 positive integers seperated by ',')!"
+        else:
+            if star_file_version_placeback == "Relion5":
+                return "Tomogram dimensions must be provided when input Relion5 Star file!"
+            else:
+                tomogram_dimension = None
+
         params = {}
         params['result_folder'] = "{}/placeback_result".format(self.others_folder)
         params['data_star_file'] = data_star_file
@@ -1641,10 +1786,12 @@ class OtherUtils(QTabWidget):
         params['start_model_number'] = start_model_number
         params['color_by_classes'] = color_by_classes
         params['only_display_classes_nums'] = only_display_classes_nums
+        params['star_file_version_placeback'] = star_file_version_placeback
+        params['tomogram_dimension'] = tomogram_dimension
 
         return params
     
-    def generate_cxs_file(self, params):
+    def generate_cxs_file_relion4(self, params):
         if not os.path.exists(self.placeback_folder):
             mkfolder(self.placeback_folder)
         
@@ -1655,7 +1802,7 @@ class OtherUtils(QTabWidget):
         tomo_names = params['tomo_name']
         average_map = params['fitin_map_file']
         
-        bin_factor = params['pixel_size_fitin_map']/params['pixel_size_unbinned']
+        #bin_factor = params['pixel_size_fitin_map']/params['pixel_size_unbinned']
         Min_neighbors = params['min_num_neighbors']
         Avg_angle_limit = params['avg_angle']
 
@@ -1663,42 +1810,54 @@ class OtherUtils(QTabWidget):
 
         only_display_classes_nums = params['only_display_classes_nums']
 
-        with mrcfile.open(average_map) as mrcData:
-            orig_data = mrcData.data.astype(np.float32)
+        try:
+            with mrcfile.open(average_map) as mrcData:
+                orig_data = mrcData.data.astype(np.float32)
+        except Exception as e:
+            self.logger.error(e)
+            return
 
         map_dimension = orig_data.shape
 
-        dis_unit = params['unit_size_cxs']
-        dis_ratio = 1.2
+        dis_unit_range = params['unit_size_cxs']
+        #dis_ratio = 1.2
 
         apix = params['pixel_size_unbinned']
 
         try:
-            df_particles = starfile.read(star_file,  always_dict=True)['particles']
-        except:
+            df_particles = starfile.read(star_file, always_dict=True)['particles']
+        except Exception as e:
+            self.logger.error(e)
             return -1
         
         if tomo_names.lower() == "all":
             try:
                 tomoList = sorted(set(df_particles['rlnTomoName'].tolist()))
-            except:
+            except Exception as e:
+                self.logger.error(e)
                 return -1
         else:
             tomoList = [tomo_names]
         
-        header = self.get_header(star_file)
+        try:
+            header = self.get_header(star_file)
+        except Exception as e:
+                self.logger.error(e)
+                return -1
         
         for tomo_name in tomoList:
             try:
                 if only_display_classes_nums:
                     try:
                         df_particles_i = df_particles.loc[(df_particles['rlnTomoName']==tomo_name) & (df_particles['rlnClassNumber'].astype(str).isin(only_display_classes_nums))]
-                    except:
+                    except Exception as e:
+                        self.logger.error(e)
                         self.logger.error("extraact rlnClassNumber info is not failed for Tomogram {}!".format(tomo_name))
-                        return
+                        return -1
                 else:
                     df_particles_i = df_particles.loc[df_particles['rlnTomoName']==tomo_name]
-            except:
+            except Exception as e:
+                self.logger.error(e)
                 self.logger.error("No particle was found for tomogame: {}!".format(tomo_name))
                 return -1
             
@@ -1706,11 +1865,17 @@ class OtherUtils(QTabWidget):
                 self.logger.warning("Tomo {} has no particles, skip it.".format(tomo_name))
                 continue
             
-
             df_particles_i = df_particles_i.reset_index()
 
-            manifoldIndex_start = df_particles_i['rlnTomoManifoldIndex'].astype(int).min()
-            manifold_num = df_particles_i['rlnTomoManifoldIndex'].astype(int).max() - manifoldIndex_start + 1
+            if 'rlnTomoManifoldIndex' in df_particles_i.columns:
+                manifoldIndex_start = df_particles_i['rlnTomoManifoldIndex'].astype(int).min()
+                manifold_num = df_particles_i['rlnTomoManifoldIndex'].astype(int).max() - manifoldIndex_start + 1
+            else:
+                manifoldIndex_start = -1
+                manifold_num = 1
+
+            # manifoldIndex_start = df_particles_i['rlnTomoManifoldIndex'].astype(int).min()
+            # manifold_num = df_particles_i['rlnTomoManifoldIndex'].astype(int).max() - manifoldIndex_start + 1
             
             color_code_comments = ""
             if color_by_classes:
@@ -1720,13 +1885,14 @@ class OtherUtils(QTabWidget):
 
                     class_num = len(classNum_list)
 
-                    class_colors = [ list(np.random.choice(range(45,210), size=3)) for i in range(class_num) ]
+                    class_colors = [ list(np.random.choice(range(45, 210), size=3)) for i in range(class_num) ]
                     
                     for i, cls_num in enumerate(classNum_list):
                         color_code_comments = "{}# ClassNumber: {}, Count {}, Color rgb: {}\n".\
                         format(color_code_comments, cls_num, classNum_list_full.to_list().count(cls_num), class_colors[i])
                 
-                except:
+                except Exception as e:
+                    self.logger.error(e)
                     self.logger.error("Even color by classes is enable, but the rlnClassNumber is not detected for Tomogram {}!".format(tomo_name))
                     color_by_classes = False
 
@@ -1734,11 +1900,12 @@ class OtherUtils(QTabWidget):
             try:
                 #if not os.path.exists("{}/{}".format(params['placeback_output_folder'], average_map_basename)):
                 shutil.copy(average_map, params['placeback_output_folder'])
-            except:
+            except Exception as e:
+                self.logger.error(e)
                 self.logger.error("Cannot copy fitin map into the current placeback folder!".format(tomo_name))
                 pass
         
-            global_id = 0
+            global_num = 0
             # set offset to combine two/more cxs files
             #real_patch_num = 0
             real_patch_num = params['start_model_number'] - 1
@@ -1757,13 +1924,21 @@ class OtherUtils(QTabWidget):
                             outfile.write(color_code_comments+"\n\n")
                         
                         for i in range(int(manifold_num)):
-                            current_manifold_id = manifoldIndex_start+i
-                            manifold_df = df_particles_i.loc[df_particles_i['rlnTomoManifoldIndex']==current_manifold_id]
+                            
+                            if manifoldIndex_start == -1:
+                                manifold_df = df_particles_i
+                            else:
+                                current_manifold_id = manifoldIndex_start+i
+                                manifold_df = df_particles_i.loc[df_particles_i['rlnTomoManifoldIndex']==current_manifold_id]
+
+                            #current_manifold_id = manifoldIndex_start+i
+                            #manifold_df = df_particles_i.loc[df_particles_i['rlnTomoManifoldIndex']==current_manifold_id]
                             manifold_df = manifold_df.reset_index()
+                            
                             pNum_i = manifold_df.shape[0]
                             if pNum_i > 0:
                                 real_patch_num+=1
-                                global_id+=pNum_i
+                                global_num+=pNum_i
                                 
                                 open_line = "open"
                                 move_cmds = ""
@@ -1811,7 +1986,8 @@ class OtherUtils(QTabWidget):
                                 rename_cmds = ""
                                 for j in range(pNum_i):
                                     
-                                    neignbors = getNeighbors(mat_coords[j], j, dis_unit*dis_ratio)
+                                    #neignbors = getNeighbors(mat_coords[j], j, dis_unit*dis_ratio)
+                                    neignbors = getNeighbors_by_range(mat_coords[j], j, dis_unit_range)
                                     sum = 0
                                     max_angle = 0
                                     avg_angle = 0
@@ -1868,7 +2044,7 @@ class OtherUtils(QTabWidget):
 
                     outfile.write("view\n")  
 
-                self.logger.info("Original: {}; Clean version: {}.".format(global_id, clean_i))
+                self.logger.info("Original: {}; Clean version: {}.".format(global_num, clean_i))
                 self.logger.info("Done getting placeback session file for ChimeraX: {}!".format(tomo_name))
 
         if len(tomoList) > 1:
@@ -1883,6 +2059,288 @@ class OtherUtils(QTabWidget):
             
             self.logger.info("clean version of STAR file saved: {}!".format(clean_version_star_all))
             
+    def generate_cxs_file_relion5(self, params):
+        
+        if not os.path.exists(self.placeback_folder):
+            mkfolder(self.placeback_folder)
+        
+        #if not os.path.exists(params['placeback_output_folder']):
+        mkfolder(params['placeback_output_folder'])
+
+        star_file = params['data_star_file']
+        tomo_names = params['tomo_name']
+        average_map = params['fitin_map_file']
+        
+        #bin_factor = params['pixel_size_fitin_map']/params['pixel_size_unbinned']
+        Min_neighbors = params['min_num_neighbors']
+        Avg_angle_limit = params['avg_angle']
+
+        color_by_classes = params['color_by_classes']
+
+        only_display_classes_nums = params['only_display_classes_nums']
+
+        tomogram_map_dimension = params['tomogram_dimension']
+        
+        try:
+            with mrcfile.open(average_map) as mrcData:
+                orig_data = mrcData.data.astype(np.float32)
+        except Exception as e:
+            self.logger.error(e)
+            return
+
+        average_map_dimension = orig_data.shape
+        
+        dis_unit_range = params['unit_size_cxs']
+
+        apix = params['pixel_size_unbinned']
+
+        center_offset = [x/2*apix for x in tomogram_map_dimension]
+
+        try:
+            df_particles = starfile.read(star_file, always_dict=True)['particles']
+        except Exception as e:
+            self.logger.error(e)
+            return -1
+        
+        if tomo_names.lower() == "all":
+            try:
+                tomoList = sorted(set(df_particles['rlnTomoName'].tolist()))
+            except Exception as e:
+                self.logger.error(e)
+                return -1
+        else:
+            tomoList = [tomo_names]
+        
+        try:
+            header = self.get_header(star_file)
+        except Exception as e:
+                self.logger.error(e)
+                return -1
+        
+        for tomo_name in tomoList:
+            try:
+                if only_display_classes_nums:
+                    try:
+                        df_particles_i = df_particles.loc[(df_particles['rlnTomoName']==tomo_name) & (df_particles['rlnClassNumber'].astype(str).isin(only_display_classes_nums))]
+                    except Exception as e:
+                        self.logger.error(e)
+                        self.logger.error("extraact rlnClassNumber info is not failed for Tomogram {}!".format(tomo_name))
+                        return -1
+                else:
+                    df_particles_i = df_particles.loc[df_particles['rlnTomoName']==tomo_name]
+            except Exception as e:
+                self.logger.error(e)
+                self.logger.error("No particle was found for tomogame: {}!".format(tomo_name))
+                return -1
+            
+            if df_particles_i.empty:
+                self.logger.warning("Tomo {} has no particles, skip it.".format(tomo_name))
+                continue
+            
+            df_particles_i = df_particles_i.reset_index()
+
+            if 'rlnTomoManifoldIndex' in df_particles_i.columns:
+                manifoldIndex_start = df_particles_i['rlnTomoManifoldIndex'].astype(int).min()
+                manifold_num = df_particles_i['rlnTomoManifoldIndex'].astype(int).max() - manifoldIndex_start + 1
+            else:
+                manifoldIndex_start = -1
+                manifold_num = 1
+            
+            color_code_comments = ""
+            if color_by_classes:
+                try:
+                    classNum_list_full = df_particles_i['rlnClassNumber']
+                    
+                    classNum_list = list(set(classNum_list_full.to_list()))
+
+                    class_num = len(classNum_list)
+
+                    class_colors = [list(np.random.choice(range(45, 210), size=3)) for i in range(class_num) ]
+                    
+                    for i, cls_num in enumerate(classNum_list):
+                        color_code_comments = "{}# ClassNumber: {}, Count {}, Color rgb: {}\n".\
+                        format(color_code_comments, cls_num, classNum_list_full.to_list().count(cls_num), class_colors[i])
+                
+                except Exception as e:
+                    self.logger.error(e)
+                    self.logger.error("Even color by classes is enable, but the rlnClassNumber is not detected for Tomogram {}!".format(tomo_name))
+                    color_by_classes = False
+
+            average_map_basename = os.path.basename(average_map)
+            try:
+                shutil.copy(average_map, params['placeback_output_folder'])
+            except Exception as e:
+                self.logger.error(e)
+                self.logger.error("Cannot copy fitin map into the current placeback folder!".format(tomo_name))
+                pass
+        
+            global_num = 0
+            # set offset to combine two/more cxs files
+            #real_patch_num = 0
+            real_patch_num = params['start_model_number'] - 1
+            clean_i = 0
+            
+            output_file_name = "{}/placeback_tomo_{}.cxc".format(params['placeback_output_folder'], tomo_name)
+            clean_version_star = "{}/clean_tomo_{}.star".format(params['placeback_output_folder'], tomo_name)
+
+            if not manifold_num or math.isnan(manifold_num):
+                self.logger.warning("No Tomo Name: {}.".format(tomo_name))
+                continue
+            else:
+                with open(output_file_name, "w") as outfile:
+                    with open(clean_version_star, "w") as c_star_file:
+                        if color_code_comments:
+                            outfile.write(color_code_comments+"\n\n")
+                        
+                        for i in range(int(manifold_num)):
+                            if manifoldIndex_start == -1:
+                                manifold_df = df_particles_i
+                            else:
+                                current_manifold_id = manifoldIndex_start+i
+                                manifold_df = df_particles_i.loc[df_particles_i['rlnTomoManifoldIndex']==current_manifold_id]
+                            
+                            manifold_df = manifold_df.reset_index()
+                            pNum_i = manifold_df.shape[0]
+                            
+                            if pNum_i > 0:
+                                real_patch_num+=1
+                                global_num+=pNum_i
+                                
+                                open_line = "open"
+                                move_cmds = ""
+                                turn_cmds = ""
+
+                                centers = []
+                                new_vectors = []
+                                new_vectors_subtomo = []
+                                
+                                for j in range(pNum_i):
+                                    
+                                    #xp, yp, zp = [manifold_df['rlnCoordinateX'][j], manifold_df['rlnCoordinateY'][j], manifold_df['rlnCoordinateZ'][j]]
+                                    xp, yp, zp = [manifold_df['rlnCenteredCoordinateXAngst'][j], manifold_df['rlnCenteredCoordinateYAngst'][j], manifold_df['rlnCenteredCoordinateZAngst'][j]]
+                                    xt, yt, zt = [manifold_df['rlnOriginXAngst'][j], manifold_df['rlnOriginYAngst'][j], manifold_df['rlnOriginZAngst'][j]]
+                                    if 'rlnTomoSubtomogramRot' in manifold_df.columns:
+                                        subtomoRot = manifold_df['rlnTomoSubtomogramRot'][j]
+                                    else:
+                                        subtomoRot = 0
+                                    if 'rlnTomoSubtomogramTilt' in manifold_df.columns:
+                                        subtomoTilt = manifold_df['rlnTomoSubtomogramTilt'][j]
+                                    else:
+                                        subtomoTilt = 0
+                                    if 'rlnTomoSubtomogramPsi' in manifold_df.columns:
+                                        subtomoPsi = manifold_df['rlnTomoSubtomogramPsi'][j]
+                                    else:
+                                        subtomoPsi = 0
+                                    rot, tilt, psi = [manifold_df['rlnAngleRot'][j], manifold_df['rlnAngleTilt'][j], manifold_df['rlnAnglePsi'][j]]
+                                    
+                                    #output_eulers_subtomo, output_vector_subtomo = Relion2ChimeraX(np.array([subtomoRot, subtomoTilt, subtomoPsi]))
+
+                                    #output_eulers, output_vector = Relion2ChimeraX(np.array([rot, tilt, psi]))
+
+                                    output_eulers, output_vector = Relion52ChimeraX(np.array([rot, tilt, psi]),np.array([subtomoRot, subtomoTilt, subtomoPsi]))
+                                    #output_eulers, output_vector = Relion2ChimeraX(np.array([rot+subtomoRot, tilt+subtomoTilt, psi+subtomoPsi]))
+
+                                    # x = round(xp*apix - xt,3)
+                                    # y = round(yp*apix - yt,3)
+                                    # z = round(zp*apix - zt,3)
+                                    x = round(xp - xt, 6) + center_offset[0]
+                                    y = round(yp - yt, 6) + center_offset[1]
+                                    z = round(zp - zt, 6) + center_offset[2]
+
+                                    centers.append([x,y,z])
+
+                                    #new_vectors_subtomo.append([output_vector_subtomo[0],output_vector_subtomo[1],output_vector_subtomo[2]])
+
+                                    new_vectors.append([output_vector[0],output_vector[1],output_vector[2]])
+
+                                    if pNum_i == 1:
+                                        model_id = "{}".format(real_patch_num)
+                                    else:
+                                        model_id = "{}.{}".format(real_patch_num, j+1)
+                                    
+                                    open_line = "{} {}".format(open_line, average_map_basename)
+
+                                    move_cmds = "{}move x {} models #{} coordinateSystem #{}; move y {} models #{} coordinateSystem #{}; move z {} models #{} coordinateSystem #{};\n"\
+                                                .format(move_cmds, x, model_id, model_id, y, model_id, model_id, z, model_id, model_id)
+                                    
+                                    # turn_cmds_subtomo = "{}turn z {} center 0,0,0 models #{} coordinateSystem #{}; turn y {} center 0,0,0 models #{} coordinateSystem #{}; turn z {} center 0,0,0  models #{} coordinateSystem #{};\n"\
+                                    #             .format(turn_cmds, output_eulers_subtomo[0], model_id, model_id, output_eulers_subtomo[1], model_id, model_id, \
+                                    #                 output_eulers_subtomo[2], model_id, model_id)
+                                    
+                                    turn_cmds = "{}turn z {} center 0,0,0 models #{} coordinateSystem #{}; turn y {} center 0,0,0 models #{} coordinateSystem #{}; turn z {} center 0,0,0  models #{} coordinateSystem #{};\n"\
+                                                .format(turn_cmds, output_eulers[0], model_id, model_id, output_eulers[1], model_id, model_id, \
+                                                    output_eulers[2], model_id, model_id)
+
+
+                                mat_coords = np.array(distance_matrix(centers, centers))
+                                mat_norm = squareform(pdist(new_vectors, "cosine"))
+                                
+                                color_cmds = ""
+                                rename_cmds = ""
+                                for j in range(pNum_i):
+                                    
+                                    neignbors = getNeighbors_by_range(mat_coords[j], j, dis_unit_range)
+                                    sum = 0
+                                    max_angle = 0
+                                    avg_angle = 0
+                                    for n in neignbors:		
+                                        sum += math.acos(1-mat_norm[j][n])/math.pi*180
+                                        max_angle = max(max_angle, math.acos(1-mat_norm[j][n])/math.pi*180)
+                                    if len(neignbors) > 0:
+                                        avg_angle =  sum/len(neignbors)
+
+                                    if not color_by_classes:
+                                        #r,g,b = getRGBs(avg_angle, max_angle=30)
+                                        r,g,b = getRGBs(avg_angle, max_angle= Avg_angle_limit)
+                                        
+                                    else:
+                                        current_class_index = classNum_list.index(manifold_df['rlnClassNumber'][j])
+                                        r,g,b = class_colors[current_class_index]
+                                        
+                                    # original setting
+                                    if len(neignbors) >= Min_neighbors and avg_angle <= Avg_angle_limit:
+                                        c_star_line = " ".join([str(x) for x in manifold_df.loc[j].values.flatten().tolist()][2:]) + "\n"
+                                        c_star_file.write(c_star_line)
+                                        clean_i+=1
+                                    
+                                    if pNum_i == 1:
+                                        model_id = "{}".format(real_patch_num, j+1)
+                                    else:
+                                        model_id = "{}.{}".format(real_patch_num, j+1)
+
+                                    color_cmds = "{}color #{} rgb({},{},{});\n".format(color_cmds, model_id, r, g, b)  
+                                    if color_by_classes:
+                                        rename_cmds = "{}rename #{} class-{};\n".format(rename_cmds, model_id, manifold_df['rlnClassNumber'][j])
+                                                                             
+                                recenter_line = "vop #{} originIndex {},{},{};\n".format(real_patch_num, average_map_dimension[2]/2, average_map_dimension[1]/2, average_map_dimension[0]/2)
+                                
+                                outfile.write(open_line+";\n\n")
+                                outfile.write(recenter_line+"\n")
+                                outfile.write(move_cmds+"\n")
+                                
+                                #outfile.write(turn_cmds_subtomo+"\n")
+                                outfile.write(turn_cmds+"\n")
+                                outfile.write(color_cmds+"\n")
+                                if rename_cmds:
+                                    outfile.write(rename_cmds+"\n")
+
+                    outfile.write("view\n")  
+
+                self.logger.info("Original: {}; Clean version: {}.".format(global_num, clean_i))
+                self.logger.info("Done getting placeback session file for ChimeraX: {}!".format(tomo_name))
+
+        if len(tomoList) > 1:
+            clean_version_star_all = "{}/particles_clean_all.star".format(params['placeback_output_folder'])
+            with open (clean_version_star_all, 'w') as w:
+                w.write(header)
+            for tomo_name in tomoList:
+                starfile_i = "{}/clean_tomo_{}.star".format(params['placeback_output_folder'], tomo_name)
+                if os.path.exists(starfile_i):
+                    cmd = "cat {} >> {}".format(starfile_i, clean_version_star_all)
+                    subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
+            
+            self.logger.info("clean version of STAR file saved: {}!".format(clean_version_star_all))
+    
     def get_header(self, star_file):
         header = ""
         with open(star_file, 'r') as f:
@@ -1919,11 +2377,17 @@ class OtherUtils(QTabWidget):
                 self.pushButton_place_back.setText("STOP")
                 self.pushButton_place_back.setStyleSheet('QPushButton {color: red;}')
                 
-                result = self.generate_cxs_file(params)
+                try:
+                    if params['star_file_version_placeback'] == "Relion4":
+                        result = self.generate_cxs_file_relion4(params)
+                    elif params['star_file_version_placeback'] == "Relion5":
+                        result = self.generate_cxs_file_relion5(params)
+                except Exception as e:
+                    self.logger.error(e)
 
                 # if result == 1:
                 #     self.logger.info("Done getting placeback session file for ChimeraX: {}!".format(params['tomo_name']))
-                # elif result == -1:
+                # if result == -1:
                 #     self.logger.error("No particle was found for tomogame: {}!".format(params['tomo_name']))
                 # else:
                 #     self.logger.error("Unexpected error for tomogame: {}!".format(params['tomo_name']))

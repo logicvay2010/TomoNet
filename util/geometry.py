@@ -100,12 +100,58 @@ def Relion2ChimeraX(zyz_euler):
                                 right_handed_rotation=False)
 
   output_vector = np.matmul([0,0,1], np.linalg.inv(output_matrix))
-  return [np.round(output_eulers,3), output_vector]
+  return [np.round(output_eulers,6), output_vector]
+
+def Relion52ChimeraX(zyz_euler_1, zyz_euler_2):
+  # output_eulers_1 = euler2euler(zyz_euler_1,
+  #                               source_axes='zyz',
+  #                               source_intrinsic=False,
+  #                               source_right_handed_rotation=False,
+  #                               target_axes='zyz',
+  #                               target_intrinsic=True,
+  #                               target_right_handed_rotation=True,
+  #                               invert_matrix=False)
+  
+  # output_eulers_2 = euler2euler(zyz_euler_2,
+  #                               source_axes='zyz',
+  #                               source_intrinsic=False,
+  #                               source_right_handed_rotation=False,
+  #                               target_axes='zyz',
+  #                               target_intrinsic=True,
+  #                               target_right_handed_rotation=True,
+  #                               invert_matrix=False)
+  
+  output_matrix_1 = euler2matrix(zyz_euler_1,
+                                axes='zyz',
+                                intrinsic=False,
+                                right_handed_rotation=False)
+  
+  output_matrix_2 = euler2matrix(zyz_euler_2,
+                                axes='zyz',
+                                intrinsic=False,
+                                right_handed_rotation=False)
+
+  output_vector = np.matmul([0,0,1], np.matmul(output_matrix_1, output_matrix_2))
+  
+  output_eulers = matrix2euler(np.matmul(output_matrix_2, output_matrix_1),
+                              axes='zyz',
+                              intrinsic=True,
+                              right_handed_rotation=True)
+  
+  return [np.round(output_eulers, 6), output_vector]
 
 def getNeighbors(v, i, threashold_dis):
 	neibors_index = []
 	for j, d in enumerate(v):
 		if i != j and d <= threashold_dis:
+			neibors_index.append(j)
+
+	return neibors_index
+
+def getNeighbors_by_range(v, i, dis_range):
+	neibors_index = []
+	for j, d in enumerate(v):
+		if i != j and d <= dis_range[1] and d >= dis_range[0]:
 			neibors_index.append(j)
 
 	return neibors_index
