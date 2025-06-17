@@ -63,7 +63,7 @@ class OtherUtils(QTabWidget):
         #self.addTab(self.tab, "Recenter {} Rotate {} Assemble to .star file".format("|","|"))
         self.addTab(self.tab, "PEET2Star")
 
-        self.addTab(self.tab2, "Subtomogram Place Back in ChimeraX (Relion4)")
+        self.addTab(self.tab2, "Subtomogram Place Back in ChimeraX")
 
         self.addTab(self.tab_Star2PEET, "Star2PEET (Relion4)")
 
