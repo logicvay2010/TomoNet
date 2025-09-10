@@ -143,23 +143,29 @@ if __name__ == "__main__":
     sp = np.array(orig_data.shape)
 
     # margin related to overlaping region (pad_width) when extracting subtomograms
-    margin_1 = (crop_size - cube_size)//2
-    pad_width = (cube_size - (sp-2*margin_1)%cube_size)%cube_size//2
+    #margin_1 = (crop_size - cube_size)//2
+    #pad_width = (cube_size - (sp-2*margin_1)%cube_size)%cube_size//2
     
     # padded 3D volume data
-    pad_orig_data = np.pad(orig_data, ((pad_width[0], pad_width[0]),(pad_width[1], pad_width[1]),(pad_width[2], pad_width[2])), 'mean')
-    orig_data = pad_orig_data
-    sp = np.array(orig_data.shape)
+    #pad_orig_data = np.pad(orig_data, ((pad_width[0], pad_width[0]),(pad_width[1], pad_width[1]),(pad_width[2], pad_width[2])), 'mean')
+    #orig_data = pad_orig_data
+    #sp = np.array(orig_data.shape)
     
     # check if using mask
-    if not (mask_file == "None" or mask_file == None):
-         mask_data = np.pad(mask_data, ((pad_width[0], pad_width[0]),(pad_width[1], pad_width[1]),(pad_width[2], pad_width[2])), 'constant')
+    #if not (mask_file == "None" or mask_file == None):
+    #     mask_data = np.pad(mask_data, ((pad_width[0], pad_width[0]),(pad_width[1], pad_width[1]),(pad_width[2], pad_width[2])), 'constant')
     
     # number of cubes (x, y, z axis)
-    sidelen = (sp-2*margin_1)//cube_size
+    #sidelen = (sp-2*margin_1)//cube_size
+    sidelen = (sp//cube_size) + 1
+
+    # so, if no cube was detected, stop here 
+    if sp[0]< cube_size or sp[1]< cube_size or sp[2]< cube_size:
+        log(logger, "The crop size {} is larger than the dimension of input tomogram: {}.".format(crop_size, np.flip(sp)), level="error")
+        sys.exit()
 
     # crop starting coords (origin)
-    crop_start = margin_1
+    crop_start = 0
 
     #prepare for extraction (get all subtomograms center locations)
     count = 0
@@ -176,6 +182,13 @@ if __name__ == "__main__":
                 z1,z2 = [i*cube_size, i*cube_size+crop_size]
                 y1,y2 = [j*cube_size, j*cube_size+crop_size]
                 x1,x2 = [k*cube_size, k*cube_size+crop_size]
+
+                if i==sidelen[0] - 1:
+                    z1,z2 = [sp[0]-crop_size, sp[0]]
+                if j==sidelen[1] - 1:
+                    y1,y2 = [sp[1]-crop_size, sp[1]]
+                if k==sidelen[2] - 1:
+                    x1,x2 = [sp[2]-crop_size, sp[2]]
                 
                 # if the current cube does not overlaping with the mask, skip it (this helps with exclude empty area to avoid false positive)
                 if not (mask_file == "None" or mask_file == None):
@@ -198,7 +211,7 @@ if __name__ == "__main__":
 
     # so, if no cube was detected, stop here 
     if count == 0:
-        log(logger, "The crop size = box size + 8 which is {} and it is larger than the dimension of input tomogram: {}.".format(crop_size, np.flip(sp)), level="error")
+        log(logger, "The crop size {} is and it is larger than the dimension of input tomogram: {}.".format(crop_size, np.flip(sp)), level="error")
         sys.exit()
 
     # read all cube volume into memory
@@ -275,9 +288,9 @@ if __name__ == "__main__":
             # for each block (particle), use the cluster center as the particle center. And this particle will be saved
             for i in range(len(set(clusters))):
                 z,y,x = np.mean(points[np.argwhere(clusters == i+1)], axis=0)[0]
-                if x >=margin_1 and x <=crop_size-margin_1 and y >=margin_1 and y <=crop_size-margin_1 and z >=margin_1 and z <=crop_size-margin_1:
-                    particle_list.append([x+x_crop, y+y_crop, z+z_crop])
-    
+                #if x >=margin_1 and x <=crop_size-margin_1 and y >=margin_1 and y <=crop_size-margin_1 and z >=margin_1 and z <=crop_size-margin_1:
+                #    particle_list.append([x+x_crop, y+y_crop, z+z_crop])
+                particle_list.append([x+x_crop, y+y_crop, z+z_crop])
     # So far, the raw paricles info is extracted from seg maps, but need to clean a little bit
     
     # First, remove duplication
@@ -317,10 +330,13 @@ if __name__ == "__main__":
                     with open("{}/{}/{}_patch_{}.pts".format(result_dir, tomoName_final, baseName, patch_c+1),'w') as wp:
                         for n in neighbors:
                             # make sure all particles are inside the boundary                          
-                            if n[0]+1-pad_width[2] > 0 and n[1]+1-pad_width[1] > 0 and n[2]+1-pad_width[0] > 0:
-                                w.write("{} {} {} {}\n".format(patch_c+1, n[0]+1-pad_width[2], n[1]+1-pad_width[1], n[2]+1-pad_width[0]))
-                                wp.write("{} {} {}\n".format(n[0]+1-pad_width[2], n[1]+1-pad_width[1], n[2]+1-pad_width[0]))
-                                min_num_c+=1
+                            # if n[0]+1-pad_width[2] > 0 and n[1]+1-pad_width[1] > 0 and n[2]+1-pad_width[0] > 0:
+                            #     w.write("{} {} {} {}\n".format(patch_c+1, n[0]+1-pad_width[2], n[1]+1-pad_width[1], n[2]+1-pad_width[0]))
+                            #     wp.write("{} {} {}\n".format(n[0]+1-pad_width[2], n[1]+1-pad_width[1], n[2]+1-pad_width[0]))
+                            #     min_num_c+=1
+                            w.write("{} {} {} {}\n".format(patch_c+1, n[0]+1, n[1]+1, n[2]+1))
+                            wp.write("{} {} {}\n".format(n[0]+1, n[1]+1, n[2]+1))
+                            min_num_c+=1
                     prefix_temp = "{}_patch_{}".format(baseName, patch_c+1)
                     # debug using only
                     if save_patch_MODE:
