@@ -1779,7 +1779,7 @@ class Expand(QTabWidget):
             if min_patch_size ==None or min_patch_size < 0:
                 return "Min patch size should be in positive interger format!"
         else: 
-            return "Please specify the rounds number!"
+            return "Please specify the min patch size!"
 
         if len(self.lineEdit_cpu_num.text()) > 0:
             cpu_num = string2int(self.lineEdit_cpu_num.text())
