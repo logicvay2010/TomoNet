@@ -71,7 +71,7 @@ class Net:
             max_epochs=epochs,
             limit_train_batches = train_batches,
             limit_val_batches = val_batches,
-            strategy = 'dp',
+            strategy = 'ddp',
             enable_progress_bar=enable_progress_bar,
             logger=False,
             enable_checkpointing=False,
