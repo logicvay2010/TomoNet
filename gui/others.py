@@ -1533,7 +1533,8 @@ class OtherUtils(QTabWidget):
                                 1, particle_index%2+1)
                         f.write(line)
                         particle_index +=1
-                except:
+                except Exception as err:
+                    self.logger.warning(err)
                     self.logger.warning("{} has invalid final result, skip it!".format(tomo))
     
     def combine_all_relion5(self, tomo_list, folder, apix_unbinned, expand_result_folder, bin_factor=1, priorTilt="None"):
@@ -1616,7 +1617,8 @@ class OtherUtils(QTabWidget):
                                     0, float(priorTilt), 0, float(priorTilt), 0)
 
                         f.write(line)
-                except:
+                except Exception as err:
+                    self.logger.warning(err)
                     self.logger.warning("{} has invalid final result, skip it!".format(tomo))
 
     def assemble(self):
