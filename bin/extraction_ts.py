@@ -111,23 +111,23 @@ def extract_subtomos_one(tomoName, maskName, coordsFile, data_dir, label_size, n
 
         if len(label_coords[j]) > 0:
             y_temp = np.zeros(shape, dtype=np.float32)
-            random_indices_x = np.random.choice(y_temp.shape[2], int(y_temp.shape[2]))
-            random_indices_y = np.random.choice(y_temp.shape[1], int(y_temp.shape[1]))
-            random_indices_z = np.random.choice(y_temp.shape[0], int(y_temp.shape[0]))
-            random_indices = list(zip(random_indices_z, random_indices_y, random_indices_x))
-            for ind in random_indices:
-                z, y, x = ind
-                xmin = x - label_size if x >= label_size else 0
-                xmax = x + label_size + 1 if x < shape[2] - label_size else shape[2]
-                ymin = y - label_size if y >= label_size else 0
-                ymax = y + label_size + 1 if y < shape[1] - label_size else shape[1]
-                zmin = z - label_size if z >= label_size else 0
-                zmax = z + label_size + 1 if z < shape[0] - label_size else shape[0] 
-                for z_i in range(zmin,zmax):
-                    for y_i in range(ymin,ymax):
-                        for x_i in range(xmin,xmax):
-                            if abs(z-z_i) + abs(y-y_i) + abs(x-x_i) <= label_size:
-                                y_temp[z_i,y_i,x_i] = -0.5
+            # random_indices_x = np.random.choice(y_temp.shape[2], int(y_temp.shape[2]))
+            # random_indices_y = np.random.choice(y_temp.shape[1], int(y_temp.shape[1]))
+            # random_indices_z = np.random.choice(y_temp.shape[0], int(y_temp.shape[0]))
+            # random_indices = list(zip(random_indices_z, random_indices_y, random_indices_x))
+            # for ind in random_indices:
+            #     z, y, x = ind
+            #     xmin = x - label_size if x >= label_size else 0
+            #     xmax = x + label_size + 1 if x < shape[2] - label_size else shape[2]
+            #     ymin = y - label_size if y >= label_size else 0
+            #     ymax = y + label_size + 1 if y < shape[1] - label_size else shape[1]
+            #     zmin = z - label_size if z >= label_size else 0
+            #     zmax = z + label_size + 1 if z < shape[0] - label_size else shape[0] 
+            #     for z_i in range(zmin,zmax):
+            #         for y_i in range(ymin,ymax):
+            #             for x_i in range(xmin,xmax):
+            #                 if abs(z-z_i) + abs(y-y_i) + abs(x-x_i) <= label_size:
+            #                     y_temp[z_i,y_i,x_i] = -0.5
 
             for coords in label_coords[j]:
                 #mrcfile store image in zyx order
