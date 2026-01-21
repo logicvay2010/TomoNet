@@ -26,29 +26,30 @@ def create_cube_seeds_new(img3D, nCubesPerImg, cubeSideLen, coords, mask=None, l
     else:
         cubeMask=mask
     border_slices = tuple([slice(s // 2, d - s + s // 2 + 1) for s, d in zip((cubeSideLen,cubeSideLen,cubeSideLen), sp)])
-    
     coords = np.array(coords)
-    clusters = hcluster.fclusterdata(coords, nCubesPerImg, criterion="maxclust")
+    nCubesPerImg_cor = min(len(coords), nCubesPerImg)
+    clusters = hcluster.fclusterdata(coords, nCubesPerImg_cor, criterion="maxclust")
     mask_coords = np.zeros(sp)
     for i in range(len(set(clusters))):
         x,y,z = coords[np.argwhere(clusters == i+1)][0][0]
+        #print('---',z,y,x)
         
         if in_boundary([z,y,x], sp, cubeSideLen//2):
             random_shifts = np.random.choice(cubeSideLen, 3) - cubeSideLen//2
             x,y,z = np.array([x,y,z]) + random_shifts
         
             x,y,z = [int(p) for p in [x,y,z]]
-            
+            #print('+++',z,y,x)
             mask_coords[z,y,x] = 1
 
     merged_mask = np.multiply(cubeMask, mask_coords)
-
     valid_inds = np.where(merged_mask[border_slices])
     valid_inds = [v + s.start for s, v in zip(border_slices, valid_inds)]
     if len(valid_inds[0]) == 0:
         log(logger, "Cannot generate subtomogram, possiable cause: 1. 'subtomo_box_size' ({}) is too large for the trained tomogram. 2. coordinates is not at the same binning scale with input tomograms".format(cubeSideLen), "error")
-        sys.exit()
-    sample_inds = np.random.choice(len(valid_inds[0]), nCubesPerImg, replace=len(valid_inds[0]) < nCubesPerImg)
+        return None
+        #sys.exit()
+    sample_inds = np.random.choice(len(valid_inds[0]), nCubesPerImg_cor, replace=len(valid_inds[0]) < nCubesPerImg_cor)
     rand_inds = [v[sample_inds] for v in valid_inds]
     
     log(logger, "asked for {} subtomos, actually got {}".format(nCubesPerImg, len(rand_inds[0])))
