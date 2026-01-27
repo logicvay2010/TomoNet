@@ -40,6 +40,13 @@ class Tomogram:
           self.originTomogramPickPath = filename
         else:
           pass
+      listing = glob.glob("{}/{}[.]*".format(self.initialParamFolder, self.tomoName))
+      for filename in listing:
+        if filename.endswith((".mrc",".rec")):
+          self.tomogramPickPath = filename
+          self.originTomogramPickPath = filename
+        else:
+          pass
     
     if os.path.exists(self.modPath):
       actual_particle_num = len(np.array(imodmodel.read(self.modPath))[:,2:])
