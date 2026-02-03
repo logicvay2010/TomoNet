@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import os, sys, logging, shutil, subprocess, time
+import os, sys, logging, shutil, subprocess, time, math
 import glob
 import mrcfile
 import torch
@@ -263,7 +263,9 @@ if __name__ == "__main__":
     # Option 1: for cubic labeling 
     #cube_activate_num = mini_cube_size**3*3
     # Option 2: for psedo sphere labeling (pyramid)
-    cube_activate_num = mini_cube_size**3*3/4
+    #cube_activate_num = mini_cube_size**3*3/4
+    cube_activate_num = y_label_size_predict**3*math.pi*4/3 *(0.5)
+    log(logger, "cube_activate_num: {}".format(cube_activate_num))
     
     # handling each prediction seg map
     for i in range(len(all_mrc_pred_list)):
@@ -287,10 +289,11 @@ if __name__ == "__main__":
             
             # for each block (particle), use the cluster center as the particle center. And this particle will be saved
             for i in range(len(set(clusters))):
-                z,y,x = np.mean(points[np.argwhere(clusters == i+1)], axis=0)[0]
-                #if x >=margin_1 and x <=crop_size-margin_1 and y >=margin_1 and y <=crop_size-margin_1 and z >=margin_1 and z <=crop_size-margin_1:
-                #    particle_list.append([x+x_crop, y+y_crop, z+z_crop])
-                particle_list.append([x+x_crop, y+y_crop, z+z_crop])
+                if points[np.argwhere(clusters == i+1)].shape[0] >= cube_activate_num:
+                    z,y,x = np.mean(points[np.argwhere(clusters == i+1)], axis=0)[0]
+                    #if x >=margin_1 and x <=crop_size-margin_1 and y >=margin_1 and y <=crop_size-margin_1 and z >=margin_1 and z <=crop_size-margin_1:
+                    #    particle_list.append([x+x_crop, y+y_crop, z+z_crop])
+                    particle_list.append([x+x_crop, y+y_crop, z+z_crop])
     # So far, the raw paricles info is extracted from seg maps, but need to clean a little bit
     
     # First, remove duplication

@@ -70,6 +70,10 @@ class Unet(pl.LightningModule):
     def __init__(self,filter_base = 64, out_channels=1, learning_rate = 3e-4, add_last=False, metrics=None):
         super(Unet, self).__init__()
         self.add_last = add_last
+        
+        self.train_output = []
+        self.val_output = []
+
         if filter_base == 64:
             filter_base = [64,128,256,320,320,320]
         elif filter_base == 32:
@@ -128,6 +132,8 @@ class Unet(pl.LightningModule):
         else:
             loss = nn.BCEWithLogitsLoss()(out, y)
 
+        self.train_output.append({"train_loss": loss})
+        #return self.train_output
         return loss
     
     def configure_optimizers(self):
@@ -143,14 +149,25 @@ class Unet(pl.LightningModule):
                 loss = torch.mean(torch.div(torch.abs(out[0]-y), out[1]) + torch.log(out[1])) + c
             else:
                 loss = nn.BCEWithLogitsLoss()(out, y)
-
+            self.val_output.append({"val_loss": loss})
+            #return self.val_output
             return loss
     
-    def training_epoch_end(self, outputs):
-        loss = torch.stack([x['loss'] for x in outputs]).mean().item()
+    # def training_epoch_end(self, outputs):
+    #     loss = torch.stack([x['loss'] for x in outputs]).mean().item()
+    #     self.metrics["train_loss"].append(loss)
+
+    def on_train_epoch_end(self):
+        loss = torch.stack([x['train_loss'] for x in self.train_output]).mean().item()
         self.metrics["train_loss"].append(loss)
  
-    def validation_epoch_end(self, outputs):
-        loss = torch.stack(outputs).mean().item()
+    # def validation_epoch_end(self, outputs):
+    #     loss = torch.stack(outputs).mean().item()
+    #     self.metrics["val_loss"].append(loss)
+    #     self.log("val_loss", loss, prog_bar=True, on_epoch=True)
+
+    def on_validation_epoch_end(self):
+        #loss = torch.stack(self.val_output).mean().item()
+        loss = torch.stack([x['val_loss'] for x in self.val_output]).mean().item()
         self.metrics["val_loss"].append(loss)
         self.log("val_loss", loss, prog_bar=True, on_epoch=True)
