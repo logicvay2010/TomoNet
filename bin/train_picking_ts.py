@@ -52,8 +52,8 @@ if __name__ == "__main__":
     cube_size = train_params.subtomo_box_size
     bin = train_params.coords_scale
 
-    os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-    os.environ["CUDA_VISIBLE_DEVICES"]=gpuID
+    #os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+    #os.environ["CUDA_VISIBLE_DEVICES"]=gpuID
 
     if not train_params.log_to_terminal:
         try:
@@ -120,7 +120,9 @@ if __name__ == "__main__":
         sys.exit()
     else:
         log(logger, "Run training on {} GPU(s):".format(len(gpuID_list)))
-        for i in range(len(gpuID_list)):
+        # for i in range(len(gpuID_list)):
+        #     log(logger, torch.cuda.get_device_properties(i).name)
+        for i in gpuID_list:
             log(logger, torch.cuda.get_device_properties(i).name)
 
     iter_epoch_num = 10

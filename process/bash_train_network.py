@@ -58,7 +58,7 @@ class Train_network(QThread):
             self.p = QProcess()
             self.p.start(cmd)
             #self.logger.info("PID {}".format(self.p.pid()))
-            res = self.p.waitForFinished(8.64e7)
+            res = self.p.waitForFinished(int(8.64e7))
             #subprocess.run(cmd, shell=True, encoding="utf-8", stdout=subprocess.PIPE)
             
             # with open("{}/train_params.json".format(self.d['result_folder_train']), 'w') as fp:
@@ -66,7 +66,7 @@ class Train_network(QThread):
             
             #clean process 
             try:
-                self.p.terminate(8.64e7) 
+                self.p.terminate(int(8.64e7)) 
                 #self.p.close()
             except:
                 pass
@@ -88,7 +88,7 @@ class Train_network(QThread):
             self.p = QProcess()
             self.p.start(cmd)
             self.logger.info("PID {}".format(self.p.pid()))
-            res = self.p.waitForFinished(8.64e7)
+            res = self.p.waitForFinished(int(8.64e7))
 
     def get_tomo_list(self, folder):
         tomoName_mod = set([ os.path.basename(x).split(".")[0] for x in glob.glob("{}/*.mod".format(folder))])
