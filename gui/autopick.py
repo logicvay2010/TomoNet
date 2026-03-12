@@ -832,11 +832,11 @@ class Autopick(QTabWidget):
             font-size:9pt;\">\
             </span></p></body></html>"))
         
-        self.lineEdit_tolerance.setPlaceholderText(_translate("Form", "0.5"))
+        self.lineEdit_tolerance.setPlaceholderText(_translate("Form", "1"))
         self.lineEdit_tolerance.setToolTip(_translate("MainWindow", \
             "<html><head/><body><p><span style=\" \
             font-size:9pt;\">This value normally is float number between 0.1-3. larger value means large tolerance to bad particles, the best value could be vcaries from different dataset. \
-                (chance to getting more particles, but risk getting more bad particles). default:0.5\
+                (chance to getting more particles, but risk getting more bad particles). default: 1\
             </span></p></body></html>"))
         
         self.label_margin.setText(_translate("Form", "overlap size:"))
@@ -1213,7 +1213,7 @@ class Autopick(QTabWidget):
             predict_gpuID = self.lineEdit_predict_gpuID.text()
 
         if not len(self.lineEdit_tolerance.text()) > 0:
-            tolerance = 0.5
+            tolerance = 1
         else:
             tolerance = self.lineEdit_tolerance.text()
             if string2float(tolerance) == None or string2float(tolerance) <=0 :
